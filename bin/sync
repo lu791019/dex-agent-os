@@ -1,0 +1,239 @@
+#!/usr/bin/env bash
+# bin/sync — Dex Agent OS 跨平台同步腳本
+# 將 canonical/ 內容同步到 .agent/ (Antigravity)、.cursor/ (Cursor)、.claude/ (Claude Code)
+# 同時同步全域 Claude Code skills 到 Antigravity/Cursor
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+ROOT_DIR="$(dirname "$SCRIPT_DIR")"
+CANONICAL_DIR="$ROOT_DIR/canonical"
+AGENT_DIR="$ROOT_DIR/.agent"
+CURSOR_DIR="$ROOT_DIR/.cursor"
+CLAUDE_DIR="$ROOT_DIR/.claude"
+
+# Claude Code 全域 skills/commands 目錄
+CLAUDE_GLOBAL_SKILLS="$HOME/.claude/skills"
+CLAUDE_GLOBAL_COMMANDS="$HOME/.claude/commands"
+
+echo "=== Dex Agent OS — 跨平台同步 ==="
+echo "Root: $ROOT_DIR"
+echo ""
+
+# -------------------------------------------
+# 1. Sync Rules
+# -------------------------------------------
+echo "[1/5] 同步 Rules..."
+
+# → Antigravity: .agent/rules/ (直接複製 .md)
+mkdir -p "$AGENT_DIR/rules"
+for f in "$CANONICAL_DIR"/rules/*.md; do
+  [ -f "$f" ] || continue
+  cp "$f" "$AGENT_DIR/rules/$(basename "$f")"
+done
+echo "  ✓ .agent/rules/"
+
+# → Cursor: .cursor/rules/ (加上 YAML frontmatter，副檔名 .mdc)
+mkdir -p "$CURSOR_DIR/rules"
+for f in "$CANONICAL_DIR"/rules/*.md; do
+  [ -f "$f" ] || continue
+  basename_noext="$(basename "$f" .md)"
+  target="$CURSOR_DIR/rules/${basename_noext}.mdc"
+
+  # 從 canonical 檔案中提取第一行標題作為 description
+  first_heading=$(grep -m1 '^# ' "$f" | sed 's/^# //' || echo "$basename_noext")
+
+  # 產生 .mdc 檔案（加上 Cursor YAML frontmatter）
+  cat > "$target" <<CURSOR_EOF
+---
+description: "$first_heading"
+alwaysApply: true
+---
+
+$(cat "$f")
+CURSOR_EOF
+done
+echo "  ✓ .cursor/rules/"
+
+# → Claude Code: rules 融入 CLAUDE.md（已手動維護，不自動覆蓋）
+echo "  ✓ CLAUDE.md (手動維護，跳過)"
+
+# -------------------------------------------
+# 2. Sync Workflows → Antigravity workflows + Cursor/Claude commands
+# -------------------------------------------
+echo "[2/5] 同步 Workflows..."
+
+# → Antigravity: .agent/workflows/ (加 YAML frontmatter)
+mkdir -p "$AGENT_DIR/workflows"
+for f in "$CANONICAL_DIR"/workflows/*.md; do
+  [ -f "$f" ] || continue
+  basename_file="$(basename "$f")"
+  target="$AGENT_DIR/workflows/$basename_file"
+
+  # 檢查是否已有 YAML frontmatter
+  if head -1 "$f" | grep -q '^---'; then
+    cp "$f" "$target"
+  else
+    # 從第一行標題提取 description
+    first_heading=$(grep -m1 '^# ' "$f" | sed 's/^# //' || echo "$basename_file")
+    cat > "$target" <<AG_EOF
+---
+description: "$first_heading"
+---
+
+$(cat "$f")
+AG_EOF
+  fi
+done
+echo "  ✓ .agent/workflows/"
+
+# → Cursor: .cursor/commands/ (純 Markdown，去掉 YAML frontmatter)
+mkdir -p "$CURSOR_DIR/commands"
+for f in "$CANONICAL_DIR"/workflows/*.md; do
+  [ -f "$f" ] || continue
+  target="$CURSOR_DIR/commands/$(basename "$f")"
+
+  # 如果有 YAML frontmatter 就去掉
+  if head -1 "$f" | grep -q '^---'; then
+    # 去掉 frontmatter（第一個 --- 到第二個 --- 之間的內容）
+    awk 'BEGIN{skip=0} /^---/{skip++; next} skip>=2{print}' "$f" > "$target"
+  else
+    cp "$f" "$target"
+  fi
+done
+echo "  ✓ .cursor/commands/"
+
+# → Claude Code: .claude/commands/ (同 Cursor 格式)
+mkdir -p "$CLAUDE_DIR/commands"
+for f in "$CANONICAL_DIR"/workflows/*.md; do
+  [ -f "$f" ] || continue
+  target="$CLAUDE_DIR/commands/$(basename "$f")"
+
+  if head -1 "$f" | grep -q '^---'; then
+    awk 'BEGIN{skip=0} /^---/{skip++; next} skip>=2{print}' "$f" > "$target"
+  else
+    cp "$f" "$target"
+  fi
+done
+echo "  ✓ .claude/commands/"
+
+# -------------------------------------------
+# 3. Sync Skills
+# -------------------------------------------
+echo "[3/5] 同步 Skills..."
+
+# → Antigravity: .agent/skills/
+mkdir -p "$AGENT_DIR/skills"
+if [ -d "$CANONICAL_DIR/skills" ]; then
+  for skill_dir in "$CANONICAL_DIR"/skills/*/; do
+    [ -d "$skill_dir" ] || continue
+    skill_name="$(basename "$skill_dir")"
+    mkdir -p "$AGENT_DIR/skills/$skill_name"
+    cp -R "$skill_dir"* "$AGENT_DIR/skills/$skill_name/" 2>/dev/null || true
+  done
+fi
+echo "  ✓ .agent/skills/"
+
+# → Claude Code: .claude/skills/
+mkdir -p "$CLAUDE_DIR/skills"
+if [ -d "$CANONICAL_DIR/skills" ]; then
+  for skill_dir in "$CANONICAL_DIR"/skills/*/; do
+    [ -d "$skill_dir" ] || continue
+    skill_name="$(basename "$skill_dir")"
+    mkdir -p "$CLAUDE_DIR/skills/$skill_name"
+    cp -R "$skill_dir"* "$CLAUDE_DIR/skills/$skill_name/" 2>/dev/null || true
+  done
+fi
+echo "  ✓ .claude/skills/"
+
+# Cursor 沒有 skills 概念，對應的功能已透過 commands 處理
+
+# -------------------------------------------
+# 4. Sync existing global Claude Code skills → Antigravity + Cursor
+# -------------------------------------------
+echo "[4/5] 同步全域 Claude Code Skills 到 Antigravity/Cursor..."
+
+SYNCED_SKILLS=0
+if [ -d "$CLAUDE_GLOBAL_SKILLS" ]; then
+  for skill_dir in "$CLAUDE_GLOBAL_SKILLS"/*/; do
+    [ -d "$skill_dir" ] || continue
+    skill_name="$(basename "$skill_dir")"
+    skill_md="$skill_dir/SKILL.md"
+
+    # 跳過 symlink（避免循環）
+    if [ -L "$skill_dir" ]; then
+      continue
+    fi
+
+    [ -f "$skill_md" ] || continue
+
+    # → Antigravity: ~/.gemini/antigravity/skills/ (全域)
+    ag_global_dir="$HOME/.gemini/antigravity/skills/$skill_name"
+    mkdir -p "$ag_global_dir"
+    cp -R "$skill_dir"* "$ag_global_dir/" 2>/dev/null || true
+
+    # → Cursor: 從 SKILL.md 提取 description，建立 .cursor/commands/
+    # 只提取 description 和主要說明，轉成 Cursor command 格式
+    description=$(awk '/^---/{n++; next} n==1 && /^description:/{sub(/^description: */, ""); desc=$0; gsub(/["\x27]/, "", desc)} n>=2{exit} END{print desc}' "$skill_md")
+    if [ -z "$description" ]; then
+      description="$skill_name skill"
+    fi
+
+    # Cursor command = 純 Markdown（從 SKILL.md 去掉 frontmatter）
+    cursor_cmd="$CURSOR_DIR/commands/${skill_name}.md"
+    if head -1 "$skill_md" | grep -q '^---'; then
+      awk 'BEGIN{skip=0} /^---/{skip++; next} skip>=2{print}' "$skill_md" > "$cursor_cmd"
+    else
+      cp "$skill_md" "$cursor_cmd"
+    fi
+
+    SYNCED_SKILLS=$((SYNCED_SKILLS + 1))
+  done
+fi
+echo "  ✓ 同步了 $SYNCED_SKILLS 個全域 skills"
+
+# -------------------------------------------
+# 5. Sync global Claude Code commands → Antigravity workflows
+# -------------------------------------------
+echo "[5/5] 同步全域 Claude Code Commands 到 Antigravity..."
+
+SYNCED_COMMANDS=0
+if [ -d "$CLAUDE_GLOBAL_COMMANDS" ]; then
+  # 確保 Antigravity 全域 workflows 目錄存在
+  ag_global_workflows="$HOME/.gemini/antigravity/global_workflows"
+  mkdir -p "$ag_global_workflows"
+
+  for cmd_file in "$CLAUDE_GLOBAL_COMMANDS"/*.md; do
+    [ -f "$cmd_file" ] || continue
+    cmd_name="$(basename "$cmd_file" .md)"
+    target="$ag_global_workflows/${cmd_name}.md"
+
+    # 從 command 內容提取第一個標題作為 description
+    first_heading=$(grep -m1 '^# ' "$cmd_file" | sed 's/^# //' || echo "$cmd_name")
+
+    # 加上 Antigravity workflow 的 YAML frontmatter
+    cat > "$target" <<WORKFLOW_EOF
+---
+description: "$first_heading"
+---
+
+$(cat "$cmd_file")
+WORKFLOW_EOF
+
+    SYNCED_COMMANDS=$((SYNCED_COMMANDS + 1))
+  done
+fi
+echo "  ✓ 同步了 $SYNCED_COMMANDS 個全域 commands"
+
+# -------------------------------------------
+# Done
+# -------------------------------------------
+echo ""
+echo "=== 同步完成 ==="
+echo ""
+echo "檔案位置："
+echo "  Antigravity: $AGENT_DIR/ + ~/.gemini/antigravity/"
+echo "  Cursor:      $CURSOR_DIR/"
+echo "  Claude Code: $CLAUDE_DIR/ + CLAUDE.md"
+echo ""
+echo "下次修改 canonical/ 後重新執行 bin/sync 即可。"

@@ -1,0 +1,16 @@
+# Dex Agent OS - Python dependencies
+
+# Discord data collection (future)
+# discord.py>=2.3.0
+
+# Notion API (future)
+# notion-client>=2.2.0
+
+# WordPress REST API
+requests>=2.31.0
+
+# Markdown processing
+markdown>=3.5.0
+
+# Environment variables
+python-dotenv>=1.0.0

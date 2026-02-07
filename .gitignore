@@ -1,0 +1,30 @@
+# === 資料 & 隱私 ===
+data/raw/
+.env
+
+# === 大型二進位檔 ===
+*.mp4
+*.mov
+*.wav
+*.mp3
+*.zip
+*.tar.gz
+
+# === Obsidian（未來預留）===
+.obsidian/
+
+# === OS ===
+.DS_Store
+Thumbs.db
+
+# === Python ===
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+*.egg-info/
+
+# === IDE ===
+.vscode/
+.idea/
