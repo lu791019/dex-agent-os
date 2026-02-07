@@ -33,6 +33,8 @@
 | 主題草稿 | `500_Content/topics/<slug>/` |
 | 電子報草稿 | `500_Content/newsletter/drafts/` |
 | 各頻道草稿 | `500_Content/<channel>/queue/` |
+| 會議紀錄 | `200_Work/meetings/YYYY-MM-DD-title/` |
+| 諮詢紀錄 | `200_Work/consultations/YYYY-MM-DD-person-topic/` |
 | 專案狀態 | `400_Projects/` |
 | 原始資料 | `data/raw/YYYY-MM-DD/` |
 | 中間產物 | `data/processed/YYYY-MM-DD/` |

@@ -44,12 +44,12 @@ Dex Agent OS 是一套「個人 Agent OS」，由四層組成：
 │                                          │
 │  工作        學習        創作 & 發布      │
 │  ├ 會議      ├ 閱讀      ├ 電子報        │
-│  ├ 程式開發  ├ 課程      ├ Threads       │
-│  ├ 產品管理  ├ 技術實驗  ├ Facebook      │
-│  ├ 專案管理  └ TIL       ├ Blog          │
-│  ├ 行銷                  ├ Podcast       │
-│  └ 訂閱管理              ├ 短影音        │
-│                          └ 影評          │
+│  ├ 諮詢      ├ 課程      ├ Threads       │
+│  ├ 程式開發  ├ 技術實驗  ├ Facebook      │
+│  ├ 產品管理  └ TIL       ├ Blog          │
+│  ├ 專案管理              ├ Podcast       │
+│  ├ 行銷                  ├ 短影音        │
+│  └ 訂閱管理              └ 影評          │
 │  個人                                    │
 │  ├ 職涯思考                              │
 │  ├ 每日反思                              │
@@ -75,6 +75,7 @@ Dex Agent OS 是一套「個人 Agent OS」，由四層組成：
         │ Dayflow  │ │ 閱讀     │ │ 對話     │
         │ Git      │ │ 課程     │ │ 社群     │
         │ 會議     │ │          │ │          │
+        │ 諮詢     │ │          │ │          │
         └────┬─────┘ └────┬─────┘ └────┬─────┘
              │            │            │
              ▼            ▼            ▼
@@ -160,6 +161,7 @@ dex-agent-os/
       daily-idea-capture.md           #   整理今天的靈感 → 000_Inbox/ideas/
       # --- 工作 ---
       meeting-notes.md                #   會議結束 → 摘要 + 行動項
+      consultation-notes.md           #   諮詢結束 → 摘要 + 建議 + 內容萃取
       subscription-review.md          #   月度掃描訂閱 → 續約建議
       # --- 學習 ---
       learning-note.md                #   消化文章/影片 → 學習筆記
@@ -260,6 +262,11 @@ dex-agent-os/
         transcript.md                 #   文字稿
         notes.md                      #   會後摘要 & 行動項
         recording.md                  #   錄影連結（不存檔案本體）
+    consultations/                    # 諮詢紀錄（給予 & 接受）
+      YYYY-MM-DD-person-topic/
+        transcript.md                 #   文字稿
+        notes.md                      #   諮詢摘要 & 建議 & 行動項
+        recording.md                  #   錄影/錄音連結
     code-lab/                         # 程式實驗 & 程式片段
       experiment-name/
         README.md
@@ -356,6 +363,7 @@ dex-agent-os/
     templates/                        # 各頻道輸出模板
       journal-template.md
       meeting-notes-template.md
+      consultation-notes-template.md  #   諮詢紀錄模板
       project-status-template.md
       product-feature-template.md
       topic-template.md
@@ -804,13 +812,15 @@ def ask_claude(system_prompt: str, user_prompt: str) -> str:
 
 ---
 
-### Phase 6：專案/產品管理 + 會議筆記 + 訂閱管理
+### Phase 6：專案/產品管理 + 會議筆記 + 諮詢紀錄 + 訂閱管理
 
 **目標：** 工作面完善
 
 **任務：**
 - [ ] `800_System/templates/meeting-notes-template.md`
 - [ ] `canonical/workflows/meeting-notes.md`
+- [ ] `800_System/templates/consultation-notes-template.md`（含方向、核心問題、建議、內容萃取欄位）
+- [ ] `canonical/workflows/consultation-notes.md`（諮詢結束 → 摘要 + 行動項 + 內容萃取建議）
 - [ ] `800_System/templates/project-status-template.md`
 - [ ] `canonical/workflows/project-status.md` + `project-kickoff.md`
 - [ ] `canonical/workflows/product-feature-spec.md` + `product-roadmap-update.md`
@@ -850,3 +860,4 @@ def ask_claude(system_prompt: str, user_prompt: str) -> str:
 | 2026-02-07 | Obsidian/Notion/Readwise/Heptabase 預留 | 先建 Agent OS 骨架，未來再整合 |
 | 2026-02-07 | 全部 36 個 skills 同步 | 跨平台一致體驗 |
 | 2026-02-07 | 風格 DNA 系統 | 讓 AI 產出越來越像你的風格 |
+| 2026-02-07 | 諮詢紀錄與會議同級 | 給予/接受諮詢都有獨特的內容萃取價值 |
