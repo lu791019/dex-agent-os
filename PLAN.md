@@ -2,7 +2,7 @@
 
 > 個人 AI 代理人作業系統
 > 涵蓋：生產力、學習、輸入輸出、工作管理、專案、產品、寫作
-> 最後更新：2026-02-07
+> 最後更新：2026-02-08
 
 ---
 
@@ -137,6 +137,37 @@ L2 — 精煉日記    Agent OS 讀 L1 → 摘要/洞察/行動  100_Journal/dai
 L3 — 週報        Agent OS 讀 7 天 L2 → 主題+草稿  500_Content/newsletter/drafts/
 ```
 
+### Dayflow 活動摘要（與 L1→L2 平行的獨立管線）
+
+```
+Dayflow SQLite DB
+  ├── timeline_cards (螢幕活動記錄)
+  └── observations (AI 觀察)
+         │
+         ▼
+  ./bin/agent dayflow [YYYY-MM-DD]
+         │  讀取 SQLite → 格式化 → claude --print 整理
+         ▼
+  100_Journal/daily/YYYY-MM-DD-dayflow.md
+```
+
+**與 L2 的差異：**
+
+| | L2 精煉日記 | Dayflow 活動摘要 |
+|---|---|---|
+| 輸入 | L1 工作日誌 | Dayflow SQLite 直接讀取 |
+| 視角 | 「做了什麼技術工作」 | 「螢幕上怎麼度過一天」 |
+| 觸發 | `./bin/agent journal` | `./bin/agent dayflow` |
+| 輸出 | `YYYY-MM-DD.md` | `YYYY-MM-DD-dayflow.md` |
+
+### 完整日記產出順序
+
+```
+1. /work-log YYYY-MM-DD          → 產出 L1（完整工作日誌）
+2. ./bin/agent dayflow YYYY-MM-DD → 產出 Dayflow 活動摘要（獨立管線）
+3. ./bin/agent journal YYYY-MM-DD → 從 L1 產出 L2（精煉日記）
+```
+
 ---
 
 ## 3. 目錄結構
@@ -156,8 +187,9 @@ dex-agent-os/
     workflows/
       # --- 每日 ---
       daily-collect.md                #   收集今日數位足跡 → data/raw/
-      daily-journal.md                #   讀 work-log → 精煉日記
-      daily-review.md                 #   今日回顧：做了什麼、學了什麼、卡在哪
+      daily-journal.md                #   ✅ 讀 work-log → 精煉日記
+      daily-review.md                 #   ✅ 今日回顧：做了什麼、學了什麼、卡在哪
+      daily-dayflow-digest.md         #   ✅ Dayflow 螢幕活動 → 活動摘要日記
       daily-idea-capture.md           #   整理今天的靈感 → 000_Inbox/ideas/
       # --- 工作 ---
       meeting-notes.md                #   會議結束 → 摘要 + 行動項
@@ -210,7 +242,7 @@ dex-agent-os/
     skills/
   .cursor/                            # Cursor（由 bin/sync 產生）
     rules/                            #   .mdc 格式 + YAML frontmatter
-    commands/                         #   含同步的 36 個全域 skills
+    commands/                         #   含同步的全域 skills + commands
   .claude/                            # Claude Code（由 bin/sync 產生）
     skills/
     commands/
@@ -250,8 +282,9 @@ dex-agent-os/
 
   # --- 100: 每日紀錄 ---
   100_Journal/
-    daily/                            # 每日精煉日記
-      YYYY-MM-DD.md
+    daily/                            # 每日紀錄
+      YYYY-MM-DD.md                   #   ✅ L2 精煉日記（from L1 work-log）
+      YYYY-MM-DD-dayflow.md           #   ✅ Dayflow 活動摘要（from SQLite）
     weekly/                           # 每週回顧
       YYYY-Wxx.md
 
@@ -361,9 +394,10 @@ dex-agent-os/
   # --- 800: 系統設定 ---
   800_System/
     templates/                        # 各頻道輸出模板
-      journal-template.md
+      journal-template.md             #   ✅ L2 精煉日記模板
+      dayflow-digest-template.md      #   ✅ Dayflow 活動摘要模板
+      consultation-notes-template.md  #   ✅ 諮詢紀錄模板
       meeting-notes-template.md
-      consultation-notes-template.md  #   諮詢紀錄模板
       project-status-template.md
       product-feature-template.md
       topic-template.md
@@ -401,7 +435,8 @@ dex-agent-os/
       discord_collector.py
       notion_collector.py             #   (future)
     generators/                       # 內容生成
-      daily_journal.py
+      daily_journal.py                #   ✅ L1→L2 精煉日記生成器
+      daily_dayflow_digest.py         #   ✅ Dayflow 活動摘要生成器
       weekly_newsletter.py
       weekly_learning.py
     publishers/                       # 發布
@@ -410,13 +445,14 @@ dex-agent-os/
     analyzers/                        # 分析
       extract_style.py
     lib/                              # 共用模組
-      llm.py                          #   claude --print 封裝
-      config.py
-      file_utils.py
+      __init__.py                     #   ✅ Package marker
+      llm.py                          #   ✅ claude --print 封裝
+      config.py                       #   ✅ 路徑與常數設定
+      file_utils.py                   #   ✅ 檔案操作工具
 
   bin/
-    agent                             # CLI 入口
-    sync                              # 跨平台同步腳本
+    agent                             # ✅ CLI 入口（journal、dayflow、sync）
+    sync                              # ✅ 跨平台同步腳本
     setup                             # 一鍵安裝（launchd、依賴）
 
   config/
@@ -426,9 +462,9 @@ dex-agent-os/
       com.dex.weekly-digest.plist
     .env.example                      # 環境變數範本
 
-  work-log/                           # 從 ~/work-logs/ 合併進來
+  work-log/                           # ✅ 從 ~/work-logs/ 合併進來
     scripts/
-      extract-sessions.py
+      extract-sessions.py             #   ✅ 支援 --date 參數
       post-commit-log.sh
     templates/
       daily-template.md
@@ -476,7 +512,7 @@ canonical/（你只改這裡）
     └──→ .claude/commands/      去掉 YAML frontmatter → 純 .md
 
 全域同步（bin/sync 也處理）：
-    ~/.claude/skills/ (36個) ──→ ~/.gemini/antigravity/skills/
+    ~/.claude/skills/ (41個) ──→ ~/.gemini/antigravity/skills/
     ~/.claude/commands/ (11個) ──→ ~/.gemini/antigravity/global_workflows/
                                ──→ .cursor/commands/
 ```
@@ -498,7 +534,7 @@ vim ~/dex-agent-os/canonical/rules/10-writing-style.md
 
 - Dex 的定位（資料工程 / AI / 內容創作者）
 - IPO 決策權限（低風險自動 / 高風險確認）
-- 檔案寫入位置規則
+- 檔案寫入位置規則（含 Dayflow 活動摘要路徑）
 - 產出格式偏好（Markdown、條列、繁體中文）
 
 ### 10-writing-style.md — 各頻道寫作風格
@@ -639,7 +675,7 @@ vim ~/dex-agent-os/canonical/rules/10-writing-style.md
 | Claude Code | 主力 IDE + 腳本執行 | ✅ 使用中 |
 | Cursor | 程式開發 IDE | ✅ 使用中 |
 | Antigravity | Agentic IDE | ✅ 使用中 |
-| Dayflow | 螢幕活動追蹤 | ✅ 使用中 |
+| Dayflow | 螢幕活動追蹤 | ✅ 使用中（已整合 SQLite 讀取） |
 | work-log | 工作日誌系統 | ✅ 合併進 Agent OS |
 | WordPress | Blog 發布 | ✅ 使用中 |
 
@@ -712,6 +748,7 @@ def ask_claude(system_prompt: str, user_prompt: str) -> str:
 | 場景 | 方式 | 費用 |
 |------|------|------|
 | 日記生成（每天 1 次） | `claude --print` | Pro 訂閱內 |
+| Dayflow 摘要（每天 1 次） | `claude --print` | Pro 訂閱內 |
 | 週報生成（每週 1 次） | `claude --print` | Pro 訂閱內 |
 | 即時互動（IDE 內） | 正常使用 | Pro 訂閱內 |
 | 批量處理（大量） | 考慮 API (Haiku) | API 費用 |
@@ -744,22 +781,57 @@ def ask_claude(system_prompt: str, user_prompt: str) -> str:
 
 ---
 
-### Phase 2：work-log 合併 + daily-journal + daily-review
+### Phase 2：work-log 合併 + daily-journal + daily-review + Dayflow digest ✅ 已完成
 
-**目標：** 每天能產出精煉日記
+**完成日期：** 2026-02-08
 
-**任務：**
-- [ ] 將 `~/work-logs/scripts/` 和 `templates/` 搬進 `dex-agent-os/work-log/`
-- [ ] 更新 `extract-sessions.py` 和 `post-commit-log.sh` 的路徑
-- [ ] 更新 `~/.claude/commands/work-log.md`（全域指令，指向新路徑）
-- [ ] 寫 `scripts/lib/llm.py`（`claude --print` 封裝）
-- [ ] 寫 `800_System/templates/journal-template.md`
-- [ ] 寫 `canonical/workflows/daily-journal.md`
-- [ ] 寫 `scripts/generators/daily_journal.py`
-- [ ] 寫 `canonical/workflows/daily-review.md`
-- [ ] 測試：`./bin/agent journal` 能產出 `100_Journal/daily/YYYY-MM-DD.md`
-- [ ] 跑 `bin/sync` 同步新 workflows
-- [ ] Commit
+**已完成項目：**
+- [x] 將 `~/work-logs/scripts/` 和 `templates/` 搬進 `dex-agent-os/work-log/`
+- [x] 更新 `extract-sessions.py`（支援 `--date` 參數）和 `post-commit-log.sh` 的路徑
+- [x] 更新 `~/.claude/commands/work-log.md`（全域指令，指向新路徑，支援指定日期）
+- [x] 寫 `scripts/lib/llm.py`（`claude --print` 封裝）
+- [x] 寫 `scripts/lib/config.py`（路徑與常數設定）
+- [x] 寫 `scripts/lib/file_utils.py`（檔案操作工具）
+- [x] 寫 `800_System/templates/journal-template.md`
+- [x] 寫 `canonical/workflows/daily-journal.md`
+- [x] 寫 `scripts/generators/daily_journal.py`
+- [x] 寫 `canonical/workflows/daily-review.md`
+- [x] 寫 `bin/agent` CLI 入口（journal、dayflow、sync 指令）
+- [x] 測試：`./bin/agent journal 2026-02-05` 產出 L2 精煉日記（壓縮比 39%）
+- [x] 測試：`./bin/agent journal 2026-02-07` 產出 L2 精煉日記（壓縮比 23%）
+- [x] 跑 `bin/sync` 同步新 workflows
+- [x] Commit (`c356c41`)
+
+**額外完成 — Dayflow 活動摘要日記：**
+- [x] 寫 `800_System/templates/dayflow-digest-template.md`
+- [x] 寫 `canonical/workflows/daily-dayflow-digest.md`
+- [x] 寫 `scripts/generators/daily_dayflow_digest.py`（讀 Dayflow SQLite → claude --print → 活動摘要）
+- [x] 更新 `bin/agent` 加入 `dayflow` 指令
+- [x] 更新 `canonical/rules/00-core.md` 加入 Dayflow 活動摘要輸出位置
+- [x] 跑 `bin/sync` 同步
+- [x] 測試：`./bin/agent dayflow 2026-02-07` 產出活動摘要（4,533 字元）
+- [x] Commit (`6e18ee7`)
+
+**額外完成 — 諮詢系統規劃（Phase 6 前置）：**
+- [x] 寫 `800_System/templates/consultation-notes-template.md`
+- [x] 更新 PLAN.md 加入諮詢系統
+- [x] 更新 `canonical/rules/00-core.md` 加入諮詢紀錄輸出位置
+- [x] Commit (`975bb71`)
+
+**已驗證的產出：**
+
+| 檔案 | 類型 | 來源 |
+|------|------|------|
+| `100_Journal/daily/2026-02-05.md` | L2 精煉日記 | `./bin/agent journal` |
+| `100_Journal/daily/2026-02-07.md` | L2 精煉日記 | `./bin/agent journal` |
+| `100_Journal/daily/2026-02-07-dayflow.md` | Dayflow 活動摘要 | `./bin/agent dayflow` |
+| `~/work-logs/2026/02/2026-02-07.md` | L1 工作日誌 | `/work-log 2026-02-07` |
+| `~/work-logs/2026/02/2026-02-08.md` | L1 工作日誌 | `/work-log 2026-02-08` |
+
+**已知問題：**
+- `bin/sync` 的 awk 處理 YAML frontmatter 偏脆弱（markdown 中的 `---` 可能誤判）
+- `daily_dayflow_digest.py` 的 LLM 回應清理邏輯是 heuristic
+- `/work-log` 指令更新後需開新 session 才生效（Claude Code 快取機制）
 
 ---
 
@@ -819,7 +891,7 @@ def ask_claude(system_prompt: str, user_prompt: str) -> str:
 **任務：**
 - [ ] `800_System/templates/meeting-notes-template.md`
 - [ ] `canonical/workflows/meeting-notes.md`
-- [ ] `800_System/templates/consultation-notes-template.md`（含方向、核心問題、建議、內容萃取欄位）
+- [x] `800_System/templates/consultation-notes-template.md`（✅ Phase 2 中已完成，含方向、核心問題、建議、內容萃取欄位）
 - [ ] `canonical/workflows/consultation-notes.md`（諮詢結束 → 摘要 + 行動項 + 內容萃取建議）
 - [ ] `800_System/templates/project-status-template.md`
 - [ ] `canonical/workflows/project-status.md` + `project-kickoff.md`
@@ -861,3 +933,6 @@ def ask_claude(system_prompt: str, user_prompt: str) -> str:
 | 2026-02-07 | 全部 36 個 skills 同步 | 跨平台一致體驗 |
 | 2026-02-07 | 風格 DNA 系統 | 讓 AI 產出越來越像你的風格 |
 | 2026-02-07 | 諮詢紀錄與會議同級 | 給予/接受諮詢都有獨特的內容萃取價值 |
+| 2026-02-08 | Dayflow 活動摘要獨立於 L2 精煉日記 | journal_entries 為空，timeline_cards + observations 有豐富資料，兩種日記視角互補 |
+| 2026-02-08 | /work-log 支援指定日期 | 允許回溯產出過去的工作日誌 |
+| 2026-02-08 | LLM 回應清理邏輯（去除思考殘留） | claude --print 偶爾輸出思考過程，需在腳本中過濾 |
