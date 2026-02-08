@@ -3,6 +3,7 @@
 #
 # Usage:
 #   ./bin/agent journal [YYYY-MM-DD] [--force]
+#   ./bin/agent dayflow [YYYY-MM-DD] [--force]
 #   ./bin/agent sync
 #   ./bin/agent help
 
@@ -18,6 +19,9 @@ case "$command" in
   journal)
     python3 "$ROOT_DIR/scripts/generators/daily_journal.py" "$@"
     ;;
+  dayflow)
+    python3 "$ROOT_DIR/scripts/generators/daily_dayflow_digest.py" "$@"
+    ;;
   sync)
     "$ROOT_DIR/bin/sync" "$@"
     ;;
@@ -30,6 +34,7 @@ Usage:
 
 Commands:
   journal [YYYY-MM-DD] [--force]   產出每日精煉日記（L2）
+  dayflow [YYYY-MM-DD] [--force]   產出 Dayflow 活動摘要日記
   sync                              跨平台同步 canonical → IDE
   help                              顯示此說明
 
@@ -37,6 +42,8 @@ Examples:
   ./bin/agent journal               產出今天的精煉日記
   ./bin/agent journal 2026-02-07    產出指定日期的精煉日記
   ./bin/agent journal --force       強制覆蓋已存在的日記
+  ./bin/agent dayflow               產出今天的 Dayflow 活動摘要
+  ./bin/agent dayflow 2026-02-07    產出指定日期的 Dayflow 活動摘要
   ./bin/agent sync                  同步規則到所有 IDE
 EOF
     ;;
