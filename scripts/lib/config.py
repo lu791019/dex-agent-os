@@ -30,5 +30,12 @@ EXAMPLES_DIR = ROOT_DIR / "800_System" / "references" / "examples"
 WORKLOG_SCRIPTS_DIR = ROOT_DIR / "work-log" / "scripts"
 WORKLOG_TEMPLATES_DIR = ROOT_DIR / "work-log" / "templates"
 
+# 知識萃取
+INBOX_IDEAS_DIR = ROOT_DIR / "000_Inbox" / "ideas"
+CONTENT_INSIGHTS_DIR = ROOT_DIR / "500_Content" / "insights"
+LIFE_PERSONAL_DIR = ROOT_DIR / "600_Life" / "personal" / "reflections"
+KNOWLEDGE_DIR = ROOT_DIR / "800_System" / "knowledge"
+CLAUDE_MEMORY_DIR = Path.home() / ".claude" / "projects" / "-Users-dex-dex-agent-os" / "memory"
+
 # Dayflow
 DAYFLOW_DB = Path.home() / "Library" / "Application Support" / "Dayflow" / "chunks.sqlite"

@@ -4,6 +4,7 @@
 # Usage:
 #   ./bin/agent journal [YYYY-MM-DD] [--force]
 #   ./bin/agent dayflow [YYYY-MM-DD] [--force]
+#   ./bin/agent extract [date|all] [--type TYPE] [--force] [--dry-run] [--global]
 #   ./bin/agent sync
 #   ./bin/agent help
 
@@ -22,6 +23,9 @@ case "$command" in
   dayflow)
     python3 "$ROOT_DIR/scripts/generators/daily_dayflow_digest.py" "$@"
     ;;
+  extract)
+    python3 "$ROOT_DIR/scripts/extractors/journal_knowledge_extract.py" "$@"
+    ;;
   sync)
     "$ROOT_DIR/bin/sync" "$@"
     ;;
@@ -33,10 +37,12 @@ Usage:
   ./bin/agent <command> [options]
 
 Commands:
-  journal [YYYY-MM-DD] [--force]   產出每日精煉日記（L2）
-  dayflow [YYYY-MM-DD] [--force]   產出 Dayflow 活動摘要日記
-  sync                              跨平台同步 canonical → IDE
-  help                              顯示此說明
+  journal [YYYY-MM-DD] [--force]                          產出每日精煉日記（L2）
+  dayflow [YYYY-MM-DD] [--force]                          產出 Dayflow 活動摘要日記
+  extract [date|all] [--type TYPE] [--force] [--dry-run] [--global]
+                                                          萃取日記知識（學習/反思/靈感）
+  sync                                                    跨平台同步 canonical → IDE
+  help                                                    顯示此說明
 
 Examples:
   ./bin/agent journal               產出今天的精煉日記
@@ -44,6 +50,10 @@ Examples:
   ./bin/agent journal --force       強制覆蓋已存在的日記
   ./bin/agent dayflow               產出今天的 Dayflow 活動摘要
   ./bin/agent dayflow 2026-02-07    產出指定日期的 Dayflow 活動摘要
+  ./bin/agent extract               萃取所有日記的知識（學習+反思+靈感）
+  ./bin/agent extract 2026-02-07    萃取指定日期
+  ./bin/agent extract --dry-run     預覽不寫入
+  ./bin/agent extract --global      同時更新全域 ~/CLAUDE.md
   ./bin/agent sync                  同步規則到所有 IDE
 EOF
     ;;

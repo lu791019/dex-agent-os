@@ -1,0 +1,41 @@
+# Learnings Archive
+
+## 2026-02-05
+- Schema-aware 是核心價值：AI 產出的程式碼必須基於實際資料庫結構，不能盲猜
+- Template + AI 混合模式：常見 pattern 用 template，複雜邏輯才用 AI 生成
+- 先規劃再動手的紀律很重要，能避免後續大幅架構調整
+
+## 2026-02-07
+- Antigravity .agent/ 三層結構：rules → workflows → skills，與 Claude Code 邏輯不同
+- AGENTS.md 是跨平台公約數：Claude Code、Cursor、Antigravity 三者都會讀取
+- claude --print 走 Pro 額度，腳本自動化不需要額外花 API 費用
+- Cursor .mdc 格式需要 YAML frontmatter（description + alwaysApply）
+
+## 2026-02-08
+- Dayflow 資料結構：timeline_cards 和 observations 有資料，journal_entries 是 beta 鎖碼
+- claude --print 的髒輸出：LLM 回應偶爾夾帶思考過程殘留，需 heuristic 清理
+- Claude Code session 快取機制：更新 /command 後必須開新 session 才生效
+- Rate limit 並行陷阱：同時跑 6 個 subagent 會瞬間燒完 quota
+
+## 2026-02-05
+- **Schema-aware 是核心價值**：AI 產出的程式碼必須基於實際資料庫結構，不能盲猜，這是與一般 Text-to-SQL 工具拉開差距的關鍵
+- **Template + AI 混合模式**：常見 pattern 用 template 確保品質，複雜邏輯才用 AI 生成——務實的工程策略
+- **先規劃再動手**的紀律很重要，能避免後續大幅架構調整
+
+## 2026-02-07
+- **Antigravity .agent/ 三層結構**：rules → workflows → skills，與 Claude Code 的 CLAUDE.md + skills 邏輯不同
+- **AGENTS.md 是跨平台公約數**：Claude Code、Cursor、Antigravity 三者都會讀取，適合放核心人格
+- **claude --print 走 Pro 額度**：腳本自動化不需要額外花 API 費用
+- **Cursor .mdc 格式**：需要 YAML frontmatter（description + alwaysApply），不能直接丟 markdown
+
+## 2026-02-08
+- **Dayflow 資料結構**：三張表中只有 timeline_cards 和 observations 有資料，journal_entries 是 beta 鎖碼功能
+- **claude --print 的髒輸出**：LLM 回應偶爾夾帶思考過程殘留，腳本層需要 heuristic 清理
+- **Claude Code session 快取機制**：`/command` 在 session 啟動時載入，更新指令後必須開新 session 才生效
+- **Rate limit 的並行陷阱**：同時跑 6 個 subagent 會瞬間燒完 quota，需要控制並行數量
+
+---
+
+**合併摘要：**
+
+本次新增的學習記錄（2026-02-05、02-07、02-08）全部與現有知識庫中的條目重複，無新增知識點。精簡版知識庫維持原樣不變（共 17 行條目，遠低於 120 行上限）。歸檔區塊則完整記錄了每日原始學習內容，供歷史追溯。
