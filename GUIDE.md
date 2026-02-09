@@ -1,7 +1,7 @@
 # Dex Agent OS — 使用說明書
 
-> 版本：Phase 2 完成
-> 最後更新：2026-02-08
+> 版本：Phase 2 完成 + Journal Knowledge Extraction
+> 最後更新：2026-02-09
 
 ---
 
@@ -10,13 +10,14 @@
 - [1. 快速開始](#1-快速開始)
 - [2. 指令總覽](#2-指令總覽)
 - [3. 日記系統完整流程](#3-日記系統完整流程)
-- [4. 檔案架構與分類](#4-檔案架構與分類)
-- [5. 跨平台同步](#5-跨平台同步)
-- [6. 模板系統](#6-模板系統)
-- [7. 規則系統](#7-規則系統)
-- [8. 常見操作範例](#8-常見操作範例)
-- [9. 目前功能狀態](#9-目前功能狀態)
-- [10. 疑難排解](#10-疑難排解)
+- [4. 知識萃取系統](#4-知識萃取系統)
+- [5. 檔案架構與分類](#5-檔案架構與分類)
+- [6. 跨平台同步](#6-跨平台同步)
+- [7. 模板系統](#7-模板系統)
+- [8. 規則系統](#8-規則系統)
+- [9. 常見操作範例](#9-常見操作範例)
+- [10. 目前功能狀態](#10-目前功能狀態)
+- [11. 疑難排解](#11-疑難排解)
 
 ---
 
@@ -63,12 +64,16 @@ cd ~/dex-agent-os
 |------|------|----------|
 | `./bin/agent journal [日期] [--force]` | 從 L1 工作日誌產出 L2 精煉日記 | `100_Journal/daily/YYYY-MM-DD.md` |
 | `./bin/agent dayflow [日期] [--force]` | 從 Dayflow 螢幕記錄產出活動摘要 | `100_Journal/daily/YYYY-MM-DD-dayflow.md` |
+| `./bin/agent extract [日期\|all] [options]` | 從日記萃取知識（學習/反思/靈感） | memory/ + 800_System/knowledge/ + 500_Content/insights/ |
 | `./bin/agent sync` | 將 canonical/ 規則同步到所有 IDE | `.agent/` `.cursor/` `.claude/` |
 | `./bin/agent help` | 顯示使用說明 | 終端機輸出 |
 
 **參數說明：**
-- `[日期]`：YYYY-MM-DD 格式，省略則使用今天
-- `[--force]`：強制覆蓋已存在的檔案（不詢問確認）
+- `[日期]`：YYYY-MM-DD 格式，省略則使用今天（extract 預設 `all`）
+- `[--force]`：強制覆蓋已存在的檔案（不詢問確認）/ 強制重新處理已萃取的日記
+- `[--dry-run]`：只顯示將處理什麼，不寫入任何檔案（僅 extract）
+- `[--type TYPE]`：指定萃取類型 learnings / blockers / insights / all（僅 extract，預設 all）
+- `[--global]`：同時更新全域 `~/CLAUDE.md` 的「累積學習」區段（僅 extract）
 
 ### IDE 內指令（Claude Code `/` 指令）
 
@@ -230,12 +235,153 @@ cd ~/dex-agent-os
   1. /work-log                         → 產出 L1 完整工作日誌
   2. ./bin/agent dayflow                → 產出 Dayflow 活動摘要
   3. ./bin/agent journal                → 從 L1 產出 L2 精煉日記
-  4. /daily-review（選用）              → 互動回顧，補充洞察
+  4. ./bin/agent extract                → 萃取知識到記憶庫
+  5. /daily-review（選用）              → 互動回顧，補充洞察
+
+每週一次（或累積足夠新知識時）：
+  6. ./bin/agent extract --global       → 更新全域速查表
 ```
 
 ---
 
-## 4. 檔案架構與分類
+## 4. 知識萃取系統
+
+### 概覽
+
+每日 L2 精煉日記中有三個高價值區段，知識萃取系統自動將它們歸檔到正確位置：
+
+```
+100_Journal/daily/YYYY-MM-DD.md
+    │
+    ├─ 「學到什麼」 → learnings.md（Claude 自動載入）+ archive
+    ├─ 「卡在哪裡」 → reflections.md（Claude 自動載入）+ archive
+    └─ 「洞察 & 靈感」→ 500_Content/insights/ 或 000_Inbox/ideas/ 或 600_Life/personal/
+```
+
+### 三層分級記憶架構
+
+| 層級 | 位置 | 載入時機 | 行數限制 | 用途 |
+|------|------|---------|---------|------|
+| 全域速查表 | `~/CLAUDE.md` 末尾 | **所有專案每個 session** | ≤40 行 | 跨專案通用教訓 |
+| 專案記憶 | `~/.claude/projects/.../memory/` | **dex-agent-os 每個 session** | learnings ≤120 行、reflections ≤80 行 | 專案內詳細學習 |
+| 歸檔 | `800_System/knowledge/` | 不載入（版控查閱用） | 無限制 | 完整歷史記錄 |
+
+### 指標觸發機制
+
+全域速查表（`~/CLAUDE.md`）末尾有 P1/P2 觸發條件，指導 Claude 何時主動讀取專案記憶的詳細檔案：
+
+| 觸發等級 | 條件 | 動作 |
+|---------|------|------|
+| **P1 必讀** | 進入 Plan Mode 或撰寫 implementation_plan.md 前 | 讀取 `memory/learnings.md` + `memory/reflections.md` |
+| **P2 選讀** | 同一問題連續失敗 2 次以上 | 讀取 `memory/reflections.md` |
+| **不讀** | 一般 coding、內容撰寫、git 操作 | 使用 ~/CLAUDE.md 的速查表即可 |
+
+### 指令用法
+
+```bash
+# 基本用法 — 萃取所有日記的全部類型
+./bin/agent extract
+
+# 萃取指定日期
+./bin/agent extract 2026-02-07
+
+# 預覽模式（不寫入）
+./bin/agent extract --dry-run
+
+# 只萃取學習記錄
+./bin/agent extract --type learnings
+
+# 強制重新處理（忽略冪等性記錄）
+./bin/agent extract --force
+
+# 萃取 + 更新全域 ~/CLAUDE.md
+./bin/agent extract --global
+
+# 組合使用
+./bin/agent extract --force --type learnings --global
+```
+
+### 萃取類型
+
+| 類型 | 日記區段 | 輸出位置 | 處理方式 |
+|------|---------|---------|---------|
+| `learnings` | 「學到什麼」 | `memory/learnings.md` + `knowledge/learnings-archive.md` | LLM 合併去重，四分類：技術/工具/方法論/認知 |
+| `blockers` | 「卡在哪裡」 | `memory/reflections.md` + `knowledge/reflections-archive.md` | LLM 轉化為反思教訓，五分組：資源管理/技術債/決策品質/流程效率/其他 |
+| `insights` | 「洞察 & 靈感」 | 依分類分流（見下方） | LLM 分類 + 自動產生個別檔案 |
+
+### Insight 分流
+
+每條洞察由 LLM 判斷分類，自動寫入對應目錄：
+
+| 分類 | 目的地 | 條件 |
+|------|--------|------|
+| `content` | `500_Content/insights/` | 有明確頻道標記（→ Threads / Blog / Newsletter 等） |
+| `idea` | `000_Inbox/ideas/` | 沒有明確頻道但有潛力的想法 |
+| `personal` | `600_Life/personal/reflections/` | 關於個人成長、職涯、生活的反思 |
+
+**Insight 檔案格式：**
+
+```markdown
+---
+date: 2026-02-07
+source: 100_Journal/daily/2026-02-07.md
+classification: content
+channel_tags: ["Threads", "Blog"]
+status: raw
+---
+
+# 多 AI IDE 協作的最佳實踐
+
+canonical 單一真實來源 + sync 腳本...
+
+## 潛在切入角度
+可以寫成教學文...
+```
+
+### 冪等性
+
+- 系統用 `800_System/knowledge/.processed`（JSON）追蹤每篇日記的 SHA-256 hash
+- 相同 hash + 相同 types → 自動跳過
+- 日記內容變更（hash 改變）→ 重新處理
+- `--force` → 忽略記錄，強制全部重處理
+
+### 全域更新（--global）
+
+`--global` flag 會額外執行一次 LLM 呼叫，將 memory 版精煉為全域速查表：
+
+1. 讀取 `memory/learnings.md` + `memory/reflections.md`
+2. LLM 精煉為 ≤40 行的全域速查表
+3. 原地替換 `~/CLAUDE.md` 的「## 累積學習」區段到檔案結尾
+4. 原有的開發流程等內容不受影響
+
+**速查表四大分類：**
+- **工具與環境** — Claude Code、Cursor、Antigravity 等工具的用法與避坑
+- **跨平台** — 跨 IDE 協作的注意事項
+- **工程原則** — 通用的開發方法論與設計原則
+- **反思教訓** — 從失敗和卡關中總結的策略
+
+### 建議操作流程
+
+```
+每日下班前 / 睡前：
+  1. /work-log                         → L1 工作日誌
+  2. ./bin/agent dayflow                → Dayflow 活動摘要
+  3. ./bin/agent journal                → L2 精煉日記
+  4. ./bin/agent extract                → 萃取知識到記憶庫
+
+每週一次（或累積足夠新知識時）：
+  5. ./bin/agent extract --global       → 更新全域速查表
+```
+
+### LLM 呼叫策略
+
+- 每次 extract 固定 **3 次 LLM 呼叫**（learnings / blockers / insights 各一次），不管處理多少篇日記
+- `--global` 時多 1 次呼叫（精煉全域速查表）
+- 所有呼叫使用 `claude --print`，走 Pro 訂閱額度，不花 API 費用
+
+---
+
+## 5. 檔案架構與分類
 
 ### 編號目錄系統
 
@@ -291,6 +437,7 @@ dex-agent-os/
 │
 └── 800_System/         ← 系統設定
     ├── templates/          輸出模板（journal / dayflow / consultation...）
+    ├── knowledge/          知識萃取歸檔（learnings-archive / reflections-archive / .processed）
     └── references/
         ├── examples/       過去的真實範例（按頻道分）
         └── style-dna/      從範例提取的抽象風格文件
@@ -308,10 +455,11 @@ dex-agent-os/
 │
 ├── scripts/            ← Python 腳本
 │   ├── generators/         daily_journal.py / daily_dayflow_digest.py
+│   ├── extractors/         journal_knowledge_extract.py（知識萃取）
 │   ├── analyzers/          extract_style.py（Phase 3）
 │   ├── collectors/         discord_collector.py（future）
 │   ├── publishers/         wp_draft.py（Phase 5）
-│   └── lib/                共用模組（llm.py / config.py / file_utils.py）
+│   └── lib/                共用模組（llm.py / config.py / file_utils.py / journal_parser.py）
 │
 ├── bin/                ← 可執行腳本
 │   ├── agent               CLI 入口
@@ -357,13 +505,18 @@ dex-agent-os/
 | 寫 Threads 草稿 | `500_Content/topics/topic-slug/threads-draft.md` |
 | 寫電子報 | `500_Content/newsletter/drafts/` |
 | 存已發布的內容 | `700_Archive/<channel>/` |
+| 看累積學到什麼 | `~/.claude/projects/.../memory/learnings.md` |
+| 看卡關反思教訓 | `~/.claude/projects/.../memory/reflections.md` |
+| 看洞察素材庫 | `500_Content/insights/` |
+| 看全域速查表 | `~/CLAUDE.md` 末尾「## 累積學習」 |
+| 看完整學習歷史 | `800_System/knowledge/learnings-archive.md` |
 | 改寫作風格規則 | `canonical/rules/10-writing-style.md` → `bin/sync` |
 | 加新模板 | `800_System/templates/` |
 | 放範例文章 | `800_System/references/examples/<channel>/` |
 
 ---
 
-## 5. 跨平台同步
+## 6. 跨平台同步
 
 ### 核心原則
 
@@ -417,7 +570,7 @@ vim ~/dex-agent-os/canonical/rules/10-writing-style.md
 
 ---
 
-## 6. 模板系統
+## 7. 模板系統
 
 所有模板位於 `800_System/templates/`。
 
@@ -446,7 +599,7 @@ vim ~/dex-agent-os/canonical/rules/10-writing-style.md
 
 ---
 
-## 7. 規則系統
+## 8. 規則系統
 
 ### 三層規則
 
@@ -482,7 +635,7 @@ vim ~/dex-agent-os/canonical/rules/10-writing-style.md
 
 ---
 
-## 8. 常見操作範例
+## 9. 常見操作範例
 
 ### 場景一：下班前產出完整日記
 
@@ -552,9 +705,30 @@ cp ~/dex-agent-os/800_System/templates/consultation-notes-template.md \
 vim ~/dex-agent-os/200_Work/consultations/2026-02-08-alice-career/notes.md
 ```
 
+### 場景六：萃取日記知識並更新全域記憶
+
+```bash
+# 1. 先確認有哪些日記需要處理
+./bin/agent extract --dry-run
+
+# 2. 萃取所有未處理的日記
+./bin/agent extract
+
+# 3. 檢查結果
+cat ~/.claude/projects/-Users-dex-dex-agent-os/memory/learnings.md
+cat ~/.claude/projects/-Users-dex-dex-agent-os/memory/reflections.md
+ls 500_Content/insights/
+
+# 4. 滿意後更新全域速查表
+./bin/agent extract --global
+
+# 5. 驗證 ~/CLAUDE.md 尾端的「累積學習」區段
+tail -40 ~/CLAUDE.md
+```
+
 ---
 
-## 9. 目前功能狀態
+## 10. 目前功能狀態
 
 ### 已完成（可使用）
 
@@ -568,6 +742,8 @@ vim ~/dex-agent-os/200_Work/consultations/2026-02-08-alice-career/notes.md
 | Dayflow 活動摘要日記 | `./bin/agent dayflow [日期]` | 2 |
 | 每日回顧（互動式） | `/daily-review` | 2 |
 | 諮詢紀錄模板 | 手動使用模板 | 2（前置） |
+| 知識萃取（learnings / blockers / insights） | `./bin/agent extract` | 2.5 |
+| 全域速查表更新 | `./bin/agent extract --global` | 2.5 |
 | 全域 skills 同步（41 個） | `./bin/sync` | 1 |
 | 全域 commands 同步（11 個） | `./bin/sync` | 1 |
 
@@ -585,7 +761,7 @@ vim ~/dex-agent-os/200_Work/consultations/2026-02-08-alice-career/notes.md
 
 ---
 
-## 10. 疑難排解
+## 11. 疑難排解
 
 ### `/work-log` 更新後沒生效
 
@@ -611,6 +787,21 @@ vim ~/dex-agent-os/200_Work/consultations/2026-02-08-alice-career/notes.md
 
 **原因：** `claude --print` 偶爾會輸出思考過程殘留。
 **解法：** `daily_dayflow_digest.py` 已內建清理邏輯（自動找到第一個 `#` 標題並去掉之前的內容）。如果 `daily_journal.py` 也遇到，可手動刪除。
+
+### `./bin/agent extract` 顯示「所有日記已處理過」
+
+**原因：** `.processed` JSON 已記錄這些日記的 hash，冪等性檢查判定無需重處理。
+**解法：** 如果日記內容有更新，hash 會自動改變並重新處理。如果想強制重處理，加 `--force`。
+
+### `./bin/agent extract --global` 後 `~/CLAUDE.md` 出現多餘文字
+
+**原因：** LLM 偶爾會在速查表之後附加統計或說明文字。
+**解法：** 腳本已內建清理邏輯（截斷到 `---` 之前）。如果仍有殘留，手動刪除「## 累積學習」區段之後不需要的內容。
+
+### Insight 檔案全部分到同一個目錄
+
+**原因：** LLM 的 classification 判斷可能偏向某一類。
+**解法：** 這是正常的 — 大部分日記洞察確實是 content 類型（有頻道標記）。可以手動調整 classification，將檔案搬到正確目錄。
 
 ### `bin/sync` 的 awk 誤判 YAML frontmatter
 
