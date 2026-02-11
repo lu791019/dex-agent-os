@@ -321,6 +321,11 @@ dex-agent-os/
       til/                            #   Today I Learned 短篇
       tutorials/                      #   教學文草稿
     weekly/                           # 每週學習摘要
+    podcasts/                         # ✅ Podcast 系統
+      episodes/                       #   結構化 episode 筆記
+      weekly/                         #   週度消化報告
+      transcripts/                    #   原始逐字稿（gitignore）
+    youtube/                          # ✅ YouTube 學習筆記
 
   # --- 400: 專案 & 產品 ---
   400_Projects/
@@ -337,6 +342,7 @@ dex-agent-os/
 
   # --- 500: 內容生產管線 ---
   500_Content/
+    presentations/                    # ✅ 簡報輸出
     topics/                           # 主題庫（內容原子）
       topic-slug/
         TOPIC.md                      #   核心論點 + 素材 + 進度追蹤
@@ -399,6 +405,10 @@ dex-agent-os/
       consultation-notes-template.md  #   ✅ 諮詢紀錄模板
       topic-template.md               #   ✅ TOPIC.md 格式模板
       thread-template.md              #   ✅ Threads 草稿格式模板
+      podcast-episode-template.md     #   ✅ Podcast episode 筆記模板
+      youtube-note-template.md        #   ✅ YouTube 學習筆記模板
+      podcast-digest-template.md      #   ✅ 週度消化報告模板
+      podcast-pptx-template.md        #   ✅ 簡報內容結構模板
       meeting-notes-template.md
       project-status-template.md
       product-feature-template.md
@@ -433,6 +443,8 @@ dex-agent-os/
   scripts/
     collectors/                       # 資料收集
       threads_collector.py            #   ✅ Threads API 自動抓取（直接 token）
+      youtube_transcript.py           #   ✅ YouTube 字幕 → 學習筆記
+      podcast_transcript.py           #   ✅ Podcast 逐字稿 → episode 筆記
       discord_collector.py            #   (future)
       notion_collector.py             #   (future)
     generators/                       # 內容生成
@@ -440,6 +452,7 @@ dex-agent-os/
       daily_dayflow_digest.py         #   ✅ Dayflow 活動摘要生成器
       topic_create.py                 #   ✅ insight → TOPIC.md
       topic_to_thread.py              #   ✅ TOPIC.md → Threads 草稿
+      podcast_digest.py               #   ✅ YouTube + Podcast 週度消化 + 簡報
       weekly_newsletter.py
       weekly_learning.py
     publishers/                       # 發布
@@ -454,7 +467,7 @@ dex-agent-os/
       file_utils.py                   #   ✅ 檔案操作工具
 
   bin/
-    agent                             # ✅ CLI 入口（journal、dayflow、sync、collect-threads、extract-style、topic-create、topic-to-thread）
+    agent                             # ✅ CLI 入口（journal、dayflow、sync、collect-threads、extract-style、topic-create、topic-to-thread、youtube-add、podcast-add、podcast-digest）
     sync                              # ✅ 跨平台同步腳本
     setup                             # 一鍵安裝（launchd、依賴）
 
@@ -904,15 +917,54 @@ def ask_claude(system_prompt: str, user_prompt: str) -> str:
 
 ---
 
-### Phase 5：其餘頻道
+### Phase 5a：Podcast + YouTube Weekly Digest ✅ 已完成
 
-**目標：** 補齊 FB、Blog、Podcast、短影音、影評的管線
+**完成日期：** 2026-02-11
+
+**詳細計畫：** 見 `implementation_plan_phase5a.md`
+**任務追蹤：** 見 `task_phase5a.md`
+
+**已完成項目：**
+- [x] 目錄結構：`300_Learning/{podcasts/{episodes,weekly,transcripts},youtube}`、`500_Content/presentations`
+- [x] 模板：podcast-episode / youtube-note / podcast-digest / podcast-pptx（4 個）
+- [x] 更新 `config.py` 新增 6 個路徑常數
+- [x] 更新 `.gitignore` 加入 `transcripts/`
+- [x] 設定 `.mcp.json`（YouTube Transcript MCP）
+- [x] 實作 `scripts/collectors/youtube_transcript.py`（youtube-transcript-api → LLM 結構化筆記）
+- [x] 實作 `scripts/collectors/podcast_transcript.py`（手動文字稿 P4 + Apple TTML P3）
+- [x] 實作 `scripts/generators/podcast_digest.py`（合併 YouTube + Podcast 週度消化 + --pptx）
+- [x] 更新 `bin/agent`（youtube-add / podcast-add / podcast-digest 三個子命令）
+- [x] Skills：`/youtube-add`、`/podcast-add`、`/podcast-weekly`（3 個）
+- [x] Canonical workflow：`podcast-weekly.md`
+- [x] `bin/sync` 同步完成
+- [x] 更新 GUIDE.md + PLAN.md
+
+**關鍵設計決策：**
+- YouTube 線與 Podcast 線獨立，在 podcast-digest 層合併
+- youtube-transcript-api v1.2 使用 `.text` 屬性（非 dict）
+- Podcast 支援兩種模式：P4 手動文字稿（零依賴）+ P3 Apple TTML 快取
+- 簡報產出為 markdown 結構，可用 `/pptx` skill 轉為 .pptx
+
+**已驗證的產出：**
+
+| 測試 | 結果 |
+|------|------|
+| `./bin/agent youtube-add "URL"` | ✅ 端到端通過 |
+| `./bin/agent podcast-add --transcript test.txt --title "Test"` | ✅ 端到端通過 |
+| `./bin/agent podcast-add --apple` | ✅ 目錄不存在時正確提示 |
+| `./bin/agent podcast-digest` | ✅ 端到端通過 |
+| `./bin/agent podcast-digest --pptx` | ✅ 端到端通過 |
+
+---
+
+### Phase 5b：其餘頻道
+
+**目標：** 補齊 FB、Blog、短影音、影評的管線
 
 **任務：**
 - [ ] 各頻道 template + workflow + style-dna
 - [ ] Facebook：放入範例 → extract-style → topic-to-fb
 - [ ] Blog/WordPress：放入範例 → extract-style → topic-to-blog + wp-sync + wp-archive
-- [ ] Podcast：參考其他 podcast 範例 → template + workflow
 - [ ] 短影音：template + workflow（無範例，先建結構）
 - [ ] 影評：放入過去範例 → extract-style → film-review workflow
 - [ ] Commit
@@ -975,3 +1027,6 @@ def ask_claude(system_prompt: str, user_prompt: str) -> str:
 | 2026-02-09 | Style DNA 基於 78 篇真實範例 | 50 篇以下 DNA 精準度不足，78 篇能涵蓋足夠的風格變異 |
 | 2026-02-09 | `/daily-content` 用 claude --print 平行產出 | 兩組 × 3 篇用背景任務平行，總時間約 2-3 分鐘 |
 | 2026-02-09 | Threads 草稿分兩組視角（Dayflow+L1 vs L2） | 同一天素材不同切面，避免主題雷同 |
+| 2026-02-11 | YouTube 線與 Podcast 線獨立設計，digest 層合併 | 兩種來源獲取邏輯差異大，但週度彙整需要跨來源歸納趨勢 |
+| 2026-02-11 | Podcast 先做 P4（手動）+ P3（Apple TTML），不做 Whisper/Deepgram | 零依賴方案先跑通，進階模式按需擴展 |
+| 2026-02-11 | 簡報產出為 markdown 結構而非直接 .pptx | 可用已有的 `/pptx` skill 轉換，保持管線解耦 |

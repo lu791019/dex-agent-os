@@ -9,6 +9,10 @@
 #   ./bin/agent extract-style <channel> [--force]
 #   ./bin/agent topic-create [insight-file|--title "..."]
 #   ./bin/agent topic-to-thread <topic-slug> [--force]
+#   ./bin/agent youtube-add "URL" [--force] [--date YYYY-MM-DD]
+#   ./bin/agent podcast-add --transcript FILE --title "..." [--force]
+#   ./bin/agent podcast-add --apple [--latest N]
+#   ./bin/agent podcast-digest [YYYY-MM-DD] [--pptx] [--force]
 #   ./bin/agent weekly-review [YYYY-MM-DD] [--force]
 #   ./bin/agent weekly-newsletter [YYYY-MM-DD] [--type TYPE] [--force]
 #   ./bin/agent sync
@@ -44,6 +48,15 @@ case "$command" in
   topic-to-thread)
     python3 "$ROOT_DIR/scripts/generators/topic_to_thread.py" "$@"
     ;;
+  youtube-add)
+    python3 "$ROOT_DIR/scripts/collectors/youtube_transcript.py" "$@"
+    ;;
+  podcast-add)
+    python3 "$ROOT_DIR/scripts/collectors/podcast_transcript.py" "$@"
+    ;;
+  podcast-digest)
+    python3 "$ROOT_DIR/scripts/generators/podcast_digest.py" "$@"
+    ;;
   weekly-review)
     python3 "$ROOT_DIR/scripts/generators/weekly_review.py" "$@"
     ;;
@@ -69,6 +82,10 @@ Commands:
   extract-style <channel> [--force]                       提取風格 DNA
   topic-create [insight-file|--title "..."]               從 insight 建立主題
   topic-to-thread <topic-slug> [--force]                  主題 → Threads 草稿
+  youtube-add "URL" [--force] [--date YYYY-MM-DD]         YouTube 字幕 → 學習筆記
+  podcast-add --transcript FILE --title "..." [--force]   手動逐字稿 → episode 筆記
+  podcast-add --apple [--latest N]                        Apple Podcast 快取匯入
+  podcast-digest [YYYY-MM-DD] [--pptx] [--force]         週度消化報告（合併 YT + Podcast）
   weekly-review [YYYY-MM-DD] [--force]                    產出個人週回顧
   weekly-newsletter [YYYY-MM-DD] [--type TYPE] [--force]  產出電子報草稿
   sync                                                    跨平台同步 canonical → IDE
@@ -85,6 +102,11 @@ Examples:
   ./bin/agent topic-create          列出可用 insights
   ./bin/agent topic-create 500_Content/insights/xxx.md    從 insight 建立主題
   ./bin/agent topic-to-thread slug  主題 → Threads 草稿
+  ./bin/agent youtube-add "URL"     YouTube 影片 → 結構化學習筆記
+  ./bin/agent podcast-add --transcript file.txt --title "..." 手動逐字稿
+  ./bin/agent podcast-add --apple   匯入 Apple Podcast 快取
+  ./bin/agent podcast-digest        產出本週 Podcast 消化報告
+  ./bin/agent podcast-digest --pptx 同時產出簡報
   ./bin/agent weekly-review         產出本週的週回顧
   ./bin/agent weekly-newsletter     產出本週的電子報草稿
   ./bin/agent weekly-newsletter --type deep-dive  指定電子報類型

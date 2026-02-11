@@ -1,6 +1,8 @@
 # === 資料 & 隱私 ===
 data/raw/
 .env
+config/.threads-token
+300_Learning/podcasts/transcripts/
 
 # === 大型二進位檔 ===
 *.mp4
@@ -28,3 +30,4 @@ venv/
 # === IDE ===
 .vscode/
 .idea/
+.spectra/
