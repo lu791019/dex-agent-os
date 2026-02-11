@@ -75,11 +75,11 @@ echo "THREADS_ACCESS_TOKEN=你的token" >> .env
 |:----:|------|:----:|------|----------|
 | 1 | `/work-log [日期]` | IDE | 收集 Claude Code 對話、git commits、Dayflow 資料，產出 L1 完整工作日誌 | `~/work-logs/YYYY/MM/YYYY-MM-DD.md` |
 | 2 | `./bin/agent dayflow [日期]` | CLI | 從 Dayflow SQLite 讀取螢幕活動，產出行為分析摘要 | `100_Journal/daily/YYYY-MM-DD-dayflow.md` |
-| 3 | `./bin/agent journal [日期]` | CLI | 從 L1 工作日誌提煉精華，壓縮為 L2 精煉日記 | `100_Journal/daily/YYYY-MM-DD.md` |
-| 4 | `./bin/agent extract [日期\|all]` | CLI | 從 L2 日記萃取知識（學習/反思/靈感）到記憶庫 | `memory/` + `800_System/knowledge/` + `500_Content/insights/` |
+| 3 | `./bin/agent journal [日期]` | CLI | 從 L1 工作日誌 + Dayflow 摘要（如存在）提煉精華，壓縮為 L2 精煉日記 | `100_Journal/daily/YYYY-MM-DD.md` |
+| 4 | `./bin/agent extract [日期\|all]` | CLI | 從 L2 日記萃取知識（學習/反思/靈感）到記憶庫 | `~/.claude/projects/-Users-dex-dex-agent-os/memory/` + `800_System/knowledge/` + `500_Content/insights/` |
 | 5 | `/daily-review` | IDE | 互動式每日回顧：AI 呈現摘要 → 問你 3 個問題 → 更新 L2 日記洞察 | 更新既有 L2 日記 |
 
-> **一鍵替代 1-3：** `/daily-content [日期]` 會自動執行 L1 → Dayflow → L2，並額外產出 6 篇 Threads 草稿。
+> **一鍵替代 1-3：** `/daily-content [日期]` 會自動執行 L1 → Dayflow → L2（L2 會自動讀取 Dayflow 摘要），並額外產出 6 篇 Threads 草稿。
 
 #### B. 每日內容生產（有素材想發文時）
 
@@ -107,7 +107,7 @@ echo "THREADS_ACCESS_TOKEN=你的token" >> .env
 
 | 順序 | 指令 | 類型 | 說明 | 輸出位置 |
 |:----:|------|:----:|------|----------|
-| 1 | `./bin/agent extract` | CLI | 萃取所有未處理日記的知識到記憶庫 | `memory/` + `800_System/knowledge/` |
+| 1 | `./bin/agent extract` | CLI | 萃取所有未處理日記的知識到記憶庫 | `~/.claude/projects/-Users-dex-dex-agent-os/memory/` + `800_System/knowledge/` |
 | 2 | `./bin/agent extract --global` | CLI | 萃取後額外更新全域 `~/CLAUDE.md` 的「累積學習」速查表 | `~/CLAUDE.md` 末尾 |
 
 #### E. 風格系統（初次設定 + 定期更新）
@@ -253,7 +253,7 @@ echo "THREADS_ACCESS_TOKEN=你的token" >> .env
 
 #### Step 3：L2 精煉日記
 
-從 L1 工作日誌提煉出精華，壓縮到 1/3 ~ 1/5 長度。
+從 L1 工作日誌 + Dayflow 活動摘要（如存在）提煉出精華，壓縮到 1/3 ~ 1/5 長度。Dayflow 的行為模式洞察會自動融入「卡在哪裡」和「洞察 & 靈感」區段。
 
 ```bash
 ./bin/agent journal                    # 今天
@@ -331,7 +331,7 @@ echo "THREADS_ACCESS_TOKEN=你的token" >> .env
 下班前 / 睡前（方式 B — 分步執行）：
   1. /work-log                         → 產出 L1 完整工作日誌
   2. ./bin/agent dayflow                → 產出 Dayflow 活動摘要
-  3. ./bin/agent journal                → 從 L1 產出 L2 精煉日記
+  3. ./bin/agent journal                → 從 L1 + Dayflow 摘要產出 L2 精煉日記（需先跑完 step 2）
   4. ./bin/agent extract                → 萃取知識到記憶庫
   5. /daily-review（選用）              → 互動回顧，補充洞察
 
@@ -364,12 +364,20 @@ echo "THREADS_ACCESS_TOKEN=你的token" >> .env
     └─ 「洞察 & 靈感」→ 500_Content/insights/ 或 000_Inbox/ideas/ 或 600_Life/personal/
 ```
 
+### 為什麼寫到 memory/ 就能「記住」？
+
+這是 Claude Code 的內建機制。當你在 `~/dex-agent-os/` 開啟 Claude Code 時，它會自動找到對應的 `~/.claude/projects/-Users-dex-dex-agent-os/` 目錄，並將 `memory/` 資料夾裡的所有 `.md` 檔案**注入到每次對話的 system prompt**。
+
+路徑命名規則：專案絕對路徑 `/Users/dex/dex-agent-os` 的 `/` 替換成 `-`，得到 `-Users-dex-dex-agent-os`。
+
+所以 `extract` 指令寫入到這個目錄的 `learnings.md`、`reflections.md`、`MEMORY.md`，每次開新對話就自動帶進來，不需要手動指定。
+
 ### 三層分級記憶架構
 
 | 層級 | 位置 | 載入時機 | 行數限制 | 用途 |
 |------|------|---------|---------|------|
 | 全域速查表 | `~/CLAUDE.md` 末尾 | **所有專案每個 session** | ≤40 行 | 跨專案通用教訓 |
-| 專案記憶 | `~/.claude/projects/.../memory/` | **dex-agent-os 每個 session** | learnings ≤120 行、reflections ≤80 行 | 專案內詳細學習 |
+| 專案記憶 | `~/.claude/projects/-Users-dex-dex-agent-os/memory/` | **dex-agent-os 每個 session** | learnings ≤120 行、reflections ≤80 行 | 專案內詳細學習 |
 | 歸檔 | `800_System/knowledge/` | 不載入（版控查閱用） | 無限制 | 完整歷史記錄 |
 
 ### 指標觸發機制
@@ -411,8 +419,8 @@ echo "THREADS_ACCESS_TOKEN=你的token" >> .env
 
 | 類型 | 日記區段 | 輸出位置 | 處理方式 |
 |------|---------|---------|---------|
-| `learnings` | 「學到什麼」 | `memory/learnings.md` + `knowledge/learnings-archive.md` | LLM 合併去重，四分類：技術/工具/方法論/認知 |
-| `blockers` | 「卡在哪裡」 | `memory/reflections.md` + `knowledge/reflections-archive.md` | LLM 轉化為反思教訓，五分組：資源管理/技術債/決策品質/流程效率/其他 |
+| `learnings` | 「學到什麼」 | `~/.claude/projects/.../memory/learnings.md` + `800_System/knowledge/learnings-archive.md` | LLM 合併去重，四分類：技術/工具/方法論/認知 |
+| `blockers` | 「卡在哪裡」 | `~/.claude/projects/.../memory/reflections.md` + `800_System/knowledge/reflections-archive.md` | LLM 轉化為反思教訓，五分組：資源管理/技術債/決策品質/流程效率/其他 |
 | `insights` | 「洞察 & 靈感」 | 依分類分流（見下方） | LLM 分類 + 自動產生個別檔案 |
 
 ### Insight 分流
@@ -472,7 +480,7 @@ canonical 單一真實來源 + sync 腳本...
 每日下班前 / 睡前：
   1. /work-log                         → L1 工作日誌
   2. ./bin/agent dayflow                → Dayflow 活動摘要
-  3. ./bin/agent journal                → L2 精煉日記
+  3. ./bin/agent journal                → L2 精煉日記（自動讀取 Dayflow 摘要，需先跑完 step 2）
   4. ./bin/agent extract                → 萃取知識到記憶庫
 
 每週一次（或累積足夠新知識時）：
@@ -596,7 +604,7 @@ L2 精煉日記  ──→ /daily-content ──→ 3 篇 Threads（L2 視角）
 
 ```
 Step 1: L1 工作日誌（/work-log，如不存在自動觸發）
-Step 2: Dayflow 活動摘要 + L2 精煉日記（平行執行）
+Step 2: Dayflow 活動摘要 → L2 精煉日記（依序執行，L2 會讀取 Dayflow）
 Step 3: 讀取素材 + Style DNA
 Step 4: 生成 6 篇 Threads 草稿（兩組各 3 篇，平行執行）
         ├── Dayflow + L1 → 3 篇（日常活動視角）
@@ -1074,7 +1082,7 @@ vim ~/dex-agent-os/canonical/rules/10-writing-style.md
 cd ~/dex-agent-os
 ./bin/agent dayflow
 
-# 3. 在終端機產出 L2 精煉日記
+# 3. 在終端機產出 L2 精煉日記（會自動讀取上一步的 Dayflow 摘要）
 ./bin/agent journal
 
 # 完成！三份檔案已產出：

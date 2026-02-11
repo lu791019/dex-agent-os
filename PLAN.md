@@ -155,8 +155,8 @@ Dayflow SQLite DB
 
 | | L2 精煉日記 | Dayflow 活動摘要 |
 |---|---|---|
-| 輸入 | L1 工作日誌 | Dayflow SQLite 直接讀取 |
-| 視角 | 「做了什麼技術工作」 | 「螢幕上怎麼度過一天」 |
+| 輸入 | L1 工作日誌 + Dayflow 摘要（如存在） | Dayflow SQLite 直接讀取 |
+| 視角 | 「做了什麼 + 行為模式洞察」 | 「螢幕上怎麼度過一天」 |
 | 觸發 | `./bin/agent journal` | `./bin/agent dayflow` |
 | 輸出 | `YYYY-MM-DD.md` | `YYYY-MM-DD-dayflow.md` |
 
@@ -164,8 +164,8 @@ Dayflow SQLite DB
 
 ```
 1. /work-log YYYY-MM-DD          → 產出 L1（完整工作日誌）
-2. ./bin/agent dayflow YYYY-MM-DD → 產出 Dayflow 活動摘要（獨立管線）
-3. ./bin/agent journal YYYY-MM-DD → 從 L1 產出 L2（精煉日記）
+2. ./bin/agent dayflow YYYY-MM-DD → 產出 Dayflow 活動摘要
+3. ./bin/agent journal YYYY-MM-DD → 從 L1 + Dayflow 摘要產出 L2（精煉日記，需先跑完 step 2）
 ```
 
 ---
