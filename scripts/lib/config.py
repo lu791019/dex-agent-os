@@ -37,5 +37,12 @@ LIFE_PERSONAL_DIR = ROOT_DIR / "600_Life" / "personal" / "reflections"
 KNOWLEDGE_DIR = ROOT_DIR / "800_System" / "knowledge"
 CLAUDE_MEMORY_DIR = Path.home() / ".claude" / "projects" / "-Users-dex-dex-agent-os" / "memory"
 
+# Threads API
+THREADS_TOKEN_PATH = ROOT_DIR / "config" / ".threads-token"
+
+# 電子報
+NEWSLETTER_DRAFTS_DIR = CONTENT_DIR / "newsletter" / "drafts"
+NEWSLETTER_ARCHIVE_DIR = CONTENT_DIR / "newsletter" / "archive"
+
 # Dayflow
 DAYFLOW_DB = Path.home() / "Library" / "Application Support" / "Dayflow" / "chunks.sqlite"

@@ -5,6 +5,12 @@
 #   ./bin/agent journal [YYYY-MM-DD] [--force]
 #   ./bin/agent dayflow [YYYY-MM-DD] [--force]
 #   ./bin/agent extract [date|all] [--type TYPE] [--force] [--dry-run] [--global]
+#   ./bin/agent collect-threads [--limit N] [--since DATE] [--force]
+#   ./bin/agent extract-style <channel> [--force]
+#   ./bin/agent topic-create [insight-file|--title "..."]
+#   ./bin/agent topic-to-thread <topic-slug> [--force]
+#   ./bin/agent weekly-review [YYYY-MM-DD] [--force]
+#   ./bin/agent weekly-newsletter [YYYY-MM-DD] [--type TYPE] [--force]
 #   ./bin/agent sync
 #   ./bin/agent help
 
@@ -26,6 +32,24 @@ case "$command" in
   extract)
     python3 "$ROOT_DIR/scripts/extractors/journal_knowledge_extract.py" "$@"
     ;;
+  collect-threads)
+    python3 "$ROOT_DIR/scripts/collectors/threads_collector.py" "$@"
+    ;;
+  extract-style)
+    python3 "$ROOT_DIR/scripts/analyzers/extract_style.py" "$@"
+    ;;
+  topic-create)
+    python3 "$ROOT_DIR/scripts/generators/topic_create.py" "$@"
+    ;;
+  topic-to-thread)
+    python3 "$ROOT_DIR/scripts/generators/topic_to_thread.py" "$@"
+    ;;
+  weekly-review)
+    python3 "$ROOT_DIR/scripts/generators/weekly_review.py" "$@"
+    ;;
+  weekly-newsletter)
+    python3 "$ROOT_DIR/scripts/generators/weekly_newsletter.py" "$@"
+    ;;
   sync)
     "$ROOT_DIR/bin/sync" "$@"
     ;;
@@ -41,19 +65,29 @@ Commands:
   dayflow [YYYY-MM-DD] [--force]                          產出 Dayflow 活動摘要日記
   extract [date|all] [--type TYPE] [--force] [--dry-run] [--global]
                                                           萃取日記知識（學習/反思/靈感）
+  collect-threads [--limit N] [--since DATE] [--force]    自動抓取 Threads 文章
+  extract-style <channel> [--force]                       提取風格 DNA
+  topic-create [insight-file|--title "..."]               從 insight 建立主題
+  topic-to-thread <topic-slug> [--force]                  主題 → Threads 草稿
+  weekly-review [YYYY-MM-DD] [--force]                    產出個人週回顧
+  weekly-newsletter [YYYY-MM-DD] [--type TYPE] [--force]  產出電子報草稿
   sync                                                    跨平台同步 canonical → IDE
   help                                                    顯示此說明
 
 Examples:
   ./bin/agent journal               產出今天的精煉日記
   ./bin/agent journal 2026-02-07    產出指定日期的精煉日記
-  ./bin/agent journal --force       強制覆蓋已存在的日記
   ./bin/agent dayflow               產出今天的 Dayflow 活動摘要
-  ./bin/agent dayflow 2026-02-07    產出指定日期的 Dayflow 活動摘要
-  ./bin/agent extract               萃取所有日記的知識（學習+反思+靈感）
-  ./bin/agent extract 2026-02-07    萃取指定日期
-  ./bin/agent extract --dry-run     預覽不寫入
+  ./bin/agent extract               萃取所有日記的知識
   ./bin/agent extract --global      同時更新全域 ~/CLAUDE.md
+  ./bin/agent collect-threads       抓取你的 Threads 文章（需先設定 Meta App）
+  ./bin/agent extract-style threads 從範例提取 Threads 風格 DNA
+  ./bin/agent topic-create          列出可用 insights
+  ./bin/agent topic-create 500_Content/insights/xxx.md    從 insight 建立主題
+  ./bin/agent topic-to-thread slug  主題 → Threads 草稿
+  ./bin/agent weekly-review         產出本週的週回顧
+  ./bin/agent weekly-newsletter     產出本週的電子報草稿
+  ./bin/agent weekly-newsletter --type deep-dive  指定電子報類型
   ./bin/agent sync                  同步規則到所有 IDE
 EOF
     ;;

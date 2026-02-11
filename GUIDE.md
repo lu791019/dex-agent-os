@@ -1,7 +1,7 @@
 # Dex Agent OS — 使用說明書
 
-> 版本：Phase 2 完成 + Journal Knowledge Extraction
-> 最後更新：2026-02-09
+> 版本：Phase 4 完成 — 週回顧 + 電子報系統
+> 最後更新：2026-02-11
 
 ---
 
@@ -11,13 +11,15 @@
 - [2. 指令總覽](#2-指令總覽)
 - [3. 日記系統完整流程](#3-日記系統完整流程)
 - [4. 知識萃取系統](#4-知識萃取系統)
-- [5. 檔案架構與分類](#5-檔案架構與分類)
-- [6. 跨平台同步](#6-跨平台同步)
-- [7. 模板系統](#7-模板系統)
-- [8. 規則系統](#8-規則系統)
-- [9. 常見操作範例](#9-常見操作範例)
-- [10. 目前功能狀態](#10-目前功能狀態)
-- [11. 疑難排解](#11-疑難排解)
+- [5. 內容生產管線](#5-內容生產管線)
+- [6. 週回顧與電子報系統](#6-週回顧與電子報系統)
+- [7. 檔案架構與分類](#7-檔案架構與分類)
+- [8. 跨平台同步](#8-跨平台同步)
+- [9. 模板系統](#9-模板系統)
+- [10. 規則系統](#10-規則系統)
+- [11. 常見操作範例](#11-常見操作範例)
+- [12. 目前功能狀態](#12-目前功能狀態)
+- [13. 疑難排解](#13-疑難排解)
 
 ---
 
@@ -32,6 +34,7 @@
 | Claude Code CLI | `claude --print` 用於 LLM 呼叫 |
 | Claude Pro 訂閱 | 所有 LLM 呼叫走 Pro 額度，不花 API 費用 |
 | Dayflow app | 螢幕活動追蹤（選用，沒有也能跑 journal） |
+| Threads API Token | 內容生產管線需要（選用，見下方設定） |
 
 ### 第一次使用
 
@@ -50,6 +53,11 @@ cd ~/dex-agent-os
 
 # 5. 產出 Dayflow 活動摘要（需 Dayflow 有記錄）
 ./bin/agent dayflow 2026-02-07
+
+# 6. （選用）設定 Threads API Token — 內容生產管線需要
+#    到 developers.facebook.com → 建立 Meta App → Threads API
+#    用 App Dashboard 的「用戶權杖產生器」取得 Access Token
+echo "THREADS_ACCESS_TOKEN=你的token" >> .env
 ```
 
 ---
@@ -65,6 +73,12 @@ cd ~/dex-agent-os
 | `./bin/agent journal [日期] [--force]` | 從 L1 工作日誌產出 L2 精煉日記 | `100_Journal/daily/YYYY-MM-DD.md` |
 | `./bin/agent dayflow [日期] [--force]` | 從 Dayflow 螢幕記錄產出活動摘要 | `100_Journal/daily/YYYY-MM-DD-dayflow.md` |
 | `./bin/agent extract [日期\|all] [options]` | 從日記萃取知識（學習/反思/靈感） | memory/ + 800_System/knowledge/ + 500_Content/insights/ |
+| `./bin/agent collect-threads [--limit N] [--force]` | 從 Threads API 抓取貼文作為風格範例 | `800_System/references/examples/threads/` |
+| `./bin/agent extract-style <channel>` | 從範例萃取風格 DNA | `800_System/references/style-dna/<channel>-dna.md` |
+| `./bin/agent topic-create <insight-file>` | 從 insight 建立主題 | `500_Content/topics/<slug>/TOPIC.md` |
+| `./bin/agent topic-to-thread <topic-slug>` | 主題 → Threads 草稿 | `500_Content/topics/<slug>/threads-draft.md` |
+| `./bin/agent weekly-review [日期] [--force]` | 產出個人週回顧 | `100_Journal/weekly/YYYY-Wxx.md` |
+| `./bin/agent weekly-newsletter [日期] [--type TYPE] [--force]` | 產出電子報草稿 | `500_Content/newsletter/drafts/YYYY-Wxx-{type}.md` |
 | `./bin/agent sync` | 將 canonical/ 規則同步到所有 IDE | `.agent/` `.cursor/` `.claude/` |
 | `./bin/agent help` | 顯示使用說明 | 終端機輸出 |
 
@@ -74,6 +88,8 @@ cd ~/dex-agent-os
 - `[--dry-run]`：只顯示將處理什麼，不寫入任何檔案（僅 extract）
 - `[--type TYPE]`：指定萃取類型 learnings / blockers / insights / all（僅 extract，預設 all）
 - `[--global]`：同時更新全域 `~/CLAUDE.md` 的「累積學習」區段（僅 extract）
+- `[--limit N]`：抓取筆數上限（僅 collect-threads，預設 50）
+- `[--token TOKEN]`：直接傳入 Threads API token（僅 collect-threads，預設讀 .env）
 
 ### IDE 內指令（Claude Code `/` 指令）
 
@@ -86,6 +102,8 @@ cd ~/dex-agent-os
 | `/daily-journal` | 觸發 daily-journal workflow | 已有 L1 日誌 |
 | `/daily-review` | 互動式每日回顧 | 已有 L1 或 L2 日記 |
 | `/daily-dayflow-digest` | 觸發 Dayflow 活動摘要 | Dayflow 有記錄 |
+| `/daily-content [日期]` | 完整內容管線：L1 → L2 + Dayflow → 6 篇 Threads | 當天有工作記錄 |
+| `/weekly-content [日期]` | 完整週報管線：週回顧 + 電子報草稿 | 該週有 L2 日記 |
 
 ### 跨 IDE 共用指令
 
@@ -231,7 +249,12 @@ cd ~/dex-agent-os
 ### 每日建議操作順序
 
 ```
-下班前 / 睡前：
+下班前 / 睡前（方式 A — 一鍵完成）：
+  1. /daily-content                     → L1 + L2 + Dayflow + 6 篇 Threads 草稿
+  2. ./bin/agent extract                → 萃取知識到記憶庫
+  3. /daily-review（選用）              → 互動回顧，補充洞察
+
+下班前 / 睡前（方式 B — 分步執行）：
   1. /work-log                         → 產出 L1 完整工作日誌
   2. ./bin/agent dayflow                → 產出 Dayflow 活動摘要
   3. ./bin/agent journal                → 從 L1 產出 L2 精煉日記
@@ -240,6 +263,15 @@ cd ~/dex-agent-os
 
 每週一次（或累積足夠新知識時）：
   6. ./bin/agent extract --global       → 更新全域速查表
+  7. ./bin/agent collect-threads        → 更新 Threads 範例
+  8. ./bin/agent extract-style threads  → 重新萃取 Style DNA
+
+每週日 / 週一（方式 A — 一鍵完成）：
+  9. /weekly-content                    → 週回顧 + 電子報草稿
+
+每週日 / 週一（方式 B — 分步執行）：
+  9. ./bin/agent weekly-review          → 個人週回顧
+  10. ./bin/agent weekly-newsletter     → 電子報草稿
 ```
 
 ---
@@ -381,7 +413,231 @@ canonical 單一真實來源 + sync 腳本...
 
 ---
 
-## 5. 檔案架構與分類
+## 5. 內容生產管線
+
+### 概覽
+
+Phase 3 建立了從素材到 Threads 草稿的完整管線，並透過 Style DNA 系統讓 AI 產出「像你寫的」內容。
+
+```
+素材來源                          內容產出
+─────────                        ─────────
+Insight 卡片 ──→ topic-create ──→ TOPIC.md ──→ topic-to-thread ──→ Threads 草稿
+L1 工作日誌  ──→ /daily-content ──→ 3 篇 Threads（Dayflow+L1 視角）
+L2 精煉日記  ──→ /daily-content ──→ 3 篇 Threads（L2 視角）
+                                      ↑
+                              Style DNA（風格指紋）
+```
+
+### Threads 範例收集
+
+從 Threads API 自動抓取你的歷史貼文 + 互動數據，作為風格分析的素材：
+
+```bash
+# 首次抓取（建議 ≥50 篇以獲得足夠風格樣本）
+./bin/agent collect-threads --limit 100
+
+# 強制覆蓋已存在的範例
+./bin/agent collect-threads --limit 100 --force
+```
+
+**前置需求：**
+1. 在 [developers.facebook.com](https://developers.facebook.com) 建立 Meta App（選 Threads API）
+2. 在 App Dashboard 使用「用戶權杖產生器」產生 Access Token
+3. 將 token 存入 `.env`：`THREADS_ACCESS_TOKEN=你的token`
+
+**輸出格式：** `800_System/references/examples/threads/NNN-slug.md`
+
+每篇包含：
+- 元資料（發布日期、互動數據、媒體類型）
+- 原文全文
+- 永久連結
+
+> **注意：** 用戶權杖有效期 60 天，過期後需到 Dashboard 重新產生。
+
+### Style DNA 萃取
+
+從範例中提取 7 個維度的抽象風格指紋：
+
+```bash
+./bin/agent extract-style threads          # 分析 Threads 範例
+./bin/agent extract-style threads --force  # 強制覆蓋
+```
+
+**分析維度：**
+
+| 維度 | 說明 |
+|------|------|
+| 結構模式 | 常見段落結構（Hook → 條列 → 金句） |
+| 開場 Hook 模式 | 反差型、提問型、宣告型等 |
+| 語氣特徵 | 精準度、口語比例、用字習慣 |
+| CTA / 收尾模式 | 金句收尾、開放提問、行動呼籲 |
+| 長度 / 格式 | 典型字數、段落數、標點習慣 |
+| 高互動特徵 | 從互動數據回推的成功模式 |
+| 禁忌 | 應避免的模式 |
+
+**輸出：** `800_System/references/style-dna/threads-dna.md`
+
+**範例越多 DNA 越精準** — 建議至少 50 篇以上。DNA 會隨著你持續發文而演化（定期重抓 + 重萃取）。
+
+### 主題建立（topic-create）
+
+從 insight 卡片或手動描述建立結構化主題：
+
+```bash
+# 從 insight 建立
+./bin/agent topic-create 500_Content/insights/2026-02-07-xxx.md
+
+# 手動建立
+./bin/agent topic-create --title "用 Claude Code 打造個人 Agent OS"
+
+# 列出可用 insights
+./bin/agent topic-create
+```
+
+**輸出：** `500_Content/topics/<slug>/TOPIC.md`（含核心論點、關鍵素材、頻道適合度、已產出 checklist）
+
+### 主題轉 Threads（topic-to-thread）
+
+從 TOPIC.md 產出 Threads 草稿，自動套用 Style DNA：
+
+```bash
+./bin/agent topic-to-thread <topic-slug>          # 產出草稿
+./bin/agent topic-to-thread <topic-slug> --force  # 覆蓋既有
+```
+
+**輸出：** `500_Content/topics/<slug>/threads-draft.md`（自動更新 TOPIC.md 的 checklist）
+
+### 每日內容管線（/daily-content）
+
+一鍵從工作紀錄產出 6 篇 Threads 草稿的完整管線：
+
+```
+/daily-content                    → 今天
+/daily-content 2026-02-09         → 指定日期
+/daily-content --skip-worklog     → 跳過 L1（已有工作日誌時）
+```
+
+**完整流程：**
+
+```
+Step 1: L1 工作日誌（/work-log，如不存在自動觸發）
+Step 2: Dayflow 活動摘要 + L2 精煉日記（平行執行）
+Step 3: 讀取素材 + Style DNA
+Step 4: 生成 6 篇 Threads 草稿（兩組各 3 篇，平行執行）
+        ├── Dayflow + L1 → 3 篇（日常活動視角）
+        └── L2 → 3 篇（深度反思視角）
+Step 5: 寫入檔案 + 產出摘要
+```
+
+**輸出目錄：**
+- `500_Content/topics/YYYY-MM-DD-threads-from-dayflow-l1/`（3 篇）
+- `500_Content/topics/YYYY-MM-DD-threads-from-l2/`（3 篇）
+
+> **提醒：** 兩組來源可能產出類似主題（因為同一天的內容），發布前請檢查去重。
+
+### DNA 的有機生長
+
+```
+初始 → collect-threads 抓 50+ 篇 → extract-style → v1 DNA
+用了一個月 → 重新 collect-threads → 重跑 extract-style → v2 DNA
+持續 → DNA 隨你的風格演化而演化
+```
+
+---
+
+## 6. 週回顧與電子報系統
+
+### 概覽
+
+Phase 4 建立了週級別的彙總系統：個人週回顧 + 對外電子報，月度輪替 4 種類型。
+
+```
+7 天 L2 日記 + Dayflow ──→ 週回顧（100_Journal/weekly/）
+7 天 L2 日記 + Topics + Insights ──→ 電子報草稿（500_Content/newsletter/drafts/）
+                                         ↑ Newsletter DNA（如有）
+```
+
+### 個人週回顧
+
+從 7 天的 L2 日記 + Dayflow 摘要中提煉結構化週回顧：
+
+```bash
+./bin/agent weekly-review                    # 本週
+./bin/agent weekly-review 2026-02-10         # 指定日期所在週
+./bin/agent weekly-review --force            # 強制覆蓋
+```
+
+**產出包含：**
+- 本週一句話總結
+- 完成了什麼（具體事項）
+- 學到什麼（知識萃取）
+- 本週數據（量化指標）
+- 模式與趨勢（跨天觀察）
+- 卡住的地方
+- 下週重點
+- 能量曲線
+
+**輸出：** `100_Journal/weekly/YYYY-Wxx.md`
+
+### 電子報（月度輪替 4 種類型）
+
+根據月內週數自動選擇電子報類型：
+
+| 月內週數 | 類型 | 說明 |
+|---------|------|------|
+| Week 1 | `curated` | 主題策展：3-5 精選主題，每個展開 1-2 段 |
+| Week 2 | `deep-dive` | 長篇深度：1 個深度主題 + 2-3 個短 highlight |
+| Week 3 | `mixed` | 混合：1 個深度主題 + 3-4 個短洞察條列 + 推薦資源 |
+| Week 4+ | `monthly-reflection` | 月度心得反思：整月回顧 + 個人成長 |
+
+```bash
+./bin/agent weekly-newsletter                          # 本週（自動選類型）
+./bin/agent weekly-newsletter 2026-02-10               # 指定日期所在週
+./bin/agent weekly-newsletter --type deep-dive         # 指定類型（override 輪替）
+./bin/agent weekly-newsletter --force                  # 強制覆蓋
+```
+
+**輸出：** `500_Content/newsletter/drafts/YYYY-Wxx-{type}.md`
+
+### Newsletter DNA（提升品質的關鍵）
+
+與 Threads Style DNA 同理，放入電子報範例後萃取風格指紋：
+
+```bash
+# 1. 手動放入過去的電子報範例
+#    → 800_System/references/examples/newsletter/*.md
+
+# 2. 萃取風格 DNA
+./bin/agent extract-style newsletter
+
+# 3. 之後的電子報會自動套用 DNA
+./bin/agent weekly-newsletter
+```
+
+### 一鍵週報（/weekly-content）
+
+在 Claude Code 中執行 `/weekly-content`，一次產出週回顧 + 電子報草稿。
+
+```
+/weekly-content                    → 本週
+/weekly-content 2026-02-10         → 指定日期所在週
+/weekly-content --type deep-dive   → 指定電子報類型
+```
+
+### 建議每週操作流程
+
+```
+每週日 / 週一：
+  1. /weekly-content（或分步）     → 週回顧 + 電子報草稿
+  2. 審閱週回顧                    → 可直接發布或作為個人參考
+  3. 審閱電子報草稿                → 修改後發送
+  4. 發送後歸檔到 500_Content/newsletter/archive/
+```
+
+---
+
+## 7. 檔案架構與分類
 
 ### 編號目錄系統
 
@@ -454,10 +710,10 @@ dex-agent-os/
 │   └── skills/             skill 定義
 │
 ├── scripts/            ← Python 腳本
-│   ├── generators/         daily_journal.py / daily_dayflow_digest.py
+│   ├── generators/         daily_journal.py / daily_dayflow_digest.py / topic_create.py / topic_to_thread.py / weekly_review.py / weekly_newsletter.py
 │   ├── extractors/         journal_knowledge_extract.py（知識萃取）
-│   ├── analyzers/          extract_style.py（Phase 3）
-│   ├── collectors/         discord_collector.py（future）
+│   ├── analyzers/          extract_style.py（風格 DNA 萃取）
+│   ├── collectors/         threads_collector.py（Threads API 抓取）
 │   ├── publishers/         wp_draft.py（Phase 5）
 │   └── lib/                共用模組（llm.py / config.py / file_utils.py / journal_parser.py）
 │
@@ -516,7 +772,7 @@ dex-agent-os/
 
 ---
 
-## 6. 跨平台同步
+## 8. 跨平台同步
 
 ### 核心原則
 
@@ -570,7 +826,7 @@ vim ~/dex-agent-os/canonical/rules/10-writing-style.md
 
 ---
 
-## 7. 模板系統
+## 9. 模板系統
 
 所有模板位於 `800_System/templates/`。
 
@@ -581,6 +837,10 @@ vim ~/dex-agent-os/canonical/rules/10-writing-style.md
 | `journal-template.md` | L2 精煉日記格式 | `daily_journal.py` |
 | `dayflow-digest-template.md` | Dayflow 活動摘要格式 | `daily_dayflow_digest.py` |
 | `consultation-notes-template.md` | 諮詢紀錄格式 | 手動填寫（Phase 6 完善） |
+| `topic-template.md` | 主題檔案格式（TOPIC.md） | `topic_create.py` |
+| `thread-template.md` | Threads 草稿格式 | `topic_to_thread.py` |
+| `weekly-review-template.md` | 週回顧格式 | `weekly_review.py` |
+| `newsletter-template.md` | 電子報格式（4 種類型） | `weekly_newsletter.py` |
 
 ### L1 工作日誌模板
 
@@ -599,7 +859,7 @@ vim ~/dex-agent-os/canonical/rules/10-writing-style.md
 
 ---
 
-## 8. 規則系統
+## 10. 規則系統
 
 ### 三層規則
 
@@ -635,7 +895,7 @@ vim ~/dex-agent-os/canonical/rules/10-writing-style.md
 
 ---
 
-## 9. 常見操作範例
+## 11. 常見操作範例
 
 ### 場景一：下班前產出完整日記
 
@@ -705,7 +965,59 @@ cp ~/dex-agent-os/800_System/templates/consultation-notes-template.md \
 vim ~/dex-agent-os/200_Work/consultations/2026-02-08-alice-career/notes.md
 ```
 
-### 場景六：萃取日記知識並更新全域記憶
+### 場景六：從工作紀錄一鍵產出 Threads 草稿
+
+```bash
+# 在 Claude Code 中執行完整內容管線
+/daily-content
+
+# 指定日期
+/daily-content 2026-02-09
+
+# 如果 L1 已存在，跳過 work-log 步驟
+/daily-content --skip-worklog
+
+# 完成！6 篇 Threads 草稿已產出：
+# 500_Content/topics/2026-02-09-threads-from-dayflow-l1/  ← Dayflow+L1 視角 x3
+# 500_Content/topics/2026-02-09-threads-from-l2/          ← L2 深度反思 x3
+```
+
+### 場景七：建立 Style DNA 系統
+
+```bash
+# 1. 設定 Threads API token（.env）
+# 2. 抓取歷史貼文
+./bin/agent collect-threads --limit 100
+
+# 3. 確認抓取結果
+ls 800_System/references/examples/threads/
+
+# 4. 萃取風格 DNA
+./bin/agent extract-style threads
+
+# 5. 檢查 DNA 內容
+cat 800_System/references/style-dna/threads-dna.md
+```
+
+### 場景八：產出週回顧 + 電子報
+
+```bash
+# 方式 A — 一鍵完成（在 Claude Code 中）
+/weekly-content
+
+# 方式 B — 分步執行
+./bin/agent weekly-review              # 產出週回顧
+./bin/agent weekly-newsletter          # 產出電子報草稿（自動選類型）
+
+# 指定電子報類型
+./bin/agent weekly-newsletter --type deep-dive
+
+# 查看產出
+cat 100_Journal/weekly/2026-W07.md
+cat 500_Content/newsletter/drafts/2026-W07-deep-dive.md
+```
+
+### 場景九：萃取日記知識並更新全域記憶
 
 ```bash
 # 1. 先確認有哪些日記需要處理
@@ -728,7 +1040,7 @@ tail -40 ~/CLAUDE.md
 
 ---
 
-## 10. 目前功能狀態
+## 12. 目前功能狀態
 
 ### 已完成（可使用）
 
@@ -737,6 +1049,8 @@ tail -40 ~/CLAUDE.md
 | 目錄骨架（000-800） | — | 1 |
 | 規則系統（core / writing-style / safety） | `canonical/rules/` | 1 |
 | 跨平台同步 | `./bin/sync` | 1 |
+| 全域 skills 同步（41 個） | `./bin/sync` | 1 |
+| 全域 commands 同步（11 個） | `./bin/sync` | 1 |
 | L1 工作日誌（支援指定日期） | `/work-log [日期]` | 2 |
 | L2 精煉日記 | `./bin/agent journal [日期]` | 2 |
 | Dayflow 活動摘要日記 | `./bin/agent dayflow [日期]` | 2 |
@@ -744,16 +1058,19 @@ tail -40 ~/CLAUDE.md
 | 諮詢紀錄模板 | 手動使用模板 | 2（前置） |
 | 知識萃取（learnings / blockers / insights） | `./bin/agent extract` | 2.5 |
 | 全域速查表更新 | `./bin/agent extract --global` | 2.5 |
-| 全域 skills 同步（41 個） | `./bin/sync` | 1 |
-| 全域 commands 同步（11 個） | `./bin/sync` | 1 |
+| Threads 貼文自動抓取 | `./bin/agent collect-threads` | 3 |
+| 風格 DNA 萃取（Threads） | `./bin/agent extract-style threads` | 3 |
+| 主題建立（從 insight） | `./bin/agent topic-create` | 3 |
+| 主題 → Threads 草稿 | `./bin/agent topic-to-thread` | 3 |
+| 每日內容管線（6 篇 Threads） | `/daily-content` | 3 |
+| 個人週回顧 | `./bin/agent weekly-review` | 4 |
+| 電子報草稿（4 種月度輪替類型） | `./bin/agent weekly-newsletter` | 4 |
+| 一鍵週報管線 | `/weekly-content` | 4 |
 
 ### 尚未實作（計畫中）
 
 | 功能 | 計畫 Phase |
 |------|------------|
-| 主題建立 / topic-to-thread | Phase 3 |
-| 風格 DNA 提取 | Phase 3 |
-| 週報 / 電子報自動產出 | Phase 4 |
 | 其餘頻道（FB / Blog / Podcast / 短影音 / 影評） | Phase 5 |
 | 會議筆記 / 諮詢紀錄 workflow | Phase 6 |
 | 專案管理 / 訂閱管理 | Phase 6 |
@@ -761,7 +1078,7 @@ tail -40 ~/CLAUDE.md
 
 ---
 
-## 11. 疑難排解
+## 13. 疑難排解
 
 ### `/work-log` 更新後沒生效
 
@@ -802,6 +1119,26 @@ tail -40 ~/CLAUDE.md
 
 **原因：** LLM 的 classification 判斷可能偏向某一類。
 **解法：** 這是正常的 — 大部分日記洞察確實是 content 類型（有頻道標記）。可以手動調整 classification，將檔案搬到正確目錄。
+
+### `./bin/agent collect-threads` 提示找不到 token
+
+**原因：** `.env` 中沒有 `THREADS_ACCESS_TOKEN`，或 token 已過期。
+**解法：**
+1. 到 [developers.facebook.com](https://developers.facebook.com) 的 App Dashboard
+2. 使用「用戶權杖產生器」（User Token Generator）重新產生 Access Token
+3. 更新 `.env` 中的 `THREADS_ACCESS_TOKEN=`
+
+> **注意：** Meta OAuth 的 localhost redirect URI 被封殺，個人開發者請直接用 Dashboard 的用戶權杖產生器，不要走 OAuth 流程。
+
+### `./bin/agent collect-threads` 抓取數量少於預期
+
+**原因：** 部分 Threads 貼文可能是純圖片/影片（無文字），系統會自動跳過。
+**解法：** 這是正常行為。例如 `--limit 100` 可能只產出 78 篇有文字的範例。
+
+### `./bin/agent extract-style` 產出的 DNA 不夠精準
+
+**原因：** 範例數量不足。
+**解法：** 建議至少 50 篇以上的範例。用 `collect-threads --limit 100` 抓取更多，再重跑 `extract-style threads --force`。
 
 ### `bin/sync` 的 awk 誤判 YAML frontmatter
 

@@ -2,7 +2,7 @@
 
 > 個人 AI 代理人作業系統
 > 涵蓋：生產力、學習、輸入輸出、工作管理、專案、產品、寫作
-> 最後更新：2026-02-08
+> 最後更新：2026-02-11
 
 ---
 
@@ -397,11 +397,11 @@ dex-agent-os/
       journal-template.md             #   ✅ L2 精煉日記模板
       dayflow-digest-template.md      #   ✅ Dayflow 活動摘要模板
       consultation-notes-template.md  #   ✅ 諮詢紀錄模板
+      topic-template.md               #   ✅ TOPIC.md 格式模板
+      thread-template.md              #   ✅ Threads 草稿格式模板
       meeting-notes-template.md
       project-status-template.md
       product-feature-template.md
-      topic-template.md
-      thread-template.md
       fb-post-template.md
       newsletter-template.md
       blog-template.md
@@ -432,18 +432,21 @@ dex-agent-os/
 
   scripts/
     collectors/                       # 資料收集
-      discord_collector.py
+      threads_collector.py            #   ✅ Threads API 自動抓取（直接 token）
+      discord_collector.py            #   (future)
       notion_collector.py             #   (future)
     generators/                       # 內容生成
       daily_journal.py                #   ✅ L1→L2 精煉日記生成器
       daily_dayflow_digest.py         #   ✅ Dayflow 活動摘要生成器
+      topic_create.py                 #   ✅ insight → TOPIC.md
+      topic_to_thread.py              #   ✅ TOPIC.md → Threads 草稿
       weekly_newsletter.py
       weekly_learning.py
     publishers/                       # 發布
       wp_draft.py
       wp_archive.py
     analyzers/                        # 分析
-      extract_style.py
+      extract_style.py                #   ✅ 範例 → 風格 DNA
     lib/                              # 共用模組
       __init__.py                     #   ✅ Package marker
       llm.py                          #   ✅ claude --print 封裝
@@ -451,7 +454,7 @@ dex-agent-os/
       file_utils.py                   #   ✅ 檔案操作工具
 
   bin/
-    agent                             # ✅ CLI 入口（journal、dayflow、sync）
+    agent                             # ✅ CLI 入口（journal、dayflow、sync、collect-threads、extract-style、topic-create、topic-to-thread）
     sync                              # ✅ 跨平台同步腳本
     setup                             # 一鍵安裝（launchd、依賴）
 
@@ -835,37 +838,69 @@ def ask_claude(system_prompt: str, user_prompt: str) -> str:
 
 ---
 
-### Phase 3：topic-create + topic-to-thread + style-dna 提取
+### Phase 3：topic-create + topic-to-thread + style-dna + Threads collector ✅ 已完成
 
-**目標：** 一個主題能快速產出 Threads 草稿，風格像你寫的
+**完成日期：** 2026-02-09
 
-**任務：**
-- [ ] 寫 `800_System/templates/topic-template.md`
-- [ ] 寫 `800_System/templates/thread-template.md`
-- [ ] 寫 `canonical/workflows/topic-create.md`
-- [ ] 寫 `canonical/workflows/topic-to-thread.md`
-- [ ] 寫 `canonical/workflows/extract-style.md`
-- [ ] 寫 `scripts/analyzers/extract_style.py`
-- [ ] 你放入 10+ 篇 Threads 過去範例到 `800_System/references/examples/threads/`
-- [ ] 跑 `/extract-style threads` 產出 `threads-dna.md`
-- [ ] 測試：`/topic-create` → `/topic-to-thread` 完整流程
-- [ ] Commit
+**詳細計畫：** 見 `implementation_plan_phase3.md`
+**任務追蹤：** 見 `task_phase3.md`
+
+**已完成項目：**
+- [x] 模板：`topic-template.md`、`thread-template.md`
+- [x] Workflow：`topic-create.md`、`topic-to-thread.md`、`extract-style.md`
+- [x] 更新 `config.py`、`.gitignore`、`.env.example`
+- [x] 實作 `scripts/collectors/threads_collector.py`（Threads API 自動抓取，直接 token 方式）
+- [x] 實作 `scripts/analyzers/extract_style.py`（範例 → 風格 DNA）
+- [x] 實作 `scripts/generators/topic_create.py`（insight → TOPIC.md）
+- [x] 實作 `scripts/generators/topic_to_thread.py`（TOPIC.md → Threads 草稿）
+- [x] 更新 `bin/agent`（collect-threads / extract-style / topic-create / topic-to-thread）
+- [x] 設定 Meta App → 抓取 78 篇 Threads 範例 → 萃取 threads-dna.md
+- [x] 端到端測試：`/daily-content` 產出 6 篇 Threads 草稿
+- [x] 建立 `/daily-content` skill（.claude/commands/daily-content.md）
+- [x] 更新 GUIDE.md + PLAN.md
+
+**額外完成 — 每日內容管線 skill：**
+- [x] `/daily-content` — 一鍵從 L1 → L2 + Dayflow → 6 篇 Threads 草稿
+- [x] 支援 `--skip-worklog` 跳過 L1、指定日期參數
+- [x] 兩組 Threads 來源（Dayflow+L1 視角 × 3 + L2 深度反思 × 3）
+
+**關鍵設計決策：**
+- OAuth 完全移除 — Meta 的 OAuth 不支援 localhost redirect URI，改用 Dashboard「用戶權杖產生器」直接取得 token
+- Style DNA 基於 78 篇真實 Threads 萃取，涵蓋 7 個維度
+- `/daily-content` 使用 `claude --print` 背景平行執行，一次產出 6 篇草稿
+
+**已驗證的產出：**
+
+| 檔案 | 類型 | 來源 |
+|------|------|------|
+| `800_System/references/examples/threads/` (78 篇) | Threads 範例 | `collect-threads` |
+| `800_System/references/style-dna/threads-dna.md` | Style DNA | `extract-style` |
+| `500_Content/topics/2026-02-09-threads-from-dayflow-l1/` (3 篇) | Threads 草稿 | `/daily-content` |
+| `500_Content/topics/2026-02-09-threads-from-l2/` (3 篇) | Threads 草稿 | `/daily-content` |
 
 ---
 
-### Phase 4：weekly-newsletter + weekly-review
+### Phase 4：weekly-newsletter + weekly-review ✅
 
 **目標：** 每週自動產出電子報選題 + 草稿
 
 **任務：**
-- [ ] 寫 `800_System/templates/newsletter-template.md`
-- [ ] 寫 `canonical/workflows/weekly-newsletter.md`
-- [ ] 寫 `canonical/workflows/weekly-review.md`
-- [ ] 寫 `scripts/generators/weekly_newsletter.py`
-- [ ] 你放入過去電子報範例到 `800_System/references/examples/newsletter/`
-- [ ] 跑 `/extract-style newsletter` 產出 `newsletter-dna.md`
-- [ ] 測試完整週報流程
-- [ ] Commit
+- [x] 寫 `800_System/templates/newsletter-template.md`
+- [x] 寫 `800_System/templates/weekly-review-template.md`
+- [x] 更新 `scripts/lib/config.py` 新增路徑常數
+- [x] 在 `scripts/lib/file_utils.py` 新增 `week_date_range()` helper
+- [x] 寫 `scripts/generators/weekly_review.py`
+- [x] 寫 `scripts/generators/weekly_newsletter.py`（4 種月度輪替類型）
+- [x] 寫 `canonical/workflows/weekly-review.md`
+- [x] 寫 `canonical/workflows/weekly-newsletter.md`
+- [x] 更新 `bin/agent` 新增 weekly-review + weekly-newsletter 子命令
+- [x] 寫 `.claude/commands/weekly-content.md` 一鍵週報 skill
+- [x] 跑 `bin/sync` 同步到三個 IDE
+- [x] 更新 `GUIDE.md` 新增週報系統說明
+- [x] 測試完整週報流程
+- [x] Commit
+- [ ] 你放入過去電子報範例到 `800_System/references/examples/newsletter/`（使用者手動）
+- [ ] 跑 `/extract-style newsletter` 產出 `newsletter-dna.md`（需先有範例）
 
 ---
 
@@ -936,3 +971,7 @@ def ask_claude(system_prompt: str, user_prompt: str) -> str:
 | 2026-02-08 | Dayflow 活動摘要獨立於 L2 精煉日記 | journal_entries 為空，timeline_cards + observations 有豐富資料，兩種日記視角互補 |
 | 2026-02-08 | /work-log 支援指定日期 | 允許回溯產出過去的工作日誌 |
 | 2026-02-08 | LLM 回應清理邏輯（去除思考殘留） | claude --print 偶爾輸出思考過程，需在腳本中過濾 |
+| 2026-02-09 | Threads collector 用直接 token 取代 OAuth | Meta OAuth 不支援 localhost redirect URI，Dashboard「用戶權杖產生器」30 秒搞定 |
+| 2026-02-09 | Style DNA 基於 78 篇真實範例 | 50 篇以下 DNA 精準度不足，78 篇能涵蓋足夠的風格變異 |
+| 2026-02-09 | `/daily-content` 用 claude --print 平行產出 | 兩組 × 3 篇用背景任務平行，總時間約 2-3 分鐘 |
+| 2026-02-09 | Threads 草稿分兩組視角（Dayflow+L1 vs L2） | 同一天素材不同切面，避免主題雷同 |
