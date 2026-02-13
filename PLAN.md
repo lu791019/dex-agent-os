@@ -957,6 +957,39 @@ def ask_claude(system_prompt: str, user_prompt: str) -> str:
 
 ---
 
+### Phase 5a-ext：Podwise Notion/Readwise API 串接 ✅ 已完成
+
+**完成日期：** 2026-02-13
+
+**任務追蹤：** 見 `task_phase5a.md` Section G
+
+**已完成項目：**
+- [x] 更新 `config.py` 新增 3 個 env var（NOTION_TOKEN / NOTION_PODWISE_DB_ID / READWISE_TOKEN）
+- [x] 在 `podcast_transcript.py` 新增 P5 Notion API（query_db + read_blocks + blocks_to_text）
+- [x] 在 `podcast_transcript.py` 新增 P6 Readwise API（export highlights + book_to_text）
+- [x] 擴展 argparse 加入 `--notion` / `--readwise` / `--all`
+- [x] 更新 `bin/agent` help text + `.claude/commands/podcast-add.md` skill
+- [x] 更新 `config/.env.example` 新增 Podwise 設定說明
+- [x] 更新 GUIDE.md（Podwise 串接設定 + 疑難排解）
+
+**關鍵設計決策：**
+- 零新依賴：全部用 requests + urllib fallback
+- Token 未設定時顯示清楚的 setup 引導（不 crash）
+- 程式碼已就緒，等訂閱 Podwise 後設定 env vars 即可使用
+- Notion API 用純 requests（不裝 notion-client），rate limit 0.35s/req
+- Readwise auth 用 `Token` scheme（非 Bearer）
+
+**驗證結果：**
+
+| 測試 | 結果 |
+|------|------|
+| `python3 -c "import scripts.collectors.podcast_transcript"` | ✅ 無錯誤 |
+| `./bin/agent podcast-add --notion`（無 token） | ✅ 顯示 setup 引導 |
+| `./bin/agent podcast-add --readwise`（無 token） | ✅ 顯示 setup 引導 |
+| argparse `--notion` / `--readwise` / `--all` | ✅ 正確解析 |
+
+---
+
 ### Phase 5b：其餘頻道
 
 **目標：** 補齊 FB、Blog、短影音、影評的管線
@@ -1030,3 +1063,5 @@ def ask_claude(system_prompt: str, user_prompt: str) -> str:
 | 2026-02-11 | YouTube 線與 Podcast 線獨立設計，digest 層合併 | 兩種來源獲取邏輯差異大，但週度彙整需要跨來源歸納趨勢 |
 | 2026-02-11 | Podcast 先做 P4（手動）+ P3（Apple TTML），不做 Whisper/Deepgram | 零依賴方案先跑通，進階模式按需擴展 |
 | 2026-02-11 | 簡報產出為 markdown 結構而非直接 .pptx | 可用已有的 `/pptx` skill 轉換，保持管線解耦 |
+| 2026-02-13 | Podwise 串接先寫好程式碼，等訂閱後設定 env vars | 架構先行，避免未來重新設計 |
+| 2026-02-13 | Notion API 用純 requests 不裝 notion-client | 零新依賴，requests 已是現有依賴 |
