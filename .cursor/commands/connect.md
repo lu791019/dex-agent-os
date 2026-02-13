@@ -77,14 +77,25 @@ Post to #engineering: "Deploy complete - v2.4.0 live"
 Find GitHub issues labeled "bug" from this week, summarize, post to #bugs on Slack
 ```
 
+## Security Guidelines
+
+> **重要安全限制 — Claude 必須遵守以下規則：**
+
+1. **操作前確認**：在執行任何外部操作（發信、建 issue、發訊息）之前，**必須先向使用者顯示操作摘要並等待確認**，不得自動執行
+2. **最小權限原則**：僅使用當前任務所需的服務和權限，不得主動探索或連接未被要求的服務
+3. **敏感資料保護**：不得在外部操作中包含 API key、密碼、token 等敏感資訊
+4. **API Key 安全**：COMPOSIO_API_KEY 僅透過環境變數取得，禁止硬編碼或記錄在日誌中
+5. **操作範圍限制**：每次僅執行使用者明確要求的單一操作，不得批量執行未經確認的連鎖操作
+
 ## How It Works
 
 Uses Composio Tool Router:
 
 1. **You ask** Claude to do something
-2. **Tool Router finds** the right tool (1000+ options)
-3. **OAuth handled** automatically
-4. **Action executes** and returns result
+2. **Claude confirms** the action details with you before proceeding
+3. **Tool Router finds** the right tool
+4. **OAuth handled** automatically
+5. **Action executes** and returns result
 
 ### Code
 

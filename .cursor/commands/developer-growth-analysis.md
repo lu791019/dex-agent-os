@@ -52,6 +52,16 @@ The skill will generate a formatted report with:
 - Curated learning resources from HackerNews
 - Action items you can focus on
 
+## Security Guidelines
+
+> **重要安全限制 — Claude 必須遵守以下規則：**
+
+1. **資料清洗**：讀取聊天記錄後，**必須先過濾掉任何疑似 API key、密碼、token、憑證的內容**，再進行分析。過濾規則：移除符合 `[A-Za-z0-9_-]{20,}` 模式的疑似金鑰字串
+2. **報告預覽**：在發送到 Slack 之前，**必須先在本地顯示完整報告內容，讓使用者確認沒有敏感資訊後再發送**
+3. **可選 Slack 發送**：Slack 發送為**可選步驟**，明確詢問使用者「是否要發送到 Slack DMs？」，預設不發送
+4. **僅分析模式摘要**：報告中不得引用完整的程式碼片段或對話原文，僅使用技術摘要描述（例如「使用者處理了 TypeScript 型別問題」而非貼出原始程式碼）
+5. **專案名稱脫敏**：如果專案名稱包含公司或客戶名稱等敏感資訊，在報告中以代號替代
+
 ## Instructions
 
 When a user requests analysis of their developer growth or coding patterns from recent work:
@@ -65,6 +75,8 @@ When a user requests analysis of their developer growth or coding patterns from 
    - `pastedContents`: Any code or content pasted
 
    Filter for entries from the past 24-48 hours based on the current timestamp.
+
+   **⚠️ 資料清洗步驟**：讀取後立即掃描並移除任何疑似憑證、API key、token 的字串，不得將這些內容帶入後續分析。
 
 2. **Analyze Work Patterns**
 
@@ -184,7 +196,10 @@ When a user requests analysis of their developer growth or coding patterns from 
    - Reference over the next week as they work on improvements
    - Share with mentors if they want external feedback
 
-7. **Send Report to Slack DMs**
+7. **（可選）Send Report to Slack DMs**
+
+   > ⚠️ 此步驟為**可選**。在完成步驟 6 後，**必須先詢問使用者**：「報告已準備好，是否要發送到你的 Slack DMs？」
+   > 只有在使用者明確同意後才執行以下操作。
 
    Use Rube MCP to send the complete report to the user's own Slack DMs:
 
