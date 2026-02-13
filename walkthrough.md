@@ -45,6 +45,8 @@
 - **Result**：原有 146 行開發流程文件完整保留，累積學習區段正確附加在末尾
 
 ## Next Steps
-- Phase 3（PLAN.md）的 topic-create + style-dna extraction 可利用 500_Content/insights/ 的素材
-- 週報系統（Phase 4）可從 memory/learnings.md + reflections.md 彙整週度回顧
+- ✅ Phase 3 topic-create + style-dna 已利用 500_Content/insights/ 素材
+- ✅ Phase 4 週報系統已從 memory/ 彙整週度回顧
+- ✅ Phase 5a Podcast + YouTube digest 已完成
 - 未來可加入 `--type insights --channel Threads` 篩選特定頻道的 insight
+- 日記新增時持續執行 `./bin/agent extract` 累積知識庫

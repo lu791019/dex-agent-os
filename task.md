@@ -36,4 +36,4 @@
 
 ## Phase 6: 收尾
 - [x] Commit 所有變更
-- [ ] 產出 walkthrough.md
+- [x] 產出 walkthrough.md
