@@ -9,6 +9,10 @@
 #   ./bin/agent extract-style <channel> [--force]
 #   ./bin/agent topic-create [insight-file|--title "..."]
 #   ./bin/agent topic-to-thread <topic-slug> [--force]
+#   ./bin/agent topic-to-fb <topic-slug> [--force]
+#   ./bin/agent topic-to-blog <topic-slug> [--force]
+#   ./bin/agent topic-to-short-video <topic-slug> [--force]
+#   ./bin/agent film-review --title "..." [--notes "..."] [--rating N] [--force]
 #   ./bin/agent youtube-add "URL" [--force] [--date YYYY-MM-DD]
 #   ./bin/agent podcast-add --transcript FILE --title "..." [--force]
 #   ./bin/agent podcast-add --apple [--latest N]
@@ -50,6 +54,18 @@ case "$command" in
   topic-to-thread)
     python3 "$ROOT_DIR/scripts/generators/topic_to_thread.py" "$@"
     ;;
+  topic-to-fb)
+    python3 "$ROOT_DIR/scripts/generators/topic_to_fb.py" "$@"
+    ;;
+  topic-to-blog)
+    python3 "$ROOT_DIR/scripts/generators/topic_to_blog.py" "$@"
+    ;;
+  topic-to-short-video)
+    python3 "$ROOT_DIR/scripts/generators/topic_to_short_video.py" "$@"
+    ;;
+  film-review)
+    python3 "$ROOT_DIR/scripts/generators/film_review.py" "$@"
+    ;;
   youtube-add)
     python3 "$ROOT_DIR/scripts/collectors/youtube_transcript.py" "$@"
     ;;
@@ -84,6 +100,10 @@ Commands:
   extract-style <channel> [--force]                       提取風格 DNA
   topic-create [insight-file|--title "..."]               從 insight 建立主題
   topic-to-thread <topic-slug> [--force]                  主題 → Threads 草稿
+  topic-to-fb <topic-slug> [--force]                     主題 → Facebook 貼文草稿
+  topic-to-blog <topic-slug> [--force]                   主題 → 部落格文章草稿
+  topic-to-short-video <topic-slug> [--force]            主題 → 短影音腳本
+  film-review --title "..." [--notes "..."] [--rating N] 電影 → 影評
   youtube-add "URL" [--force] [--date YYYY-MM-DD]         YouTube 字幕 → 學習筆記
   podcast-add --transcript FILE --title "..." [--force]   手動逐字稿 → episode 筆記
   podcast-add --apple [--latest N]                        Apple Podcast 快取匯入
@@ -106,6 +126,10 @@ Examples:
   ./bin/agent topic-create          列出可用 insights
   ./bin/agent topic-create 500_Content/insights/xxx.md    從 insight 建立主題
   ./bin/agent topic-to-thread slug  主題 → Threads 草稿
+  ./bin/agent topic-to-fb slug     主題 → Facebook 貼文草稿
+  ./bin/agent topic-to-blog slug   主題 → 部落格文章草稿
+  ./bin/agent topic-to-short-video slug  主題 → 短影音腳本
+  ./bin/agent film-review --title "電影名" --notes "觀影筆記" --rating 8  產出影評
   ./bin/agent youtube-add "URL"     YouTube 影片 → 結構化學習筆記
   ./bin/agent podcast-add --transcript file.txt --title "..." 手動逐字稿
   ./bin/agent podcast-add --apple   匯入 Apple Podcast 快取

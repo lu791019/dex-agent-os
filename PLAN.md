@@ -995,12 +995,16 @@ def ask_claude(system_prompt: str, user_prompt: str) -> str:
 **目標：** 補齊 FB、Blog、短影音、影評的管線
 
 **任務：**
-- [ ] 各頻道 template + workflow + style-dna
-- [ ] Facebook：放入範例 → extract-style → topic-to-fb
-- [ ] Blog/WordPress：放入範例 → extract-style → topic-to-blog + wp-sync + wp-archive
-- [ ] 短影音：template + workflow（無範例，先建結構）
-- [ ] 影評：放入過去範例 → extract-style → film-review workflow
-- [ ] Commit
+- [x] 各頻道 template + workflow（fb-post / blog / short-video / film-review）
+- [x] Generator scripts（topic_to_fb / topic_to_blog / topic_to_short_video / film_review）
+- [x] CLI 整合（bin/agent +4 commands + help）
+- [x] topic-template.md checklist 更新（+ShortVideo +Podcast）
+- [x] CLAUDE.md CLI 速查表更新
+- [ ] Facebook：放入範例 → extract-style（等範例）
+- [ ] Blog：放入範例 → extract-style（等範例）
+- [ ] 影評：放入範例 → extract-style（等範例）
+- [ ] wp-sync + wp-archive（WordPress 發布串接，需 WP 憑證，另案）
+- [x] Commit
 
 ---
 

@@ -22,3 +22,5 @@ created: {{DATE}}
 - [ ] Facebook
 - [ ] Newsletter
 - [ ] Blog
+- [ ] ShortVideo
+- [ ] Podcast
