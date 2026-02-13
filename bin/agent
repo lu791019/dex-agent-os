@@ -12,6 +12,8 @@
 #   ./bin/agent youtube-add "URL" [--force] [--date YYYY-MM-DD]
 #   ./bin/agent podcast-add --transcript FILE --title "..." [--force]
 #   ./bin/agent podcast-add --apple [--latest N]
+#   ./bin/agent podcast-add --notion [--latest N] [--all] [--force]
+#   ./bin/agent podcast-add --readwise [--latest N] [--all] [--force]
 #   ./bin/agent podcast-digest [YYYY-MM-DD] [--pptx] [--force]
 #   ./bin/agent weekly-review [YYYY-MM-DD] [--force]
 #   ./bin/agent weekly-newsletter [YYYY-MM-DD] [--type TYPE] [--force]
@@ -85,6 +87,8 @@ Commands:
   youtube-add "URL" [--force] [--date YYYY-MM-DD]         YouTube 字幕 → 學習筆記
   podcast-add --transcript FILE --title "..." [--force]   手動逐字稿 → episode 筆記
   podcast-add --apple [--latest N]                        Apple Podcast 快取匯入
+  podcast-add --notion [--latest N] [--all] [--force]     Notion Podwise DB 匯入
+  podcast-add --readwise [--latest N] [--all] [--force]   Readwise podcast highlights 匯入
   podcast-digest [YYYY-MM-DD] [--pptx] [--force]         週度消化報告（合併 YT + Podcast）
   weekly-review [YYYY-MM-DD] [--force]                    產出個人週回顧
   weekly-newsletter [YYYY-MM-DD] [--type TYPE] [--force]  產出電子報草稿
@@ -105,6 +109,8 @@ Examples:
   ./bin/agent youtube-add "URL"     YouTube 影片 → 結構化學習筆記
   ./bin/agent podcast-add --transcript file.txt --title "..." 手動逐字稿
   ./bin/agent podcast-add --apple   匯入 Apple Podcast 快取
+  ./bin/agent podcast-add --notion --latest 5  從 Notion Podwise 匯入
+  ./bin/agent podcast-add --readwise --latest 5  從 Readwise 匯入
   ./bin/agent podcast-digest        產出本週 Podcast 消化報告
   ./bin/agent podcast-digest --pptx 同時產出簡報
   ./bin/agent weekly-review         產出本週的週回顧

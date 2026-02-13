@@ -9,6 +9,15 @@
   ./bin/agent podcast-add --apple              # 列出最近聽過的集數
   ./bin/agent podcast-add --apple --latest 3   # 自動匯入最新 3 集
 
+  # P5: Notion（Podwise 匯出）
+  ./bin/agent podcast-add --notion             # 列出最近 7 天 episodes
+  ./bin/agent podcast-add --notion --latest 5  # 匯入最新 5 集
+  ./bin/agent podcast-add --notion --all       # 匯入全部
+
+  # P6: Readwise（Podwise 匯出）
+  ./bin/agent podcast-add --readwise           # 列出最近 7 天 highlights
+  ./bin/agent podcast-add --readwise --latest 5
+
   # 共用參數
   --date YYYY-MM-DD    指定日期（預設今天）
   --force              覆蓋已存在的 episode
@@ -17,10 +26,12 @@
 from __future__ import annotations
 
 import argparse
+import json
 import re
 import sys
+import time
 import xml.etree.ElementTree as ET
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 
 ROOT_DIR = Path(__file__).resolve().parent.parent.parent
@@ -28,8 +39,11 @@ sys.path.insert(0, str(ROOT_DIR / "scripts"))
 
 from lib.config import (
     APPLE_PODCAST_TTML_DIR,
+    NOTION_PODWISE_DB_ID,
+    NOTION_TOKEN,
     PODCAST_EPISODES_DIR,
     PODCAST_TRANSCRIPTS_DIR,
+    READWISE_TOKEN,
     TEMPLATES_DIR,
 )
 from lib.file_utils import ensure_dir, read_text, today_str, write_text
@@ -56,6 +70,10 @@ SYSTEM_PROMPT = """\
 - 「我的想法」區塊保留 <!-- 手動補充 --> 不要填寫
 """
 
+NOTION_API_VERSION = "2022-06-28"
+NOTION_API_BASE = "https://api.notion.com/v1"
+READWISE_API_BASE = "https://readwise.io/api/v2"
+
 
 # ── 工具函式 ──────────────────────────────────────────
 
@@ -66,6 +84,69 @@ def slugify(text: str) -> str:
     text = re.sub(r"[\s_]+", "-", text)
     text = text.strip("-")
     return text[:50] if text else "untitled"
+
+
+def _get_requests():
+    """取得 requests 模組，fallback 到 urllib。"""
+    try:
+        import requests
+        return requests
+    except ImportError:
+        return None
+
+
+def _api_request(method: str, url: str, headers: dict, json_data: dict | None = None, params: dict | None = None) -> dict:
+    """統一 API 請求：優先用 requests，fallback 到 urllib。"""
+    requests = _get_requests()
+
+    if requests:
+        for attempt in range(3):
+            resp = requests.request(method, url, headers=headers, json=json_data, params=params, timeout=30)
+            if resp.status_code == 429:
+                retry_after = int(resp.headers.get("Retry-After", 2))
+                print(f"[podcast] Rate limited, waiting {retry_after}s...", file=sys.stderr)
+                time.sleep(retry_after)
+                continue
+            if resp.status_code == 401:
+                print("[podcast] ERROR: Token 無效或 Integration 未連接 database", file=sys.stderr)
+                print("  請確認 token 正確，且 Integration 已連接到 database", file=sys.stderr)
+                print("  設定步驟見 GUIDE.md", file=sys.stderr)
+                sys.exit(1)
+            resp.raise_for_status()
+            return resp.json()
+        print("[podcast] ERROR: API 重試 3 次仍失敗", file=sys.stderr)
+        sys.exit(1)
+    else:
+        # fallback: urllib
+        import urllib.request
+        import urllib.error
+
+        req_headers = dict(headers)
+        body = None
+        if json_data is not None:
+            body = json.dumps(json_data).encode("utf-8")
+        if params:
+            from urllib.parse import urlencode
+            url = f"{url}?{urlencode(params)}"
+
+        req = urllib.request.Request(url, data=body, headers=req_headers, method=method)
+        for attempt in range(3):
+            try:
+                with urllib.request.urlopen(req, timeout=30) as resp:
+                    return json.loads(resp.read().decode("utf-8"))
+            except urllib.error.HTTPError as e:
+                if e.code == 429:
+                    retry_after = int(e.headers.get("Retry-After", 2))
+                    print(f"[podcast] Rate limited, waiting {retry_after}s...", file=sys.stderr)
+                    time.sleep(retry_after)
+                    continue
+                if e.code == 401:
+                    print("[podcast] ERROR: Token 無效或 Integration 未連接 database", file=sys.stderr)
+                    print("  設定步驟見 GUIDE.md", file=sys.stderr)
+                    sys.exit(1)
+                raise
+        print("[podcast] ERROR: API 重試 3 次仍失敗", file=sys.stderr)
+        sys.exit(1)
 
 
 # ── 模式 P4：手動文字稿 ──────────────────────────────
@@ -124,6 +205,400 @@ def list_apple_podcasts() -> list[tuple[Path, datetime]]:
 
     results.sort(key=lambda x: x[1], reverse=True)
     return results
+
+
+# ── 模式 P5：Notion（Podwise 匯出） ─────────────────
+
+def _check_notion_setup() -> bool:
+    """檢查 Notion 設定，未設定時顯示引導。"""
+    if not NOTION_TOKEN:
+        print("[podcast] Notion token 未設定。請先完成設定：", file=sys.stderr)
+        print("", file=sys.stderr)
+        print("  1. 到 https://www.notion.so/my-integrations → 建立新 Integration", file=sys.stderr)
+        print("  2. 複製 Internal Integration Secret", file=sys.stderr)
+        print("  3. 存入 .env：NOTION_TOKEN=secret_xxxxxxxxxxxx", file=sys.stderr)
+        print("", file=sys.stderr)
+        print("  詳細步驟見 GUIDE.md", file=sys.stderr)
+        return False
+    if not NOTION_PODWISE_DB_ID:
+        print("[podcast] Notion database ID 未設定。請先完成設定：", file=sys.stderr)
+        print("", file=sys.stderr)
+        print("  1. 在 Podwise 匯出的 Notion database → '...' → 'Connect to' → 選 Integration", file=sys.stderr)
+        print("  2. 複製 database URL 中的 32 碼 ID", file=sys.stderr)
+        print("  3. 存入 .env：NOTION_PODWISE_DB_ID=xxxxxxxx", file=sys.stderr)
+        print("", file=sys.stderr)
+        print("  詳細步驟見 GUIDE.md", file=sys.stderr)
+        return False
+    return True
+
+
+def _notion_headers() -> dict:
+    """Notion API request headers。"""
+    return {
+        "Authorization": f"Bearer {NOTION_TOKEN}",
+        "Notion-Version": NOTION_API_VERSION,
+        "Content-Type": "application/json",
+    }
+
+
+def notion_query_database(limit: int = 0, fetch_all: bool = False) -> list[dict]:
+    """查詢 Notion Podwise database，回傳 page 列表。
+
+    Args:
+        limit: 限制回傳筆數（0=預設 7 天內）
+        fetch_all: 取得全部
+    """
+    headers = _notion_headers()
+    url = f"{NOTION_API_BASE}/databases/{NOTION_PODWISE_DB_ID}/query"
+
+    body: dict = {
+        "sorts": [{"timestamp": "created_time", "direction": "descending"}],
+    }
+
+    # 非 fetch_all 且無 limit 時，預設只抓 7 天內
+    if not fetch_all and limit == 0:
+        seven_days_ago = (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%dT%H:%M:%S.000Z")
+        body["filter"] = {
+            "timestamp": "created_time",
+            "created_time": {"on_or_after": seven_days_ago},
+        }
+
+    if limit > 0 and limit <= 100:
+        body["page_size"] = limit
+
+    pages = []
+    has_more = True
+    next_cursor = None
+
+    while has_more:
+        if next_cursor:
+            body["start_cursor"] = next_cursor
+
+        data = _api_request("POST", url, headers, json_data=body)
+        pages.extend(data.get("results", []))
+
+        has_more = data.get("has_more", False)
+        next_cursor = data.get("next_cursor")
+
+        # 已達到 limit 就停
+        if limit > 0 and len(pages) >= limit:
+            pages = pages[:limit]
+            break
+
+        # Rate limit：Notion 建議 3 req/s
+        time.sleep(0.35)
+
+    return pages
+
+
+def notion_read_page_blocks(page_id: str) -> str:
+    """讀取 Notion page 的所有 blocks，轉為純文字。"""
+    headers = _notion_headers()
+    url = f"{NOTION_API_BASE}/blocks/{page_id}/children"
+
+    all_blocks = []
+    has_more = True
+    next_cursor = None
+
+    while has_more:
+        params = {"page_size": 100}
+        if next_cursor:
+            params["start_cursor"] = next_cursor
+
+        data = _api_request("GET", url, headers, params=params)
+        all_blocks.extend(data.get("results", []))
+
+        has_more = data.get("has_more", False)
+        next_cursor = data.get("next_cursor")
+        time.sleep(0.35)
+
+    return _blocks_to_text(all_blocks)
+
+
+def _blocks_to_text(blocks: list[dict]) -> str:
+    """將 Notion blocks 轉為純文字。"""
+    lines = []
+    for block in blocks:
+        block_type = block.get("type", "")
+        block_data = block.get(block_type, {})
+
+        if block_type in ("paragraph", "quote", "callout", "toggle"):
+            text = _rich_text_to_str(block_data.get("rich_text", []))
+            if text:
+                lines.append(text)
+
+        elif block_type.startswith("heading_"):
+            level = block_type[-1]  # "heading_1" → "1"
+            text = _rich_text_to_str(block_data.get("rich_text", []))
+            if text:
+                lines.append(f"{'#' * int(level)} {text}")
+
+        elif block_type == "bulleted_list_item":
+            text = _rich_text_to_str(block_data.get("rich_text", []))
+            if text:
+                lines.append(f"- {text}")
+
+        elif block_type == "numbered_list_item":
+            text = _rich_text_to_str(block_data.get("rich_text", []))
+            if text:
+                lines.append(f"1. {text}")
+
+        elif block_type == "to_do":
+            text = _rich_text_to_str(block_data.get("rich_text", []))
+            checked = block_data.get("checked", False)
+            if text:
+                lines.append(f"- [{'x' if checked else ' '}] {text}")
+
+        elif block_type == "code":
+            text = _rich_text_to_str(block_data.get("rich_text", []))
+            lang = block_data.get("language", "")
+            if text:
+                lines.append(f"```{lang}\n{text}\n```")
+
+        elif block_type == "divider":
+            lines.append("---")
+
+    return "\n\n".join(lines)
+
+
+def _rich_text_to_str(rich_text: list[dict]) -> str:
+    """將 Notion rich_text 陣列轉為純文字。"""
+    return "".join(item.get("plain_text", "") for item in rich_text)
+
+
+def _notion_page_title(page: dict) -> str:
+    """從 Notion page 中提取標題。"""
+    props = page.get("properties", {})
+    for prop in props.values():
+        if prop.get("type") == "title":
+            return _rich_text_to_str(prop.get("title", []))
+    return "Untitled"
+
+
+def _notion_page_date(page: dict) -> str:
+    """從 Notion page 提取日期（created_time）。"""
+    created = page.get("created_time", "")
+    if created:
+        return created[:10]  # "2026-02-10T..." → "2026-02-10"
+    return today_str()
+
+
+def handle_notion(args) -> None:
+    """P5: 從 Notion Podwise DB 匯入 episode 筆記。"""
+    if not _check_notion_setup():
+        sys.exit(1)
+
+    date_str = args.date or today_str()
+    limit = args.latest if args.latest > 0 else 0
+
+    print("[podcast] Querying Notion Podwise database...")
+    pages = notion_query_database(limit=limit, fetch_all=args.all)
+
+    if not pages:
+        print("[podcast] Notion database 中沒有找到 episode", file=sys.stderr)
+        print("  如果你剛設定完成，請確認：", file=sys.stderr)
+        print("  1. Podwise 已匯出至 Notion", file=sys.stderr)
+        print("  2. Integration 已連接到正確的 database", file=sys.stderr)
+        return
+
+    # 無 --latest 且非 --all：列出讓使用者選擇
+    if args.latest == 0 and not args.all:
+        print(f"\n[podcast] 找到 {len(pages)} 個 episode：\n")
+        for i, page in enumerate(pages[:20], 1):
+            title = _notion_page_title(page)
+            date = _notion_page_date(page)
+            print(f"  {i:2d}. [{date}] {title}")
+        print(f"\n使用 --latest N 匯入最新 N 集，或 --all 匯入全部")
+        return
+
+    print(f"[podcast] 準備匯入 {len(pages)} 個 episode...")
+    for page in pages:
+        title = _notion_page_title(page)
+        page_date = _notion_page_date(page)
+        page_id = page["id"]
+
+        slug = slugify(title)
+        output_path = PODCAST_EPISODES_DIR / f"{page_date}-{slug}.md"
+
+        if output_path.exists() and not args.force:
+            print(f"[podcast] SKIP: {output_path.name} 已存在")
+            continue
+
+        print(f"\n[podcast] Reading: {title}")
+        content = notion_read_page_blocks(page_id)
+        print(f"[podcast] Content: {len(content)} chars")
+
+        if len(content) < 50:
+            print("[podcast] SKIP: 內容太短，跳過")
+            continue
+
+        output = generate_episode_note(
+            title=title,
+            transcript_text=content,
+            date_str=args.date or page_date,
+            source=f"Notion Podwise ({title})",
+            force=args.force,
+        )
+        print(f"[podcast] Done: {output.relative_to(ROOT_DIR)}")
+
+
+# ── 模式 P6：Readwise（Podwise 匯出） ───────────────
+
+def _check_readwise_setup() -> bool:
+    """檢查 Readwise 設定，未設定時顯示引導。"""
+    if not READWISE_TOKEN:
+        print("[podcast] Readwise token 未設定。請先完成設定：", file=sys.stderr)
+        print("", file=sys.stderr)
+        print("  1. 到 https://readwise.io/access_token → 複製 token", file=sys.stderr)
+        print("  2. 存入 .env：READWISE_TOKEN=xxxxxxxxxxxx", file=sys.stderr)
+        print("", file=sys.stderr)
+        print("  詳細步驟見 GUIDE.md", file=sys.stderr)
+        return False
+    return True
+
+
+def _readwise_headers() -> dict:
+    """Readwise API request headers。"""
+    return {
+        "Authorization": f"Token {READWISE_TOKEN}",
+    }
+
+
+def readwise_export_podcasts(limit: int = 0, fetch_all: bool = False) -> list[dict]:
+    """從 Readwise 匯出 podcast highlights，回傳按 book 分組的列表。
+
+    Args:
+        limit: 限制回傳筆數（0=預設 7 天內）
+        fetch_all: 取得全部
+    """
+    headers = _readwise_headers()
+    url = f"{READWISE_API_BASE}/export/"
+
+    params: dict = {}
+
+    # 非 fetch_all 且無 limit 時，預設只抓 7 天內
+    if not fetch_all and limit == 0:
+        seven_days_ago = (datetime.now() - timedelta(days=7)).isoformat()
+        params["updatedAfter"] = seven_days_ago
+
+    all_books = []
+    has_more = True
+    next_cursor = None
+
+    while has_more:
+        if next_cursor:
+            params["pageCursor"] = next_cursor
+
+        data = _api_request("GET", url, headers, params=params)
+        results = data.get("results", [])
+
+        # 過濾只留 podcast 類別
+        for book in results:
+            if book.get("category") == "podcasts":
+                all_books.append(book)
+
+        next_cursor = data.get("nextPageCursor")
+        has_more = next_cursor is not None
+
+        # 已達到 limit 就停
+        if limit > 0 and len(all_books) >= limit:
+            all_books = all_books[:limit]
+            break
+
+        time.sleep(0.35)
+
+    return all_books
+
+
+def _readwise_book_to_text(book: dict) -> str:
+    """將 Readwise book（episode）的 highlights 合併為文字。"""
+    lines = []
+
+    # Episode 基本資訊
+    title = book.get("title", "Untitled")
+    author = book.get("author", "")
+    source_url = book.get("source_url", "")
+
+    lines.append(f"# {title}")
+    if author:
+        lines.append(f"Host/Author: {author}")
+    if source_url:
+        lines.append(f"Source: {source_url}")
+    lines.append("")
+
+    # Highlights
+    highlights = book.get("highlights", [])
+    if highlights:
+        lines.append("## Highlights & Notes")
+        for hl in highlights:
+            text = hl.get("text", "")
+            note = hl.get("note", "")
+            if text:
+                lines.append(f"\n> {text}")
+            if note:
+                lines.append(f"\n**Note:** {note}")
+
+    return "\n".join(lines)
+
+
+def handle_readwise(args) -> None:
+    """P6: 從 Readwise 匯入 podcast highlights。"""
+    if not _check_readwise_setup():
+        sys.exit(1)
+
+    date_str = args.date or today_str()
+    limit = args.latest if args.latest > 0 else 0
+
+    print("[podcast] Querying Readwise podcast highlights...")
+    books = readwise_export_podcasts(limit=limit, fetch_all=args.all)
+
+    if not books:
+        print("[podcast] Readwise 中沒有找到 podcast highlights", file=sys.stderr)
+        print("  如果你剛設定完成，請確認：", file=sys.stderr)
+        print("  1. Podwise 已連結到 Readwise", file=sys.stderr)
+        print("  2. Readwise 中有 podcasts 類別的 highlights", file=sys.stderr)
+        return
+
+    # 無 --latest 且非 --all：列出讓使用者選擇
+    if args.latest == 0 and not args.all:
+        print(f"\n[podcast] 找到 {len(books)} 個 podcast episode：\n")
+        for i, book in enumerate(books[:20], 1):
+            title = book.get("title", "Untitled")
+            hl_count = len(book.get("highlights", []))
+            print(f"  {i:2d}. {title} ({hl_count} highlights)")
+        print(f"\n使用 --latest N 匯入最新 N 集，或 --all 匯入全部")
+        return
+
+    print(f"[podcast] 準備匯入 {len(books)} 個 episode...")
+    for book in books:
+        title = book.get("title", "Untitled")
+        # Readwise 的 updated 格式：ISO 8601
+        updated = book.get("updated", "")
+        book_date = updated[:10] if updated else date_str
+
+        slug = slugify(title)
+        output_path = PODCAST_EPISODES_DIR / f"{book_date}-{slug}.md"
+
+        if output_path.exists() and not args.force:
+            print(f"[podcast] SKIP: {output_path.name} 已存在")
+            continue
+
+        print(f"\n[podcast] Processing: {title}")
+        content = _readwise_book_to_text(book)
+        print(f"[podcast] Content: {len(content)} chars")
+
+        if len(content) < 50:
+            print("[podcast] SKIP: 內容太短，跳過")
+            continue
+
+        output = generate_episode_note(
+            title=title,
+            transcript_text=content,
+            date_str=args.date or book_date,
+            source=f"Readwise ({title})",
+            force=args.force,
+        )
+        print(f"[podcast] Done: {output.relative_to(ROOT_DIR)}")
 
 
 # ── LLM 結構化 ──────────────────────────────────────
@@ -207,12 +682,15 @@ def main():
     mode = parser.add_mutually_exclusive_group(required=True)
     mode.add_argument("--transcript", type=str, help="P4: 手動指定逐字稿文字檔路徑")
     mode.add_argument("--apple", action="store_true", help="P3: Apple Podcast TTML 快取")
+    mode.add_argument("--notion", action="store_true", help="P5: 從 Notion Podwise DB 匯入")
+    mode.add_argument("--readwise", action="store_true", help="P6: 從 Readwise 匯入 podcast highlights")
 
     # 共用參數
     parser.add_argument("--title", type=str, default=None, help="手動指定標題")
     parser.add_argument("--date", type=str, default=None, help="指定日期 (YYYY-MM-DD)")
     parser.add_argument("--force", action="store_true", help="覆蓋已存在的 episode")
-    parser.add_argument("--latest", type=int, default=0, help="--apple 模式：自動匯入最新 N 集")
+    parser.add_argument("--latest", type=int, default=0, help="自動匯入最新 N 集")
+    parser.add_argument("--all", action="store_true", help="匯入全部（不限日期）")
 
     args = parser.parse_args()
     date_str = args.date or today_str()
@@ -279,6 +757,14 @@ def main():
                 force=args.force,
             )
             print(f"[podcast] Done: {output.relative_to(ROOT_DIR)}")
+
+    # ── P5: Notion（Podwise 匯出） ──
+    elif args.notion:
+        handle_notion(args)
+
+    # ── P6: Readwise（Podwise 匯出） ──
+    elif args.readwise:
+        handle_readwise(args)
 
 
 if __name__ == "__main__":

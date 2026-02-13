@@ -1,5 +1,6 @@
 """Dex Agent OS — 路徑與常數設定"""
 
+import os
 from pathlib import Path
 
 # 專案根目錄
@@ -65,3 +66,8 @@ APPLE_PODCAST_TTML_DIR = (
 
 # Dayflow
 DAYFLOW_DB = Path.home() / "Library" / "Application Support" / "Dayflow" / "chunks.sqlite"
+
+# Podwise 串接（Notion + Readwise）
+NOTION_TOKEN = os.getenv("NOTION_TOKEN", "")
+NOTION_PODWISE_DB_ID = os.getenv("NOTION_PODWISE_DB_ID", "")
+READWISE_TOKEN = os.getenv("READWISE_TOKEN", "")
