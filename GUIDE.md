@@ -1,7 +1,7 @@
 # Dex Agent OS — 使用說明書
 
-> 版本：Phase 4 完成 — 週回顧 + 電子報系統
-> 最後更新：2026-02-11
+> 版本：Phase 5a-ext — Podwise Notion/Readwise 串接
+> 最後更新：2026-02-13
 
 ---
 
@@ -13,6 +13,7 @@
 - [4. 知識萃取系統](#4-知識萃取系統)
 - [5. 內容生產管線](#5-內容生產管線)
 - [6. 週回顧與電子報系統](#6-週回顧與電子報系統)
+- [6.5 Podcast & YouTube 消化系統](#65-podcast--youtube-消化系統)
 - [7. 檔案架構與分類](#7-檔案架構與分類)
 - [8. 跨平台同步](#8-跨平台同步)
 - [9. 模板系統](#9-模板系統)
@@ -64,56 +65,134 @@ echo "THREADS_ACCESS_TOKEN=你的token" >> .env
 
 ## 2. 指令總覽
 
-### CLI 指令（`bin/agent`）
+### 按情境分組的完整指令清單
 
-在終端機或 IDE 的 Terminal 中使用：
+以下按**典型使用順序**排列，同一情境內的指令建議依序執行。
 
-| 指令 | 用途 | 輸出位置 |
-|------|------|----------|
-| `./bin/agent journal [日期] [--force]` | 從 L1 工作日誌產出 L2 精煉日記 | `100_Journal/daily/YYYY-MM-DD.md` |
-| `./bin/agent dayflow [日期] [--force]` | 從 Dayflow 螢幕記錄產出活動摘要 | `100_Journal/daily/YYYY-MM-DD-dayflow.md` |
-| `./bin/agent extract [日期\|all] [options]` | 從日記萃取知識（學習/反思/靈感） | memory/ + 800_System/knowledge/ + 500_Content/insights/ |
-| `./bin/agent collect-threads [--limit N] [--force]` | 從 Threads API 抓取貼文作為風格範例 | `800_System/references/examples/threads/` |
-| `./bin/agent extract-style <channel>` | 從範例萃取風格 DNA | `800_System/references/style-dna/<channel>-dna.md` |
-| `./bin/agent topic-create <insight-file>` | 從 insight 建立主題 | `500_Content/topics/<slug>/TOPIC.md` |
-| `./bin/agent topic-to-thread <topic-slug>` | 主題 → Threads 草稿 | `500_Content/topics/<slug>/threads-draft.md` |
-| `./bin/agent weekly-review [日期] [--force]` | 產出個人週回顧 | `100_Journal/weekly/YYYY-Wxx.md` |
-| `./bin/agent weekly-newsletter [日期] [--type TYPE] [--force]` | 產出電子報草稿 | `500_Content/newsletter/drafts/YYYY-Wxx-{type}.md` |
-| `./bin/agent sync` | 將 canonical/ 規則同步到所有 IDE | `.agent/` `.cursor/` `.claude/` |
-| `./bin/agent help` | 顯示使用說明 | 終端機輸出 |
+#### A. 每日記錄（下班前 / 睡前）
 
-**參數說明：**
-- `[日期]`：YYYY-MM-DD 格式，省略則使用今天（extract 預設 `all`）
-- `[--force]`：強制覆蓋已存在的檔案（不詢問確認）/ 強制重新處理已萃取的日記
-- `[--dry-run]`：只顯示將處理什麼，不寫入任何檔案（僅 extract）
-- `[--type TYPE]`：指定萃取類型 learnings / blockers / insights / all（僅 extract，預設 all）
-- `[--global]`：同時更新全域 `~/CLAUDE.md` 的「累積學習」區段（僅 extract）
-- `[--limit N]`：抓取筆數上限（僅 collect-threads，預設 50）
-- `[--token TOKEN]`：直接傳入 Threads API token（僅 collect-threads，預設讀 .env）
+| 順序 | 指令 | 類型 | 說明 | 輸出位置 |
+|:----:|------|:----:|------|----------|
+| 1 | `/work-log [日期]` | IDE | 收集 Claude Code 對話、git commits、Dayflow 資料，產出 L1 完整工作日誌 | `~/work-logs/YYYY/MM/YYYY-MM-DD.md` |
+| 2 | `./bin/agent dayflow [日期]` | CLI | 從 Dayflow SQLite 讀取螢幕活動，產出行為分析摘要 | `100_Journal/daily/YYYY-MM-DD-dayflow.md` |
+| 3 | `./bin/agent journal [日期]` | CLI | 從 L1 工作日誌 + Dayflow 摘要（如存在）提煉精華，壓縮為 L2 精煉日記 | `100_Journal/daily/YYYY-MM-DD.md` |
+| 4 | `./bin/agent extract [日期\|all]` | CLI | 從 L2 日記萃取知識（學習/反思/靈感）到記憶庫 | `~/.claude/projects/-Users-dex-dex-agent-os/memory/` + `800_System/knowledge/` + `500_Content/insights/` |
+| 5 | `/daily-review` | IDE | 互動式每日回顧：AI 呈現摘要 → 問你 3 個問題 → 更新 L2 日記洞察 | 更新既有 L2 日記 |
 
-### IDE 內指令（Claude Code `/` 指令）
+> **一鍵替代 1-3：** `/daily-content [日期]` 會自動執行 L1 → Dayflow → L2（L2 會自動讀取 Dayflow 摘要），並額外產出 6 篇 Threads 草稿。
 
-在 Claude Code 對話中輸入：
+#### B. 每日內容生產（有素材想發文時）
 
-| 指令 | 用途 | 前置條件 |
-|------|------|----------|
-| `/work-log` | 產出今天的 L1 完整工作日誌 | 當天有 Claude Code 對話 |
-| `/work-log 2026-02-06` | 產出指定日期的 L1 工作日誌 | 該日有 Claude Code 對話記錄 |
-| `/daily-journal` | 觸發 daily-journal workflow | 已有 L1 日誌 |
-| `/daily-review` | 互動式每日回顧 | 已有 L1 或 L2 日記 |
-| `/daily-dayflow-digest` | 觸發 Dayflow 活動摘要 | Dayflow 有記錄 |
-| `/daily-content [日期]` | 完整內容管線：L1 → L2 + Dayflow → 6 篇 Threads | 當天有工作記錄 |
-| `/weekly-content [日期]` | 完整週報管線：週回顧 + 電子報草稿 | 該週有 L2 日記 |
+| 順序 | 指令 | 類型 | 說明 | 輸出位置 |
+|:----:|------|:----:|------|----------|
+| 1 | `/daily-content [日期]` | IDE | 一鍵完整管線：L1 → L2 + Dayflow → 6 篇 Threads 草稿（兩組視角各 3 篇） | `500_Content/topics/YYYY-MM-DD-threads-from-*/` |
+| 2 | `./bin/agent topic-create <insight-file>` | CLI | 從 insight 卡片建立結構化主題（含核心論點、頻道適合度） | `500_Content/topics/<slug>/TOPIC.md` |
+| 3 | `./bin/agent topic-to-thread <topic-slug>` | CLI | 從 TOPIC.md 產出 Threads 草稿，自動套用 Style DNA | `500_Content/topics/<slug>/threads-draft.md` |
+
+#### C. 每週彙總（週日或週一）
+
+| 順序 | 指令 | 類型 | 說明 | 輸出位置 |
+|:----:|------|:----:|------|----------|
+| 1 | `./bin/agent youtube-add "URL"` | CLI | YouTube 字幕 → 結構化學習筆記 | `300_Learning/youtube/YYYY-MM-DD-slug.md` |
+| 2 | `./bin/agent podcast-add --transcript FILE --title "..."` | CLI | 手動逐字稿 → episode 筆記 | `300_Learning/podcasts/episodes/YYYY-MM-DD-slug.md` |
+| 2' | `./bin/agent podcast-add --apple` | CLI | Apple Podcast 快取匯入 | 同上 |
+| 2'' | `./bin/agent podcast-add --notion [--latest N]` | CLI | Notion Podwise 匯入 | 同上 |
+| 2''' | `./bin/agent podcast-add --readwise [--latest N]` | CLI | Readwise Podwise 匯入 | 同上 |
+| 3 | `./bin/agent podcast-digest [日期]` | CLI | 週度消化報告（合併 YouTube + Podcast） | `300_Learning/podcasts/weekly/YYYY-Wxx-podcast-digest.md` |
+| 4 | `./bin/agent weekly-review [日期]` | CLI | 從 7 天 L2 日記 + Dayflow 彙整為結構化週回顧 | `100_Journal/weekly/YYYY-Wxx.md` |
+| 5 | `./bin/agent weekly-newsletter [日期]` | CLI | 從 L2 + Topics + Insights 產出電子報草稿（月度輪替 4 種類型） | `500_Content/newsletter/drafts/YYYY-Wxx-{type}.md` |
+
+> **一鍵替代 3：** `/podcast-weekly [日期]` 一鍵產出 digest + 可選簡報。
+> **一鍵替代 4-5：** `/weekly-content [日期]` 會自動依序產出週回顧 + 電子報草稿。
+
+#### D. 知識管理（每週一次或累積足夠時）
+
+| 順序 | 指令 | 類型 | 說明 | 輸出位置 |
+|:----:|------|:----:|------|----------|
+| 1 | `./bin/agent extract` | CLI | 萃取所有未處理日記的知識到記憶庫 | `~/.claude/projects/-Users-dex-dex-agent-os/memory/` + `800_System/knowledge/` |
+| 2 | `./bin/agent extract --global` | CLI | 萃取後額外更新全域 `~/CLAUDE.md` 的「累積學習」速查表 | `~/CLAUDE.md` 末尾 |
+
+#### E. 風格系統（初次設定 + 定期更新）
+
+| 順序 | 指令 | 類型 | 說明 | 輸出位置 |
+|:----:|------|:----:|------|----------|
+| 1 | `./bin/agent collect-threads` | CLI | 從 Threads API 抓取歷史貼文（建議 ≥50 篇），需 `.env` 中有 token | `800_System/references/examples/threads/` |
+| 2 | `./bin/agent extract-style <channel>` | CLI | 從範例中萃取 7 維度風格指紋（threads / newsletter） | `800_System/references/style-dna/<channel>-dna.md` |
+
+#### F. 系統維護
+
+| 指令 | 類型 | 說明 |
+|------|:----:|------|
+| `./bin/agent sync` 或 `./bin/sync` | CLI | 將 `canonical/` 規則同步到 `.agent/` `.cursor/` `.claude/` 三個 IDE |
+| `./bin/agent help` | CLI | 顯示 CLI 使用說明與範例 |
+
+#### G. 規格驅動開發（OpenSpec / OPSX）
+
+用於**規劃新功能、架構變更**時的結構化工作流，非日常內容操作。
+
+| 順序 | 指令 | 類型 | 說明 |
+|:----:|------|:----:|------|
+| — | `/opsx:explore` | IDE | 探索模式：釐清需求、調查問題、brainstorm 方案 |
+| 1 | `/opsx:new` | IDE | 建立新 change：產出提案 + delta spec |
+| 2 | `/opsx:continue` | IDE | 繼續推進 change：產出下一個 artifact |
+| 3 | `/opsx:ff` | IDE | 快轉模式：一口氣產出所有 artifact |
+| 4 | `/opsx:apply` | IDE | 根據 change artifact 執行實作 |
+| 5 | `/opsx:verify` | IDE | 驗證實作是否符合 artifact |
+| 6 | `/opsx:sync` | IDE | 將 delta spec 同步回 main spec |
+| 7 | `/opsx:archive` | IDE | 歸檔已完成的 change |
+| — | `/opsx:bulk-archive` | IDE | 批次歸檔多個已完成的 change |
+| — | `/opsx:onboard` | IDE | 引導式教學：走完一次完整 OPSX 流程 |
+
+---
+
+### 參數速查
+
+| 參數 | 適用指令 | 說明 |
+|------|---------|------|
+| `[日期]` | journal, dayflow, extract, weekly-review, weekly-newsletter | YYYY-MM-DD 格式，省略則今天（extract 預設 `all`） |
+| `--force` | journal, dayflow, extract, collect-threads, extract-style, topic-to-thread, weekly-review, weekly-newsletter | 強制覆蓋已存在檔案或重新處理 |
+| `--dry-run` | extract | 只顯示將處理什麼，不寫入 |
+| `--type TYPE` | extract, weekly-newsletter | extract: learnings/blockers/insights/all；newsletter: curated/deep-dive/mixed/monthly-reflection |
+| `--global` | extract | 額外更新全域 `~/CLAUDE.md` 速查表 |
+| `--limit N` | collect-threads | 抓取筆數上限（預設 50） |
+| `--token TOKEN` | collect-threads | 直接傳入 Threads API token（預設讀 .env） |
+| `--skip-worklog` | /daily-content | 跳過 L1 產出步驟（已有工作日誌時） |
+| `--title "..."` | topic-create, podcast-add | 手動指定標題 |
+| `--pptx` | podcast-digest | 同時產出簡報結構化 markdown |
+| `--apple` | podcast-add | 使用 Apple Podcast TTML 快取 |
+| `--notion` | podcast-add | 從 Notion Podwise DB 匯入 |
+| `--readwise` | podcast-add | 從 Readwise 匯入 podcast highlights |
+| `--transcript FILE` | podcast-add | 指定手動逐字稿檔案路徑 |
+| `--latest N` | podcast-add (--apple/--notion/--readwise) | 自動匯入最新 N 集 |
+| `--all` | podcast-add (--notion/--readwise) | 匯入全部（不限日期） |
 
 ### 跨 IDE 共用指令
 
-以下指令在三個 IDE 中都可使用（透過 `bin/sync` 同步）：
+以下 workflow 指令透過 `bin/sync` 同步，在三個 IDE 中都可使用：
 
-| IDE | 觸發方式 |
-|-----|----------|
-| Claude Code | `/daily-journal`、`/daily-review`、`/daily-dayflow-digest` |
-| Antigravity | `/daily-journal`、`/daily-review`、`/daily-dayflow-digest` |
-| Cursor | `/daily-journal`、`/daily-review`、`/daily-dayflow-digest` |
+| 指令 | Claude Code | Antigravity | Cursor |
+|------|:-----------:|:-----------:|:------:|
+| `/daily-journal` | ✓ | ✓ | ✓ |
+| `/daily-review` | ✓ | ✓ | ✓ |
+| `/daily-dayflow-digest` | ✓ | ✓ | ✓ |
+| `/extract-style` | ✓ | ✓ | ✓ |
+| `/topic-create` | ✓ | ✓ | ✓ |
+| `/topic-to-thread` | ✓ | ✓ | ✓ |
+| `/weekly-review` | ✓ | ✓ | ✓ |
+| `/weekly-newsletter` | ✓ | ✓ | ✓ |
+| `/podcast-weekly` | ✓ | ✓ | ✓ |
+
+以下為 Claude Code 專屬指令（`.claude/commands/` 中定義）：
+
+| 指令 | 說明 |
+|------|------|
+| `/work-log` | L1 工作日誌（需 Claude Code 對話歷史） |
+| `/daily-content` | 一鍵每日內容管線 |
+| `/weekly-content` | 一鍵每週內容管線 |
+| `/youtube-add` | YouTube 字幕 → 結構化學習筆記 |
+| `/podcast-add` | Podcast 逐字稿 → episode 筆記 |
+| `/podcast-weekly` | 一鍵 Podcast 週度消化 + 簡報 |
+| `/opsx:*` | OpenSpec 規格驅動開發系列 |
 
 ---
 
@@ -179,7 +258,7 @@ echo "THREADS_ACCESS_TOKEN=你的token" >> .env
 
 #### Step 3：L2 精煉日記
 
-從 L1 工作日誌提煉出精華，壓縮到 1/3 ~ 1/5 長度。
+從 L1 工作日誌 + Dayflow 活動摘要（如存在）提煉出精華，壓縮到 1/3 ~ 1/5 長度。Dayflow 的行為模式洞察會自動融入「卡在哪裡」和「洞察 & 靈感」區段。
 
 ```bash
 ./bin/agent journal                    # 今天
@@ -257,7 +336,7 @@ echo "THREADS_ACCESS_TOKEN=你的token" >> .env
 下班前 / 睡前（方式 B — 分步執行）：
   1. /work-log                         → 產出 L1 完整工作日誌
   2. ./bin/agent dayflow                → 產出 Dayflow 活動摘要
-  3. ./bin/agent journal                → 從 L1 產出 L2 精煉日記
+  3. ./bin/agent journal                → 從 L1 + Dayflow 摘要產出 L2 精煉日記（需先跑完 step 2）
   4. ./bin/agent extract                → 萃取知識到記憶庫
   5. /daily-review（選用）              → 互動回顧，補充洞察
 
@@ -290,12 +369,20 @@ echo "THREADS_ACCESS_TOKEN=你的token" >> .env
     └─ 「洞察 & 靈感」→ 500_Content/insights/ 或 000_Inbox/ideas/ 或 600_Life/personal/
 ```
 
+### 為什麼寫到 memory/ 就能「記住」？
+
+這是 Claude Code 的內建機制。當你在 `~/dex-agent-os/` 開啟 Claude Code 時，它會自動找到對應的 `~/.claude/projects/-Users-dex-dex-agent-os/` 目錄，並將 `memory/` 資料夾裡的所有 `.md` 檔案**注入到每次對話的 system prompt**。
+
+路徑命名規則：專案絕對路徑 `/Users/dex/dex-agent-os` 的 `/` 替換成 `-`，得到 `-Users-dex-dex-agent-os`。
+
+所以 `extract` 指令寫入到這個目錄的 `learnings.md`、`reflections.md`、`MEMORY.md`，每次開新對話就自動帶進來，不需要手動指定。
+
 ### 三層分級記憶架構
 
 | 層級 | 位置 | 載入時機 | 行數限制 | 用途 |
 |------|------|---------|---------|------|
 | 全域速查表 | `~/CLAUDE.md` 末尾 | **所有專案每個 session** | ≤40 行 | 跨專案通用教訓 |
-| 專案記憶 | `~/.claude/projects/.../memory/` | **dex-agent-os 每個 session** | learnings ≤120 行、reflections ≤80 行 | 專案內詳細學習 |
+| 專案記憶 | `~/.claude/projects/-Users-dex-dex-agent-os/memory/` | **dex-agent-os 每個 session** | learnings ≤120 行、reflections ≤80 行 | 專案內詳細學習 |
 | 歸檔 | `800_System/knowledge/` | 不載入（版控查閱用） | 無限制 | 完整歷史記錄 |
 
 ### 指標觸發機制
@@ -337,8 +424,8 @@ echo "THREADS_ACCESS_TOKEN=你的token" >> .env
 
 | 類型 | 日記區段 | 輸出位置 | 處理方式 |
 |------|---------|---------|---------|
-| `learnings` | 「學到什麼」 | `memory/learnings.md` + `knowledge/learnings-archive.md` | LLM 合併去重，四分類：技術/工具/方法論/認知 |
-| `blockers` | 「卡在哪裡」 | `memory/reflections.md` + `knowledge/reflections-archive.md` | LLM 轉化為反思教訓，五分組：資源管理/技術債/決策品質/流程效率/其他 |
+| `learnings` | 「學到什麼」 | `~/.claude/projects/.../memory/learnings.md` + `800_System/knowledge/learnings-archive.md` | LLM 合併去重，四分類：技術/工具/方法論/認知 |
+| `blockers` | 「卡在哪裡」 | `~/.claude/projects/.../memory/reflections.md` + `800_System/knowledge/reflections-archive.md` | LLM 轉化為反思教訓，五分組：資源管理/技術債/決策品質/流程效率/其他 |
 | `insights` | 「洞察 & 靈感」 | 依分類分流（見下方） | LLM 分類 + 自動產生個別檔案 |
 
 ### Insight 分流
@@ -398,7 +485,7 @@ canonical 單一真實來源 + sync 腳本...
 每日下班前 / 睡前：
   1. /work-log                         → L1 工作日誌
   2. ./bin/agent dayflow                → Dayflow 活動摘要
-  3. ./bin/agent journal                → L2 精煉日記
+  3. ./bin/agent journal                → L2 精煉日記（自動讀取 Dayflow 摘要，需先跑完 step 2）
   4. ./bin/agent extract                → 萃取知識到記憶庫
 
 每週一次（或累積足夠新知識時）：
@@ -522,7 +609,7 @@ L2 精煉日記  ──→ /daily-content ──→ 3 篇 Threads（L2 視角）
 
 ```
 Step 1: L1 工作日誌（/work-log，如不存在自動觸發）
-Step 2: Dayflow 活動摘要 + L2 精煉日記（平行執行）
+Step 2: Dayflow 活動摘要 → L2 精煉日記（依序執行，L2 會讀取 Dayflow）
 Step 3: 讀取素材 + Style DNA
 Step 4: 生成 6 篇 Threads 草稿（兩組各 3 篇，平行執行）
         ├── Dayflow + L1 → 3 篇（日常活動視角）
@@ -637,6 +724,138 @@ Phase 4 建立了週級別的彙總系統：個人週回顧 + 對外電子報，
 
 ---
 
+## 6.5 Podcast & YouTube 消化系統
+
+### 概覽
+
+Phase 5a 建立了兩條獨立的學習素材收集管線，以及一個合併消化報告系統：
+
+```
+YouTube 線：YouTube URL → 字幕 → LLM 結構化 → 學習筆記
+Podcast 線：逐字稿（手動/Apple 快取）→ LLM 結構化 → episode 筆記
+Podwise 線：Notion DB / Readwise → API 取得 → LLM 結構化 → episode 筆記
+                        ↓                    ↓
+                  podcast-digest（合併 YouTube + Podcast）
+                         ↓            ↓
+                   Markdown 週摘要   .pptx 簡報（可選）
+```
+
+### YouTube 筆記
+
+從 YouTube 影片取得字幕，自動產出結構化學習筆記：
+
+```bash
+./bin/agent youtube-add "https://youtube.com/watch?v=xxx"         # 基本用法
+./bin/agent youtube-add "https://youtube.com/watch?v=xxx" --force # 覆蓋已存在
+./bin/agent youtube-add "URL" --date 2026-02-10                   # 指定日期
+```
+
+**前置需求：** `pip3 install youtube-transcript-api`
+
+**輸出：** `300_Learning/youtube/YYYY-MM-DD-slug.md`，包含：
+- 一句話摘要、核心觀點（3-5 個）、關鍵引述
+- 市場趨勢相關、可轉化為內容的素材
+- 「我的想法」區塊留空供手動補充
+
+### Podcast Episode 筆記
+
+支援四種輸入模式：
+
+```bash
+# P4: 手動文字稿（零依賴）
+./bin/agent podcast-add --transcript ~/transcript.txt --title "Hard Fork: AI Agents"
+
+# P3: Apple Podcast TTML 快取
+./bin/agent podcast-add --apple              # 列出可用快取
+./bin/agent podcast-add --apple --latest 3   # 自動匯入最新 3 集
+
+# P5: Notion（Podwise 匯出）— 需先設定，見下方
+./bin/agent podcast-add --notion             # 列出最近 7 天 episodes
+./bin/agent podcast-add --notion --latest 5  # 匯入最新 5 集
+./bin/agent podcast-add --notion --all       # 匯入全部（首次同步）
+
+# P6: Readwise（Podwise 匯出）— 需先設定，見下方
+./bin/agent podcast-add --readwise           # 列出最近 7 天 highlights
+./bin/agent podcast-add --readwise --latest 5
+./bin/agent podcast-add --readwise --all
+```
+
+**輸出：** `300_Learning/podcasts/episodes/YYYY-MM-DD-slug.md`（結構同 YouTube 筆記）
+
+### Podwise 串接設定（Notion + Readwise）
+
+[Podwise](https://podwise.ai/) 是 podcast AI 摘要工具，可將摘要匯出到 Notion 或 Readwise。設定完成後，只需跑 `podcast-add --notion` 或 `--readwise` 就能自動匯入。
+
+> **目前狀態：** 程式碼已就緒，等訂閱 Podwise 後設定 env vars 即可使用。
+
+#### Notion Integration 設定
+
+1. 到 [https://www.notion.so/my-integrations](https://www.notion.so/my-integrations) → 建立新 Integration
+2. 複製 **Internal Integration Secret** → 存入 `.env`：
+   ```
+   NOTION_TOKEN=secret_xxxxxxxxxxxx
+   ```
+3. 在 Podwise 匯出的 Notion database 頁面 → 點 `...` → `Connect to` → 選擇剛建立的 Integration
+4. 複製 database URL 中的 ID（32 碼字串，在 `.so/` 和 `?` 之間）→ 存入 `.env`：
+   ```
+   NOTION_PODWISE_DB_ID=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+   ```
+
+#### Readwise Token 設定
+
+1. 到 [https://readwise.io/access_token](https://readwise.io/access_token) → 複製 token
+2. 存入 `.env`：
+   ```
+   READWISE_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+   ```
+
+#### 驗證設定
+
+```bash
+# Token 未設定時會顯示引導訊息（不會 crash）
+./bin/agent podcast-add --notion
+./bin/agent podcast-add --readwise
+
+# 設定完成後測試
+./bin/agent podcast-add --notion --latest 1
+./bin/agent podcast-add --readwise --latest 1
+```
+
+### 週度消化報告
+
+合併一週內所有 YouTube + Podcast 筆記，產出市場趨勢消化報告：
+
+```bash
+./bin/agent podcast-digest                    # 本週
+./bin/agent podcast-digest 2026-02-10         # 指定日期所在週
+./bin/agent podcast-digest --pptx             # 同時產出簡報
+./bin/agent podcast-digest --force            # 強制覆蓋
+```
+
+**消化報告包含：**
+- 本週一句話、本週聽了/看了什麼
+- 市場趨勢觀察（跨集歸納 2-3 個趨勢）
+- 核心學習、內容種子、推薦片段、下週想深入
+
+**簡報產出：** `--pptx` 會產出 `500_Content/presentations/YYYY-Wxx-market-trends.md`，可用 `/pptx` skill 轉為 .pptx 檔案。
+
+### 建議每週操作流程
+
+```
+聽完 Podcast / 看完 YouTube 後：
+  1. ./bin/agent youtube-add "URL"                → YouTube 筆記
+  2. ./bin/agent podcast-add --transcript ...      → Podcast 筆記（手動）
+  2'. ./bin/agent podcast-add --notion --latest 5  → 從 Podwise/Notion 匯入
+  2'. ./bin/agent podcast-add --readwise --latest 5 → 從 Podwise/Readwise 匯入
+
+每週日 / 週一：
+  3. /podcast-weekly（或 ./bin/agent podcast-digest）→ 週度消化
+  4. （可選）./bin/agent podcast-digest --pptx      → 簡報
+  5. /weekly-content                               → 週回顧 + 電子報
+```
+
+---
+
 ## 7. 檔案架構與分類
 
 ### 編號目錄系統
@@ -668,7 +887,12 @@ dex-agent-os/
 ├── 300_Learning/       ← 學習
 │   ├── input/              課程 / 書籍 / 技術筆記
 │   ├── output/             TIL / 教學文草稿
-│   └── weekly/             每週學習摘要
+│   ├── weekly/             每週學習摘要
+│   ├── youtube/            YouTube 影片學習筆記（Phase 5a）
+│   └── podcasts/           Podcast 消化系統（Phase 5a）
+│       ├── episodes/           結構化 episode 筆記
+│       ├── weekly/             週度消化報告
+│       └── transcripts/        原始逐字稿（gitignore）
 │
 ├── 400_Projects/       ← 專案 & 產品管理
 │   ├── software/           軟體專案（STATUS.md / DECISIONS.md）
@@ -713,7 +937,7 @@ dex-agent-os/
 │   ├── generators/         daily_journal.py / daily_dayflow_digest.py / topic_create.py / topic_to_thread.py / weekly_review.py / weekly_newsletter.py
 │   ├── extractors/         journal_knowledge_extract.py（知識萃取）
 │   ├── analyzers/          extract_style.py（風格 DNA 萃取）
-│   ├── collectors/         threads_collector.py（Threads API 抓取）
+│   ├── collectors/         threads_collector.py / youtube_transcript.py / podcast_transcript.py
 │   ├── publishers/         wp_draft.py（Phase 5）
 │   └── lib/                共用模組（llm.py / config.py / file_utils.py / journal_parser.py）
 │
@@ -761,6 +985,9 @@ dex-agent-os/
 | 寫 Threads 草稿 | `500_Content/topics/topic-slug/threads-draft.md` |
 | 寫電子報 | `500_Content/newsletter/drafts/` |
 | 存已發布的內容 | `700_Archive/<channel>/` |
+| 記 YouTube 學習筆記 | `300_Learning/youtube/` |
+| 記 Podcast episode | `300_Learning/podcasts/episodes/` |
+| 看本週消化報告 | `300_Learning/podcasts/weekly/` |
 | 看累積學到什麼 | `~/.claude/projects/.../memory/learnings.md` |
 | 看卡關反思教訓 | `~/.claude/projects/.../memory/reflections.md` |
 | 看洞察素材庫 | `500_Content/insights/` |
@@ -841,6 +1068,10 @@ vim ~/dex-agent-os/canonical/rules/10-writing-style.md
 | `thread-template.md` | Threads 草稿格式 | `topic_to_thread.py` |
 | `weekly-review-template.md` | 週回顧格式 | `weekly_review.py` |
 | `newsletter-template.md` | 電子報格式（4 種類型） | `weekly_newsletter.py` |
+| `podcast-episode-template.md` | Podcast episode 筆記格式 | `podcast_transcript.py` |
+| `youtube-note-template.md` | YouTube 學習筆記格式 | `youtube_transcript.py` |
+| `podcast-digest-template.md` | 週度消化報告格式 | `podcast_digest.py` |
+| `podcast-pptx-template.md` | 簡報結構模板 | `podcast_digest.py --pptx` |
 
 ### L1 工作日誌模板
 
@@ -908,7 +1139,7 @@ vim ~/dex-agent-os/canonical/rules/10-writing-style.md
 cd ~/dex-agent-os
 ./bin/agent dayflow
 
-# 3. 在終端機產出 L2 精煉日記
+# 3. 在終端機產出 L2 精煉日記（會自動讀取上一步的 Dayflow 摘要）
 ./bin/agent journal
 
 # 完成！三份檔案已產出：
@@ -1066,12 +1297,17 @@ tail -40 ~/CLAUDE.md
 | 個人週回顧 | `./bin/agent weekly-review` | 4 |
 | 電子報草稿（4 種月度輪替類型） | `./bin/agent weekly-newsletter` | 4 |
 | 一鍵週報管線 | `/weekly-content` | 4 |
+| YouTube 字幕 → 學習筆記 | `./bin/agent youtube-add` / `/youtube-add` | 5a |
+| Podcast 逐字稿 → episode 筆記 | `./bin/agent podcast-add` / `/podcast-add` | 5a |
+| Podwise Notion/Readwise 匯入 | `./bin/agent podcast-add --notion/--readwise` | 5a-ext |
+| 週度 Podcast & YouTube 消化報告 | `./bin/agent podcast-digest` / `/podcast-weekly` | 5a |
+| 簡報結構化內容產出 | `./bin/agent podcast-digest --pptx` | 5a |
 
 ### 尚未實作（計畫中）
 
 | 功能 | 計畫 Phase |
 |------|------------|
-| 其餘頻道（FB / Blog / Podcast / 短影音 / 影評） | Phase 5 |
+| 其餘頻道（FB / Blog / 短影音 / 影評） | Phase 5 |
 | 會議筆記 / 諮詢紀錄 workflow | Phase 6 |
 | 專案管理 / 訂閱管理 | Phase 6 |
 | launchd 自動排程 | Phase 7 |
@@ -1139,6 +1375,21 @@ tail -40 ~/CLAUDE.md
 
 **原因：** 範例數量不足。
 **解法：** 建議至少 50 篇以上的範例。用 `collect-threads --limit 100` 抓取更多，再重跑 `extract-style threads --force`。
+
+### `./bin/agent podcast-add --notion` 提示 token 未設定
+
+**原因：** `.env` 中沒有 `NOTION_TOKEN` 或 `NOTION_PODWISE_DB_ID`。
+**解法：** 依照 GUIDE.md「Podwise 串接設定」完成 Notion Integration 設定。
+
+### `./bin/agent podcast-add --readwise` 提示 token 未設定
+
+**原因：** `.env` 中沒有 `READWISE_TOKEN`。
+**解法：** 到 https://readwise.io/access_token 取得 token，存入 `.env`。
+
+### `./bin/agent podcast-add --notion` 回傳 401 錯誤
+
+**原因：** Token 無效，或 Integration 尚未連接到 Podwise 的 Notion database。
+**解法：** 確認 Integration 已在 database 的 "Connect to" 中被選取。
 
 ### `bin/sync` 的 awk 誤判 YAML frontmatter
 

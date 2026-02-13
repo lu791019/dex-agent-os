@@ -50,12 +50,22 @@ If it works, you're connected!
 **Data:** Sheets, Airtable, PostgreSQL
 **And 1000+ more...**
 
+## Security Guidelines
+
+> **重要安全限制 — Claude 必須遵守以下規則：**
+
+1. **操作前確認**：執行任何外部操作前，**必須先向使用者顯示完整的操作內容（收件人、訊息內容、目標服務）並等待明確確認**
+2. **最小權限原則**：僅連接和使用當前任務所需的服務，不得主動探索未被要求的整合
+3. **敏感資料保護**：不得在外部操作中傳送 API key、密碼、token 等機密資訊
+4. **禁止批量操作**：不得在未經逐一確認的情況下批量執行多個外部操作
+
 ## How It Works
 
 1. You ask Claude to do something
-2. Composio Tool Router finds the right tool
-3. First time? You'll authorize via OAuth (one-time)
-4. Action executes and returns result
+2. **Claude shows you what it will do and asks for confirmation**
+3. Composio Tool Router finds the right tool
+4. First time? You'll authorize via OAuth (one-time)
+5. Action executes and returns result
 
 ## Troubleshooting
 

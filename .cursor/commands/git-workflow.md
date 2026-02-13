@@ -105,3 +105,11 @@ git rebase origin/main
 git push -u origin feature/TICKET-123-description
 # Then create PR on GitHub/GitLab
 ```
+
+## 何時更新這份 Skill
+
+| 情境 | 更新什麼 |
+|------|----------|
+| 團隊改變 commit convention 或 branch 命名 | 對應章節 |
+| 新增 CI/CD 流程影響 PR 格式 | PR Guidelines |
+| 切換 Git 工具（如 gh → glab） | Common Commands |

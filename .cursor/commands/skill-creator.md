@@ -202,3 +202,12 @@ After testing the skill, users may request improvements. Often this happens righ
 2. Notice struggles or inefficiencies
 3. Identify how SKILL.md or bundled resources should be updated
 4. Implement changes and test again
+
+## 何時更新這份 Skill
+
+| 情境 | 更新什麼 |
+|------|----------|
+| Skill 載入機制有官方更新 | About Skills + Progressive Disclosure |
+| 發現新的 Skill 設計模式或反模式 | Step 2 / Step 4 |
+| init_skill.py 或 package_skill.py 有新功能 | Step 3 / Step 5 |
+| 社群出現新的 Skill 分享格式 | Step 5: Packaging |

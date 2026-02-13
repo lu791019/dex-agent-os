@@ -1,0 +1,27 @@
+<!-- OPENSPEC:START -->
+# OpenSpec Instructions
+
+This project uses OpenSpec for spec-driven development.
+
+## Quick Reference
+
+- **Specs**: `openspec/specs/` - Current truth, what IS built
+- **Changes**: `openspec/changes/` - Proposals, what SHOULD change
+- **Archive**: `openspec/changes/archive/` - Completed changes
+- **Config**: `openspec/config.yaml` - Project context and rules
+
+## Skills
+
+- `/opsx:new` - Start a new change
+- `/opsx:continue` - Continue working on a change
+- `/opsx:apply` - Implement tasks from a change
+- `/opsx:archive` - Archive a completed change
+
+## Workflow
+
+1. **New features**: Use `/opsx:new` to create a change proposal
+2. **Continue**: Use `/opsx:continue` to build artifacts
+3. **Implementation**: Use `/opsx:apply` to implement tasks
+4. **Completion**: Use `/opsx:archive` to archive the change
+
+<!-- OPENSPEC:END -->

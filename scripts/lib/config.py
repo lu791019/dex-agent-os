@@ -1,5 +1,6 @@
 """Dex Agent OS — 路徑與常數設定"""
 
+import os
 from pathlib import Path
 
 # 專案根目錄
@@ -44,5 +45,29 @@ THREADS_TOKEN_PATH = ROOT_DIR / "config" / ".threads-token"
 NEWSLETTER_DRAFTS_DIR = CONTENT_DIR / "newsletter" / "drafts"
 NEWSLETTER_ARCHIVE_DIR = CONTENT_DIR / "newsletter" / "archive"
 
+# Podcast & YouTube
+PODCAST_EPISODES_DIR = ROOT_DIR / "300_Learning" / "podcasts" / "episodes"
+PODCAST_WEEKLY_DIR = ROOT_DIR / "300_Learning" / "podcasts" / "weekly"
+PODCAST_TRANSCRIPTS_DIR = ROOT_DIR / "300_Learning" / "podcasts" / "transcripts"
+YOUTUBE_DIR = ROOT_DIR / "300_Learning" / "youtube"
+PRESENTATIONS_DIR = CONTENT_DIR / "presentations"
+
+# Apple Podcast TTML 快取
+APPLE_PODCAST_TTML_DIR = (
+    Path.home()
+    / "Library"
+    / "Group Containers"
+    / "243LU875E5.groups.com.apple.podcasts"
+    / "Library"
+    / "Cache"
+    / "Assets"
+    / "TTML"
+)
+
 # Dayflow
 DAYFLOW_DB = Path.home() / "Library" / "Application Support" / "Dayflow" / "chunks.sqlite"
+
+# Podwise 串接（Notion + Readwise）
+NOTION_TOKEN = os.getenv("NOTION_TOKEN", "")
+NOTION_PODWISE_DB_ID = os.getenv("NOTION_PODWISE_DB_ID", "")
+READWISE_TOKEN = os.getenv("READWISE_TOKEN", "")

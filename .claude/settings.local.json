@@ -1,6 +1,33 @@
 {
+  "permissions": {
+    "allow": [
+      "Bash(python3:*)",
+      "Bash(git -C /Users/dex/dex-agent-os checkout -b feature/journal-knowledge-extraction)",
+      "Bash(./bin/agent extract:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git checkout:*)",
+      "Bash(sqlite3:*)",
+      "Bash(date:*)",
+      "Bash(cat:*)",
+      "Bash(claude --print:*)",
+      "Bash(find:*)",
+      "Bash(xargs basename:*)",
+      "Bash(ls:*)",
+      "Bash(kill:*)",
+      "WebSearch",
+      "Bash(pip install:*)",
+      "Bash(pip3 install:*)",
+      "mcp__plugin_context7_context7__resolve-library-id",
+      "WebFetch(domain:github.com)",
+      "mcp__plugin_context7_context7__query-docs",
+      "WebFetch(domain:readwise.io)",
+      "Bash(echo:*)",
+      "Bash(/Users/dex/dex-agent-os/bin/agent help:*)"
+    ]
+  },
+  "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": [
     "notion"
-  ],
-  "enableAllProjectMcpServers": true
+  ]
 }
