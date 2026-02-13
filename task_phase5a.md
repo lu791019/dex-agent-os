@@ -36,4 +36,15 @@
 - [x] F3. 寫 `.claude/commands/podcast-add.md`
 - [x] F4. 跑 `bin/sync` ✅ 3 個新 skill 已同步
 - [x] F5. 更新 GUIDE.md + PLAN.md
-- [ ] F6. 全流程測試 + commit
+- [x] F6. 全流程測試 + commit ✅ `1f2d02a`
+
+## Section G：Podwise API 串接（Notion + Readwise）
+- [x] G1. 更新 `config.py` + `.env.example` 新增 3 個 env var（NOTION_TOKEN / NOTION_PODWISE_DB_ID / READWISE_TOKEN）
+- [x] G2. 在 `podcast_transcript.py` 新增 Notion API 函式（query_db + read_blocks + blocks_to_text）
+- [x] G3. 在 `podcast_transcript.py` 新增 Readwise API 函式（export highlights + book_to_text）
+- [x] G4. 擴展 argparse 加入 `--notion` / `--readwise` / `--all`
+- [x] G5. 更新 `bin/agent` help text
+- [x] G6. 更新 `.claude/commands/podcast-add.md` skill
+- [x] G7. 驗證：import ✅ / token 未設定 UX ✅ / argparse ✅ / help text ✅
+- [x] G8. 更新 GUIDE.md（Podwise 串接設定 + 疑難排解）
+- [x] G9. Commit ✅ `6871181`
