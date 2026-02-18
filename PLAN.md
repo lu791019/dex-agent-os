@@ -1031,7 +1031,7 @@ def ask_claude(system_prompt: str, user_prompt: str) -> str:
 - [x] Section C：readwise_sync.py + rss_sync.py + anybox_sync.py + subscriptions.opml ✅
 - [x] Section D：daily_digest.py + google_api.py + Google Docs/Gmail 整合 ✅
 - [x] Section E：/daily-learning skill + bin/agent +5 指令 + CLAUDE.md / PLAN.md 更新 ✅
-- [ ] Commit + merge
+- [x] Commit + merge ✅（merged to master, walkthrough.md 已產出）
 
 ---
 

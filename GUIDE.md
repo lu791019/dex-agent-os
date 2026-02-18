@@ -1551,7 +1551,6 @@ tail -40 ~/CLAUDE.md
 
 | 功能 | 計畫 Phase |
 |------|------------|
-| 學習輸入管線 + 每日消化系統 | Phase 5c |
 | 會議筆記 / 諮詢紀錄 workflow | Phase 6 |
 | 專案管理 / 訂閱管理 | Phase 6 |
 | launchd 自動排程 | Phase 7 |
