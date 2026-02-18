@@ -26,8 +26,6 @@
 from __future__ import annotations
 
 import argparse
-import json
-import re
 import sys
 import time
 import xml.etree.ElementTree as ET
@@ -43,11 +41,18 @@ from lib.config import (
     NOTION_TOKEN,
     PODCAST_EPISODES_DIR,
     PODCAST_TRANSCRIPTS_DIR,
-    READWISE_TOKEN,
     TEMPLATES_DIR,
 )
 from lib.file_utils import ensure_dir, read_text, today_str, write_text
 from lib.llm import ask_claude
+from lib.readwise_api import (
+    api_request,
+    book_to_text,
+    check_readwise_setup,
+    readwise_export,
+    readwise_headers,
+    slugify,
+)
 
 
 # ── 常數 ──────────────────────────────────────────────
@@ -72,81 +77,6 @@ SYSTEM_PROMPT = """\
 
 NOTION_API_VERSION = "2022-06-28"
 NOTION_API_BASE = "https://api.notion.com/v1"
-READWISE_API_BASE = "https://readwise.io/api/v2"
-
-
-# ── 工具函式 ──────────────────────────────────────────
-
-def slugify(text: str) -> str:
-    """將標題轉為 URL-safe slug。"""
-    text = text.lower().strip()
-    text = re.sub(r"[^\w\s\u4e00-\u9fff-]", "", text)
-    text = re.sub(r"[\s_]+", "-", text)
-    text = text.strip("-")
-    return text[:50] if text else "untitled"
-
-
-def _get_requests():
-    """取得 requests 模組，fallback 到 urllib。"""
-    try:
-        import requests
-        return requests
-    except ImportError:
-        return None
-
-
-def _api_request(method: str, url: str, headers: dict, json_data: dict | None = None, params: dict | None = None) -> dict:
-    """統一 API 請求：優先用 requests，fallback 到 urllib。"""
-    requests = _get_requests()
-
-    if requests:
-        for attempt in range(3):
-            resp = requests.request(method, url, headers=headers, json=json_data, params=params, timeout=30)
-            if resp.status_code == 429:
-                retry_after = int(resp.headers.get("Retry-After", 2))
-                print(f"[podcast] Rate limited, waiting {retry_after}s...", file=sys.stderr)
-                time.sleep(retry_after)
-                continue
-            if resp.status_code == 401:
-                print("[podcast] ERROR: Token 無效或 Integration 未連接 database", file=sys.stderr)
-                print("  請確認 token 正確，且 Integration 已連接到 database", file=sys.stderr)
-                print("  設定步驟見 GUIDE.md", file=sys.stderr)
-                sys.exit(1)
-            resp.raise_for_status()
-            return resp.json()
-        print("[podcast] ERROR: API 重試 3 次仍失敗", file=sys.stderr)
-        sys.exit(1)
-    else:
-        # fallback: urllib
-        import urllib.request
-        import urllib.error
-
-        req_headers = dict(headers)
-        body = None
-        if json_data is not None:
-            body = json.dumps(json_data).encode("utf-8")
-        if params:
-            from urllib.parse import urlencode
-            url = f"{url}?{urlencode(params)}"
-
-        req = urllib.request.Request(url, data=body, headers=req_headers, method=method)
-        for attempt in range(3):
-            try:
-                with urllib.request.urlopen(req, timeout=30) as resp:
-                    return json.loads(resp.read().decode("utf-8"))
-            except urllib.error.HTTPError as e:
-                if e.code == 429:
-                    retry_after = int(e.headers.get("Retry-After", 2))
-                    print(f"[podcast] Rate limited, waiting {retry_after}s...", file=sys.stderr)
-                    time.sleep(retry_after)
-                    continue
-                if e.code == 401:
-                    print("[podcast] ERROR: Token 無效或 Integration 未連接 database", file=sys.stderr)
-                    print("  設定步驟見 GUIDE.md", file=sys.stderr)
-                    sys.exit(1)
-                raise
-        print("[podcast] ERROR: API 重試 3 次仍失敗", file=sys.stderr)
-        sys.exit(1)
 
 
 # ── 模式 P4：手動文字稿 ──────────────────────────────
@@ -274,7 +204,7 @@ def notion_query_database(limit: int = 0, fetch_all: bool = False) -> list[dict]
         if next_cursor:
             body["start_cursor"] = next_cursor
 
-        data = _api_request("POST", url, headers, json_data=body)
+        data = api_request("POST", url, headers, json_data=body)
         pages.extend(data.get("results", []))
 
         has_more = data.get("has_more", False)
@@ -305,7 +235,7 @@ def notion_read_page_blocks(page_id: str) -> str:
         if next_cursor:
             params["start_cursor"] = next_cursor
 
-        data = _api_request("GET", url, headers, params=params)
+        data = api_request("GET", url, headers, params=params)
         all_blocks.extend(data.get("results", []))
 
         has_more = data.get("has_more", False)
@@ -444,113 +374,16 @@ def handle_notion(args) -> None:
 
 # ── 模式 P6：Readwise（Podwise 匯出） ───────────────
 
-def _check_readwise_setup() -> bool:
-    """檢查 Readwise 設定，未設定時顯示引導。"""
-    if not READWISE_TOKEN:
-        print("[podcast] Readwise token 未設定。請先完成設定：", file=sys.stderr)
-        print("", file=sys.stderr)
-        print("  1. 到 https://readwise.io/access_token → 複製 token", file=sys.stderr)
-        print("  2. 存入 .env：READWISE_TOKEN=xxxxxxxxxxxx", file=sys.stderr)
-        print("", file=sys.stderr)
-        print("  詳細步驟見 GUIDE.md", file=sys.stderr)
-        return False
-    return True
-
-
-def _readwise_headers() -> dict:
-    """Readwise API request headers。"""
-    return {
-        "Authorization": f"Token {READWISE_TOKEN}",
-    }
-
-
-def readwise_export_podcasts(limit: int = 0, fetch_all: bool = False) -> list[dict]:
-    """從 Readwise 匯出 podcast highlights，回傳按 book 分組的列表。
-
-    Args:
-        limit: 限制回傳筆數（0=預設 7 天內）
-        fetch_all: 取得全部
-    """
-    headers = _readwise_headers()
-    url = f"{READWISE_API_BASE}/export/"
-
-    params: dict = {}
-
-    # 非 fetch_all 且無 limit 時，預設只抓 7 天內
-    if not fetch_all and limit == 0:
-        seven_days_ago = (datetime.now() - timedelta(days=7)).isoformat()
-        params["updatedAfter"] = seven_days_ago
-
-    all_books = []
-    has_more = True
-    next_cursor = None
-
-    while has_more:
-        if next_cursor:
-            params["pageCursor"] = next_cursor
-
-        data = _api_request("GET", url, headers, params=params)
-        results = data.get("results", [])
-
-        # 過濾只留 podcast 類別
-        for book in results:
-            if book.get("category") == "podcasts":
-                all_books.append(book)
-
-        next_cursor = data.get("nextPageCursor")
-        has_more = next_cursor is not None
-
-        # 已達到 limit 就停
-        if limit > 0 and len(all_books) >= limit:
-            all_books = all_books[:limit]
-            break
-
-        time.sleep(0.35)
-
-    return all_books
-
-
-def _readwise_book_to_text(book: dict) -> str:
-    """將 Readwise book（episode）的 highlights 合併為文字。"""
-    lines = []
-
-    # Episode 基本資訊
-    title = book.get("title", "Untitled")
-    author = book.get("author", "")
-    source_url = book.get("source_url", "")
-
-    lines.append(f"# {title}")
-    if author:
-        lines.append(f"Host/Author: {author}")
-    if source_url:
-        lines.append(f"Source: {source_url}")
-    lines.append("")
-
-    # Highlights
-    highlights = book.get("highlights", [])
-    if highlights:
-        lines.append("## Highlights & Notes")
-        for hl in highlights:
-            text = hl.get("text", "")
-            note = hl.get("note", "")
-            if text:
-                lines.append(f"\n> {text}")
-            if note:
-                lines.append(f"\n**Note:** {note}")
-
-    return "\n".join(lines)
-
-
 def handle_readwise(args) -> None:
     """P6: 從 Readwise 匯入 podcast highlights。"""
-    if not _check_readwise_setup():
+    if not check_readwise_setup():
         sys.exit(1)
 
     date_str = args.date or today_str()
     limit = args.latest if args.latest > 0 else 0
 
     print("[podcast] Querying Readwise podcast highlights...")
-    books = readwise_export_podcasts(limit=limit, fetch_all=args.all)
+    books = readwise_export(category="podcasts", limit=limit, fetch_all=args.all)
 
     if not books:
         print("[podcast] Readwise 中沒有找到 podcast highlights", file=sys.stderr)
@@ -584,7 +417,7 @@ def handle_readwise(args) -> None:
             continue
 
         print(f"\n[podcast] Processing: {title}")
-        content = _readwise_book_to_text(book)
+        content = book_to_text(book)
         print(f"[podcast] Content: {len(content)} chars")
 
         if len(content) < 50:
