@@ -33,13 +33,13 @@
 - [x] C3. 建立 `scripts/collectors/anybox_sync.py` — 本地 HTTP API（X-API-Key auth）
 - [x] C4. 建立 `config/subscriptions.opml` — 初始 RSS 訂閱清單（jvns.ca + simonwillison.net）
 - [x] C5. 建立 `canonical/workflows/readwise-sync.md` + `rss-sync.md` + `anybox-sync.md`
-- [ ] C6. 更新 `.claude/settings.local.json` — MCP 設定（暫緩，需實際 MCP server 路徑）
+- [x] C6. MCP 設定：Readwise-MCP + rss-reader-mcp 加入 `.mcp.json`，`.mcp.json` 移出 git tracking 加入 `.gitignore` ✅
 - [x] C7. 驗證：`readwise-sync --latest 3 --force` — 匯入 3 筆 ✅
 - [x] C8. 驗證：`rss-sync --feed jvns.ca --latest 3 --force` — 匯入 3 篇 ✅
 - [x] C9. 驗證：`anybox-sync --starred --latest 1 --force` — 匯入 1 筆 ✅
 - [x] C10. 驗證跨模組：`learning-note --readwise --latest 1 --force` ✅
 - [x] C11. 驗證跨模組：`learning-note --rss jvns.ca --latest 1 --force` ✅
-- [ ] C12. 驗證跨模組：`learning-note --anybox --starred --latest 1 --force`（待補）
+- [x] C12. 驗證跨模組：`learning-note --anybox --starred --latest 1 --force` ✅（Anybox 連線+認證正常，書籤為空正確處理）
 
 ### 實作中發現的額外變更
 - Readwise Reader v3 API 加入 readwise_api.py（reader_list + reader_doc_to_text）
@@ -79,7 +79,7 @@
 - [x] E6. 執行 `bin/sync` 同步 workflows ✅（6 個新 skills 已同步）
 - [x] E7. 驗證：`./bin/agent help` — 所有新指令確認 ✅
 - [x] E8. 驗證：`./bin/agent sync` — 同步正常 ✅
-- [ ] E9. 驗證：啟動 /daily-learning skill 做互動對話測試（需新 session）
+- [x] E9. 驗證：啟動 /daily-learning skill — 成功載入 digest、列出 9 篇內容、進入互動模式 ✅
 
 ## Finalize
-- [ ] 產出 walkthrough.md
+- [x] 產出 walkthrough.md ✅

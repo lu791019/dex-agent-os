@@ -1,7 +1,9 @@
 # === 資料 & 隱私 ===
 data/raw/
 .env
+.mcp.json
 config/.threads-token
+config/google-token.json
 300_Learning/podcasts/transcripts/
 
 # === 大型二進位檔 ===
