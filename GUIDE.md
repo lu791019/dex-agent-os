@@ -1055,6 +1055,22 @@ Podwise 線：Notion DB / Readwise → API 取得 → LLM 結構化 → episode 
 | `DIGEST_EMAIL` | Gmail 寄信收件者 | daily-digest --send |
 | Google credentials | OAuth 憑證檔 | daily-digest --send |
 
+### MCP Server（Claude Code 互動式存取）
+
+除了 CLI 批次指令，也可在 Claude Code session 內直接查詢：
+
+| MCP Server | 套件 | 用途 |
+|---|---|---|
+| Readwise-MCP | `@readwise/readwise-mcp` | 對話中查 highlights、搜尋 Reader 文章 |
+| rss-reader | `rss-reader-mcp` | 對話中讀 RSS feed、取得文章全文 |
+
+設定檔：`.mcp.json`（已加入 `.gitignore`，含 API token）
+
+新增 MCP server：
+```bash
+claude mcp add <name> --scope project -- npx -y <package>
+```
+
 ### 檔案位置
 
 | 目錄 | 內容 |
