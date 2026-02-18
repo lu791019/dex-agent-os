@@ -1,7 +1,7 @@
 # Dex Agent OS — 使用說明書
 
-> 版本：Phase 5a-ext — Podwise Notion/Readwise 串接
-> 最後更新：2026-02-13
+> 版本：Phase 5c — 學習輸入管線 + 每日消化系統
+> 最後更新：2026-02-18
 
 ---
 
@@ -14,6 +14,7 @@
 - [5. 內容生產管線](#5-內容生產管線)
 - [6. 週回顧與電子報系統](#6-週回顧與電子報系統)
 - [6.5 Podcast & YouTube 消化系統](#65-podcast--youtube-消化系統)
+- [6.7 學習輸入管線 + 每日消化](#67-學習輸入管線--每日消化)
 - [7. 檔案架構與分類](#7-檔案架構與分類)
 - [8. 跨平台同步](#8-跨平台同步)
 - [9. 模板系統](#9-模板系統)
@@ -88,8 +89,28 @@ echo "THREADS_ACCESS_TOKEN=你的token" >> .env
 | 1 | `/daily-content [日期]` | IDE | 一鍵完整管線：L1 → L2 + Dayflow → 6 篇 Threads 草稿（兩組視角各 3 篇） | `500_Content/topics/YYYY-MM-DD-threads-from-*/` |
 | 2 | `./bin/agent topic-create <insight-file>` | CLI | 從 insight 卡片建立結構化主題（含核心論點、頻道適合度） | `500_Content/topics/<slug>/TOPIC.md` |
 | 3 | `./bin/agent topic-to-thread <topic-slug>` | CLI | 從 TOPIC.md 產出 Threads 草稿，自動套用 Style DNA | `500_Content/topics/<slug>/threads-draft.md` |
+| 3' | `./bin/agent topic-to-fb <topic-slug>` | CLI | 從 TOPIC.md 產出 Facebook 貼文草稿 | `500_Content/topics/<slug>/fb-draft.md` |
+| 3'' | `./bin/agent topic-to-blog <topic-slug>` | CLI | 從 TOPIC.md 產出部落格文章草稿 | `500_Content/topics/<slug>/blog-draft.md` |
+| 3''' | `./bin/agent topic-to-short-video <topic-slug>` | CLI | 從 TOPIC.md 產出短影音腳本 | `500_Content/topics/<slug>/short-video-draft.md` |
+| 4 | `./bin/agent film-review --title "..."` | CLI | 從電影資訊產出影評 | `600_Life/film/reviews/YYYY-MM-DD-slug.md` |
 
-#### C. 每週彙總（週日或週一）
+#### C. 學習輸入 + 每日消化（持續 / 每天）
+
+| 順序 | 指令 | 類型 | 說明 | 輸出位置 |
+|:----:|------|:----:|------|----------|
+| 1 | `./bin/agent readwise-sync --reader --latest N` | CLI | Readwise Reader 文章批次匯入 | `000_Inbox/readings/YYYY-MM-DD-slug.md` |
+| 1' | `./bin/agent rss-sync --feed URL --latest N` | CLI | RSS feed 批次匯入 | 同上 |
+| 1'' | `./bin/agent anybox-sync --starred --latest N` | CLI | Anybox 星號書籤批次匯入 | 同上 |
+| 2 | `./bin/agent learning-note --url URL` | CLI | 單篇 URL → LLM 學習筆記 | `300_Learning/input/articles/YYYY-MM-DD-slug.md` |
+| 2' | `./bin/agent learning-note --readwise --reader --latest N` | CLI | Reader 文章 → LLM 學習筆記 | 同上 |
+| 2'' | `./bin/agent learning-note --rss FEED --latest N` | CLI | RSS 文章 → LLM 學習筆記 | 同上 |
+| 3 | `./bin/agent daily-digest [--today]` | CLI | 掃描當日所有學習內容 → LLM 消化摘要 | `100_Journal/digest/YYYY-MM-DD-digest.md` |
+| 3' | `./bin/agent daily-digest --send` | CLI | 同上 + 建立 Google Doc + 寄 Gmail | Google Docs + Gmail |
+| 4 | `/daily-learning` | IDE | 互動學習對話：逐篇提問 → 歸納洞察 | `500_Content/insights/` + `300_Learning/input/` |
+
+> **流程建議：** 每天先用 sync 指令匯入新內容 → 選感興趣的跑 learning-note → 跑 daily-digest → 用 /daily-learning 深度消化。
+
+#### D. 每週彙總（週日或週一）
 
 | 順序 | 指令 | 類型 | 說明 | 輸出位置 |
 |:----:|------|:----:|------|----------|
@@ -105,14 +126,14 @@ echo "THREADS_ACCESS_TOKEN=你的token" >> .env
 > **一鍵替代 3：** `/podcast-weekly [日期]` 一鍵產出 digest + 可選簡報。
 > **一鍵替代 4-5：** `/weekly-content [日期]` 會自動依序產出週回顧 + 電子報草稿。
 
-#### D. 知識管理（每週一次或累積足夠時）
+#### E. 知識管理（每週一次或累積足夠時）
 
 | 順序 | 指令 | 類型 | 說明 | 輸出位置 |
 |:----:|------|:----:|------|----------|
 | 1 | `./bin/agent extract` | CLI | 萃取所有未處理日記的知識到記憶庫 | `~/.claude/projects/-Users-dex-dex-agent-os/memory/` + `800_System/knowledge/` |
 | 2 | `./bin/agent extract --global` | CLI | 萃取後額外更新全域 `~/CLAUDE.md` 的「累積學習」速查表 | `~/CLAUDE.md` 末尾 |
 
-#### E. 風格系統（初次設定 + 定期更新）
+#### F. 風格系統（初次設定 + 定期更新）
 
 | 順序 | 指令 | 類型 | 說明 | 輸出位置 |
 |:----:|------|:----:|------|----------|
@@ -165,6 +186,8 @@ echo "THREADS_ACCESS_TOKEN=你的token" >> .env
 | `--transcript FILE` | podcast-add | 指定手動逐字稿檔案路徑 |
 | `--latest N` | podcast-add (--apple/--notion/--readwise) | 自動匯入最新 N 集 |
 | `--all` | podcast-add (--notion/--readwise) | 匯入全部（不限日期） |
+| `--notes "..."` | film-review | 觀影筆記（選用） |
+| `--rating N` | film-review | 評分 1-10（選用） |
 
 ### 跨 IDE 共用指令
 
@@ -623,6 +646,68 @@ Step 5: 寫入檔案 + 產出摘要
 
 > **提醒：** 兩組來源可能產出類似主題（因為同一天的內容），發布前請檢查去重。
 
+### 主題轉 Facebook（topic-to-fb）
+
+從 TOPIC.md 產出 Facebook 貼文草稿：
+
+```bash
+./bin/agent topic-to-fb <topic-slug>          # 產出草稿
+./bin/agent topic-to-fb <topic-slug> --force  # 覆蓋既有
+```
+
+**輸出：** `500_Content/topics/<slug>/fb-draft.md`（自動更新 TOPIC.md 的 checklist）
+
+### 主題轉部落格（topic-to-blog）
+
+從 TOPIC.md 產出部落格文章草稿（長篇、含 SEO 結構）：
+
+```bash
+./bin/agent topic-to-blog <topic-slug>          # 產出草稿
+./bin/agent topic-to-blog <topic-slug> --force  # 覆蓋既有
+```
+
+**輸出：** `500_Content/topics/<slug>/blog-draft.md`
+
+### 主題轉短影音（topic-to-short-video）
+
+從 TOPIC.md 產出短影音腳本（含 Hook、分鏡、CTA）：
+
+```bash
+./bin/agent topic-to-short-video <topic-slug>          # 產出草稿
+./bin/agent topic-to-short-video <topic-slug> --force  # 覆蓋既有
+```
+
+**輸出：** `500_Content/topics/<slug>/short-video-draft.md`
+
+### 影評產出（film-review）
+
+從電影資訊產出結構化影評：
+
+```bash
+./bin/agent film-review --title "電影名"                          # 基本用法
+./bin/agent film-review --title "電影名" --notes "觀影筆記"       # 附帶筆記
+./bin/agent film-review --title "電影名" --rating 8               # 指定評分
+./bin/agent film-review --title "電影名" --notes "..." --rating 8 --force  # 完整參數
+```
+
+**輸出：** `600_Life/film/reviews/YYYY-MM-DD-slug.md`
+
+### 一個主題 → 多頻道
+
+Phase 5b 實現了「一次建立主題，多頻道產出」的流程：
+
+```
+insight / 手動 → topic-create → TOPIC.md
+                                   ├→ topic-to-thread     → Threads 草稿
+                                   ├→ topic-to-fb         → Facebook 貼文
+                                   ├→ topic-to-blog       → 部落格文章
+                                   └→ topic-to-short-video → 短影音腳本
+
+電影觀影 → film-review → 影評
+```
+
+每個 TOPIC.md 中都有 checklist 追蹤各頻道產出狀態。
+
 ### DNA 的有機生長
 
 ```
@@ -856,6 +941,134 @@ Podwise 線：Notion DB / Readwise → API 取得 → LLM 結構化 → episode 
 
 ---
 
+## 6.7 學習輸入管線 + 每日消化
+
+### 完整流程
+
+```
+多來源匯入 ─────────────────────────────────────────
+  Readwise Reader   → readwise-sync --reader
+  RSS feeds         → rss-sync --feed URL
+  Anybox 書籤       → anybox-sync --starred
+  URL / 本地檔案    → learning-note --url / --file
+  YouTube           → youtube-add（既有）
+  Podcast           → podcast-add（既有）
+      │
+      ▼
+原文存檔：000_Inbox/readings/     ← sync 指令存這裡（純原文）
+學習筆記：300_Learning/input/     ← learning-note 存這裡（LLM 消化）
+      │
+      ▼
+每日消化報告 ─── daily-digest ────────────────────
+  掃描當日 readings/ + input/ + youtube/ + podcasts/
+  去重（同篇優先取 input/ 版本）
+  LLM 產出摘要 + takeaway + 今日洞察
+  存檔：100_Journal/digest/YYYY-MM-DD-digest.md
+  可選：--send → Google Doc + Gmail
+      │
+      ▼
+互動學習對話 ─── /daily-learning ─────────────────
+  讀取 digest → 逐篇提問（蘇格拉底 / 考試 / 深聊）
+  歸納洞察 → 500_Content/insights/
+  補充想法 → 更新 300_Learning/input/ 的「我的想法」
+```
+
+### 學習輸入指令
+
+#### Sync 指令（批次匯入原文，不用 LLM）
+
+```bash
+# Readwise Reader（v3 API，推薦）
+./bin/agent readwise-sync --reader                    # 列出最近文章
+./bin/agent readwise-sync --reader --latest 5 --force # 匯入最新 5 篇
+
+# Readwise v2 Highlights
+./bin/agent readwise-sync                             # 列出最近 7 天 highlights
+./bin/agent readwise-sync --category articles --latest 3
+
+# RSS
+./bin/agent rss-sync                                  # 列出 OPML 中所有 feeds
+./bin/agent rss-sync --feed "https://jvns.ca/atom.xml" --latest 3
+./bin/agent rss-sync --opml config/subscriptions.opml --latest 5
+
+# Anybox（需開啟 Anybox app）
+./bin/agent anybox-sync --starred                     # 列出星號書籤
+./bin/agent anybox-sync --starred --latest 3 --force  # 匯入最新 3 筆
+./bin/agent anybox-sync --tag "to-read" --latest 5
+```
+
+#### Learning Note（單篇 / 批次 → LLM 學習筆記）
+
+```bash
+# 單篇 URL
+./bin/agent learning-note --url "https://..." --type articles
+
+# 本地檔案
+./bin/agent learning-note --file path/to/doc.md --title "..." --type tech
+
+# 從 Readwise Reader 批次
+./bin/agent learning-note --readwise --reader --latest 3
+
+# 從 RSS 批次
+./bin/agent learning-note --rss "https://jvns.ca/atom.xml" --latest 2
+
+# 從 Anybox 批次
+./bin/agent learning-note --anybox --starred --latest 2
+
+# --type 可選：articles（預設）/ books / courses / tech
+```
+
+### 每日消化報告
+
+```bash
+./bin/agent daily-digest                # 掃描昨天的內容
+./bin/agent daily-digest --today        # 掃描今天的內容
+./bin/agent daily-digest 2026-02-18     # 指定日期
+./bin/agent daily-digest --today --send # 同時建立 Google Doc + 寄 Gmail
+./bin/agent daily-digest --force        # 覆蓋已存在的 digest
+```
+
+#### Google API 設定（--send 功能，選用）
+
+1. GCP Console → 建專案 → 啟用 **Google Docs API** + **Gmail API**
+2. OAuth 同意畫面 → External → 加自己的 Gmail 為測試者
+3. 建立 OAuth 桌面應用程式憑證 → 下載 JSON
+4. 存為 `config/google-credentials.json`
+5. `.env` 加 `DIGEST_EMAIL=you@gmail.com`
+6. 首次 `--send` 會開瀏覽器授權，token 自動存在 `config/google-token.json`
+
+### 互動學習對話
+
+在 Claude Code 中啟動：
+```
+/daily-learning
+```
+
+流程：讀取 digest → 對每篇內容互動提問 → 歸納洞察 → 自動產出 insights
+
+### 環境變數
+
+| 變數 | 用途 | 必要性 |
+|------|------|--------|
+| `READWISE_TOKEN` | Readwise v2 + v3 API | readwise-sync / learning-note --readwise |
+| `ANYBOX_API_KEY` | Anybox 本地 API | anybox-sync / learning-note --anybox |
+| `DIGEST_EMAIL` | Gmail 寄信收件者 | daily-digest --send |
+| Google credentials | OAuth 憑證檔 | daily-digest --send |
+
+### 檔案位置
+
+| 目錄 | 內容 |
+|------|------|
+| `000_Inbox/readings/` | sync 指令匯入的原文 |
+| `300_Learning/input/articles/` | learning-note 產出的學習筆記 |
+| `300_Learning/input/books/` | 書籍類筆記 |
+| `300_Learning/input/courses/` | 課程類筆記 |
+| `300_Learning/input/tech/` | 技術類筆記 |
+| `100_Journal/digest/` | daily-digest 產出 |
+| `config/subscriptions.opml` | RSS 訂閱清單 |
+
+---
+
 ## 7. 檔案架構與分類
 
 ### 編號目錄系統
@@ -934,7 +1147,7 @@ dex-agent-os/
 │   └── skills/             skill 定義
 │
 ├── scripts/            ← Python 腳本
-│   ├── generators/         daily_journal.py / daily_dayflow_digest.py / topic_create.py / topic_to_thread.py / weekly_review.py / weekly_newsletter.py
+│   ├── generators/         daily_journal.py / daily_dayflow_digest.py / topic_create.py / topic_to_thread.py / topic_to_fb.py / topic_to_blog.py / topic_to_short_video.py / film_review.py / weekly_review.py / weekly_newsletter.py
 │   ├── extractors/         journal_knowledge_extract.py（知識萃取）
 │   ├── analyzers/          extract_style.py（風格 DNA 萃取）
 │   ├── collectors/         threads_collector.py / youtube_transcript.py / podcast_transcript.py
@@ -1072,6 +1285,10 @@ vim ~/dex-agent-os/canonical/rules/10-writing-style.md
 | `youtube-note-template.md` | YouTube 學習筆記格式 | `youtube_transcript.py` |
 | `podcast-digest-template.md` | 週度消化報告格式 | `podcast_digest.py` |
 | `podcast-pptx-template.md` | 簡報結構模板 | `podcast_digest.py --pptx` |
+| `fb-post-template.md` | Facebook 貼文格式 | `topic_to_fb.py` |
+| `blog-template.md` | 部落格文章格式 | `topic_to_blog.py` |
+| `short-video-template.md` | 短影音腳本格式 | `topic_to_short_video.py` |
+| `film-review-template.md` | 影評格式 | `film_review.py` |
 
 ### L1 工作日誌模板
 
@@ -1302,12 +1519,23 @@ tail -40 ~/CLAUDE.md
 | Podwise Notion/Readwise 匯入 | `./bin/agent podcast-add --notion/--readwise` | 5a-ext |
 | 週度 Podcast & YouTube 消化報告 | `./bin/agent podcast-digest` / `/podcast-weekly` | 5a |
 | 簡報結構化內容產出 | `./bin/agent podcast-digest --pptx` | 5a |
+| 主題 → Facebook 貼文 | `./bin/agent topic-to-fb` | 5b |
+| 主題 → 部落格文章 | `./bin/agent topic-to-blog` | 5b |
+| 主題 → 短影音腳本 | `./bin/agent topic-to-short-video` | 5b |
+| 影評產出 | `./bin/agent film-review` | 5b |
+| 學習筆記（URL / 檔案 / Readwise / RSS / Anybox） | `./bin/agent learning-note` | 5c |
+| Readwise 批次匯入（v2 + v3 Reader） | `./bin/agent readwise-sync` | 5c |
+| RSS 批次匯入 | `./bin/agent rss-sync` | 5c |
+| Anybox 書籤批次匯入 | `./bin/agent anybox-sync` | 5c |
+| 每日學習消化報告 | `./bin/agent daily-digest` | 5c |
+| Google Doc + Gmail 發送 | `./bin/agent daily-digest --send` | 5c |
+| 互動學習對話 | `/daily-learning` | 5c |
 
 ### 尚未實作（計畫中）
 
 | 功能 | 計畫 Phase |
 |------|------------|
-| 其餘頻道（FB / Blog / 短影音 / 影評） | Phase 5 |
+| 學習輸入管線 + 每日消化系統 | Phase 5c |
 | 會議筆記 / 諮詢紀錄 workflow | Phase 6 |
 | 專案管理 / 訂閱管理 | Phase 6 |
 | launchd 自動排程 | Phase 7 |

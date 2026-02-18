@@ -1008,6 +1008,33 @@ def ask_claude(system_prompt: str, user_prompt: str) -> str:
 
 ---
 
+### Phase 5c：學習輸入管線 + 每日消化系統
+
+**目標：** 建立完整的「每日學習消化系統」：多來源匯入 → 每日摘要報告 → 互動學習對話 → 結構化洞察產出
+
+**詳細計畫：** 見 `implementation_plan_phase5c.md`
+**任務追蹤：** 見 `task_phase5c.md`
+
+**範圍拆分（5 個 Section）：**
+
+| Section | 內容 | 預估檔案 |
+|---------|------|---------|
+| A | 核心基礎：Readwise API 共用模組 + config + template | 4 |
+| B | learning-note：--url / --file / --readwise / --rss | 2 |
+| C | 批次匯入：readwise-sync (Plan A) + rss-sync (Plan B) + MCP 設定 | 5 |
+| D | 每日消化報告：daily-digest + Google Docs API + Gmail 寄送 | 4 |
+| E | 互動學習對話：/daily-learning skill + CLI 整合 + 收尾 | 5 |
+
+**任務：**
+- [x] Section A：readwise_api.py 共用模組 + config + template + podcast_transcript.py 重構 ✅
+- [x] Section B：learning_note.py（--url / --file / --readwise / --rss / --anybox 五種模式）✅
+- [x] Section C：readwise_sync.py + rss_sync.py + anybox_sync.py + subscriptions.opml ✅
+- [x] Section D：daily_digest.py + google_api.py + Google Docs/Gmail 整合 ✅
+- [x] Section E：/daily-learning skill + bin/agent +5 指令 + CLAUDE.md / PLAN.md 更新 ✅
+- [ ] Commit + merge
+
+---
+
 ### Phase 6：專案/產品管理 + 會議筆記 + 諮詢紀錄 + 訂閱管理
 
 **目標：** 工作面完善
@@ -1039,6 +1066,24 @@ def ask_claude(system_prompt: str, user_prompt: str) -> str:
 - [ ] `bin/setup` 一鍵安裝排程
 - [ ] 測試排程連續運作 3 天
 - [ ] Commit
+
+---
+
+### Phase 8：成本最佳化 + 外部載體整合
+
+**目標：** 付費最小化 + 串接 Obsidian / NotebookLM 作為輸出載體
+
+**8a — 付費最小化規劃：**
+- 盤點所有付費服務（Podwise、Readwise、Notion 等），找免費替代方案
+- 目標：能用免費就用免費，以省最多為目標
+- 例：Podwise → 直接用 Whisper/Deepgram 本地轉錄 + LLM 摘要？
+- 例：Readwise → 直接抓來源（RSS + 瀏覽器 extension export）？
+- 產出：成本對照表 + 遷移計畫
+
+**8b — Obsidian + NotebookLM 輸出載體：**
+- Obsidian：dex-agent-os 的 markdown 輸出同步到 Obsidian vault，利用 graph view / backlinks
+- NotebookLM：學習筆記 / digest 推送到 NotebookLM，利用 AI 問答 + Audio Overview
+- 設計雙向或單向同步機制
 
 ---
 

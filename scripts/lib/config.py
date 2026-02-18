@@ -67,6 +67,11 @@ APPLE_PODCAST_TTML_DIR = (
 # Dayflow
 DAYFLOW_DB = Path.home() / "Library" / "Application Support" / "Dayflow" / "chunks.sqlite"
 
+# 學習輸入 & 每日消化
+LEARNING_INPUT_DIR = ROOT_DIR / "300_Learning" / "input"
+READINGS_DIR = ROOT_DIR / "000_Inbox" / "readings"
+DIGEST_DIR = ROOT_DIR / "100_Journal" / "digest"
+
 # Podwise 串接（Notion + Readwise）
 NOTION_TOKEN = os.getenv("NOTION_TOKEN", "")
 NOTION_PODWISE_DB_ID = os.getenv("NOTION_PODWISE_DB_ID", "")

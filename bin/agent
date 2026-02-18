@@ -18,6 +18,7 @@
 #   ./bin/agent podcast-add --apple [--latest N]
 #   ./bin/agent podcast-add --notion [--latest N] [--all] [--force]
 #   ./bin/agent podcast-add --readwise [--latest N] [--all] [--force]
+#   ./bin/agent daily-digest [YYYY-MM-DD] [--today] [--send] [--force]
 #   ./bin/agent podcast-digest [YYYY-MM-DD] [--pptx] [--force]
 #   ./bin/agent weekly-review [YYYY-MM-DD] [--force]
 #   ./bin/agent weekly-newsletter [YYYY-MM-DD] [--type TYPE] [--force]
@@ -28,6 +29,13 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 ROOT_DIR="$(dirname "$SCRIPT_DIR")"
+
+# 載入環境變數
+if [ -f "$ROOT_DIR/.env" ]; then
+  set -a
+  source "$ROOT_DIR/.env"
+  set +a
+fi
 
 command="${1:-help}"
 shift || true
@@ -69,6 +77,21 @@ case "$command" in
   youtube-add)
     python3 "$ROOT_DIR/scripts/collectors/youtube_transcript.py" "$@"
     ;;
+  learning-note)
+    python3 "$ROOT_DIR/scripts/generators/learning_note.py" "$@"
+    ;;
+  readwise-sync)
+    python3 "$ROOT_DIR/scripts/collectors/readwise_sync.py" "$@"
+    ;;
+  rss-sync)
+    python3 "$ROOT_DIR/scripts/collectors/rss_sync.py" "$@"
+    ;;
+  anybox-sync)
+    python3 "$ROOT_DIR/scripts/collectors/anybox_sync.py" "$@"
+    ;;
+  daily-digest)
+    python3 "$ROOT_DIR/scripts/generators/daily_digest.py" "$@"
+    ;;
   podcast-add)
     python3 "$ROOT_DIR/scripts/collectors/podcast_transcript.py" "$@"
     ;;
@@ -104,11 +127,21 @@ Commands:
   topic-to-blog <topic-slug> [--force]                   主題 → 部落格文章草稿
   topic-to-short-video <topic-slug> [--force]            主題 → 短影音腳本
   film-review --title "..." [--notes "..."] [--rating N] 電影 → 影評
+  learning-note --url URL [--type TYPE] [--force]         URL → 學習筆記
+  learning-note --file PATH --title "..." [--type TYPE]  本地檔案 → 學習筆記
+  learning-note --readwise [--reader] [--latest N]       Readwise → 學習筆記
+  learning-note --rss FEED [--latest N]                  RSS → 學習筆記
+  learning-note --anybox [--starred] [--latest N]        Anybox → 學習筆記
+  readwise-sync [--category CAT] [--latest N] [--force]  Readwise highlights 批次匯入
+  readwise-sync --reader [--latest N] [--force]          Readwise Reader 批次匯入
+  rss-sync [--feed URL] [--opml FILE] [--latest N]       RSS 批次匯入
+  anybox-sync [--tag TAG] [--starred] [--latest N]       Anybox 書籤批次匯入
   youtube-add "URL" [--force] [--date YYYY-MM-DD]         YouTube 字幕 → 學習筆記
   podcast-add --transcript FILE --title "..." [--force]   手動逐字稿 → episode 筆記
   podcast-add --apple [--latest N]                        Apple Podcast 快取匯入
   podcast-add --notion [--latest N] [--all] [--force]     Notion Podwise DB 匯入
   podcast-add --readwise [--latest N] [--all] [--force]   Readwise podcast highlights 匯入
+  daily-digest [YYYY-MM-DD] [--today] [--send] [--force] 每日學習消化報告
   podcast-digest [YYYY-MM-DD] [--pptx] [--force]         週度消化報告（合併 YT + Podcast）
   weekly-review [YYYY-MM-DD] [--force]                    產出個人週回顧
   weekly-newsletter [YYYY-MM-DD] [--type TYPE] [--force]  產出電子報草稿
@@ -130,11 +163,19 @@ Examples:
   ./bin/agent topic-to-blog slug   主題 → 部落格文章草稿
   ./bin/agent topic-to-short-video slug  主題 → 短影音腳本
   ./bin/agent film-review --title "電影名" --notes "觀影筆記" --rating 8  產出影評
+  ./bin/agent learning-note --url "https://..." 網頁文章 → 學習筆記
+  ./bin/agent learning-note --readwise --reader --latest 3  Reader 最新 3 篇 → 學習筆記
+  ./bin/agent readwise-sync --reader --latest 5  匯入 Reader 最新 5 篇原文
+  ./bin/agent rss-sync --feed "https://jvns.ca/atom.xml" --latest 3  匯入 RSS 最新 3 篇
+  ./bin/agent anybox-sync --starred --latest 3  匯入星號書籤最新 3 筆
   ./bin/agent youtube-add "URL"     YouTube 影片 → 結構化學習筆記
   ./bin/agent podcast-add --transcript file.txt --title "..." 手動逐字稿
   ./bin/agent podcast-add --apple   匯入 Apple Podcast 快取
   ./bin/agent podcast-add --notion --latest 5  從 Notion Podwise 匯入
   ./bin/agent podcast-add --readwise --latest 5  從 Readwise 匯入
+  ./bin/agent daily-digest           產出昨日的學習消化報告
+  ./bin/agent daily-digest --today   產出今天的學習消化報告
+  ./bin/agent daily-digest --send    同時建立 Google Doc + 寄 Gmail
   ./bin/agent podcast-digest        產出本週 Podcast 消化報告
   ./bin/agent podcast-digest --pptx 同時產出簡報
   ./bin/agent weekly-review         產出本週的週回顧

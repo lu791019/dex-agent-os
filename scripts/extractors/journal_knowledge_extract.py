@@ -46,6 +46,7 @@ REFLECTIONS_ARCHIVE = KNOWLEDGE_DIR / "reflections-archive.md"
 MEMORY_LEARNINGS = CLAUDE_MEMORY_DIR / "learnings.md"
 MEMORY_REFLECTIONS = CLAUDE_MEMORY_DIR / "reflections.md"
 GLOBAL_CLAUDE_MD = Path.home() / "CLAUDE.md"
+GLOBAL_CLAUDE_MD_DOT = Path.home() / ".claude" / "CLAUDE.md"
 
 MEMORY_LEARNINGS_MAX_LINES = 120
 MEMORY_REFLECTIONS_MAX_LINES = 80
@@ -510,7 +511,7 @@ def update_global_claude_md(dry_run: bool) -> None:
 """
 
     if dry_run:
-        print("[global] 將更新 ~/CLAUDE.md 的「累積學習」區段")
+        print("[global] 將更新 ~/CLAUDE.md + ~/.claude/CLAUDE.md 的「累積學習」區段")
         print(f"[global] learnings: {len(learnings)} 字元")
         print(f"[global] reflections: {len(reflections)} 字元")
         return
@@ -533,14 +534,20 @@ def update_global_claude_md(dry_run: bool) -> None:
         clean_lines.append(line)
     result = "\n".join(clean_lines).rstrip()
 
-    _replace_global_section(result)
+    _replace_global_section(GLOBAL_CLAUDE_MD, result)
+    _replace_global_section(GLOBAL_CLAUDE_MD_DOT, result)
 
 
-def _replace_global_section(new_section: str) -> None:
-    """在 ~/CLAUDE.md 中原地替換「累積學習」區段。"""
-    content = read_text(GLOBAL_CLAUDE_MD)
+def _replace_global_section(target: Path, new_section: str) -> None:
+    """在指定 CLAUDE.md 中原地替換「累積學習」區段。
+
+    ⚠️ 重要：此函數會替換從 ``## 累積學習`` 標記到檔案結尾的所有內容。
+    因此「## 累積學習」必須是 CLAUDE.md 的最後一個區塊，
+    在它之後的任何內容都會在下次執行時被覆蓋。
+    """
+    content = read_text(target)
     if not content:
-        print("[global] 警告：~/CLAUDE.md 不存在")
+        print(f"[global] 警告：{target} 不存在，跳過")
         return
 
     marker = "## 累積學習"
@@ -548,15 +555,15 @@ def _replace_global_section(new_section: str) -> None:
     # 找到現有區段的起始位置
     idx = content.find(marker)
     if idx >= 0:
-        # 替換從 marker 到檔案結尾
+        # ⚠️ 從 marker 到 EOF 全部替換，累積學習之後不可放其他區塊
         new_content = content[:idx].rstrip() + "\n\n" + new_section.strip() + "\n"
     else:
         # 首次加入，附加到檔案末尾
         new_content = content.rstrip() + "\n\n" + new_section.strip() + "\n"
 
-    write_text(GLOBAL_CLAUDE_MD, new_content)
+    write_text(target, new_content)
     line_count = len(new_section.splitlines())
-    print(f"[global] ~/CLAUDE.md 已更新（累積學習 {line_count} 行）")
+    print(f"[global] {target} 已更新（累積學習 {line_count} 行）")
 
 
 # ── 共用工具 ──────────────────────────────────────────
