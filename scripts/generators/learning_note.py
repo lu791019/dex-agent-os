@@ -372,7 +372,7 @@ def handle_anybox(args) -> None:
         sys.exit(1)
 
     base_url = "http://127.0.0.1:6391"
-    headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
+    headers = {"X-API-Key": api_key}
 
     # 構建搜尋參數
     search_url = f"{base_url}/search"

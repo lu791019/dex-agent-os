@@ -79,6 +79,15 @@ case "$command" in
   learning-note)
     python3 "$ROOT_DIR/scripts/generators/learning_note.py" "$@"
     ;;
+  readwise-sync)
+    python3 "$ROOT_DIR/scripts/collectors/readwise_sync.py" "$@"
+    ;;
+  rss-sync)
+    python3 "$ROOT_DIR/scripts/collectors/rss_sync.py" "$@"
+    ;;
+  anybox-sync)
+    python3 "$ROOT_DIR/scripts/collectors/anybox_sync.py" "$@"
+    ;;
   podcast-add)
     python3 "$ROOT_DIR/scripts/collectors/podcast_transcript.py" "$@"
     ;;
