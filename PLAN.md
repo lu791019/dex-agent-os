@@ -1069,6 +1069,24 @@ def ask_claude(system_prompt: str, user_prompt: str) -> str:
 
 ---
 
+### Phase 8：成本最佳化 + 外部載體整合
+
+**目標：** 付費最小化 + 串接 Obsidian / NotebookLM 作為輸出載體
+
+**8a — 付費最小化規劃：**
+- 盤點所有付費服務（Podwise、Readwise、Notion 等），找免費替代方案
+- 目標：能用免費就用免費，以省最多為目標
+- 例：Podwise → 直接用 Whisper/Deepgram 本地轉錄 + LLM 摘要？
+- 例：Readwise → 直接抓來源（RSS + 瀏覽器 extension export）？
+- 產出：成本對照表 + 遷移計畫
+
+**8b — Obsidian + NotebookLM 輸出載體：**
+- Obsidian：dex-agent-os 的 markdown 輸出同步到 Obsidian vault，利用 graph view / backlinks
+- NotebookLM：學習筆記 / digest 推送到 NotebookLM，利用 AI 問答 + Audio Overview
+- 設計雙向或單向同步機制
+
+---
+
 ## 12. 關鍵決策紀錄
 
 | 日期 | 決策 | 原因 |
