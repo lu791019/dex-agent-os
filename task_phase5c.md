@@ -50,31 +50,36 @@
 ## 5c-1 收尾
 - [x] 更新 `bin/agent` — 新增 4 指令（learning-note / readwise-sync / rss-sync / anybox-sync）
 - [x] 確保測試資料存在：learning-note + rss-sync + anybox-sync 產出
-- [ ] 更新 bin/agent help 文字
+- [x] 更新 bin/agent help 文字 ✅
 - [ ] Commit + merge 到 main
 
 ---
 ## ═══ Phase 5c-2：每日消化 + 互動學習（D + E）═══
 
-## Section D：每日消化報告
-- [ ] D1. Install dependencies (D): `pip install google-auth google-auth-oauthlib google-api-python-client markdown`
-- [ ] D2. 建立 `scripts/generators/daily_digest.py` — 掃描檔名日期前綴（D 天撈 D-1 天）+ LLM 摘要（每篇 5-8 句）+ 本地存檔 + 簡單去重（同篇優先取 input/ 版本）
-- [ ] D3. 建立 `scripts/lib/google_api.py` — OAuth 認證 + Google Docs API + Gmail API，未設定時優雅 fallback
-- [ ] D4. 建立 `800_System/templates/daily-digest-template.md`
-- [ ] D5. 建立 `canonical/workflows/daily-digest.md`
-- [ ] D6. 驗證：`./bin/agent daily-digest` — 本地摘要產出
-- [ ] D7. 驗證：`./bin/agent daily-digest --send` — Google Doc + Gmail（或 fallback 提示）
+## Section D：每日消化報告 ✅
+- [x] D1. Install dependencies (D): `pip install google-auth google-auth-oauthlib google-api-python-client markdown` ✅
+- [x] D2. 建立 `scripts/generators/daily_digest.py` — 掃描 4 目錄 + 去重 + LLM 消化 + 思考殘留清理 ✅
+- [x] D3. 建立 `scripts/lib/google_api.py` — OAuth 認證 + Google Docs API + Gmail API，未設定時優雅 fallback ✅
+- [x] D4. 建立 `800_System/templates/daily-digest-template.md` ✅
+- [x] D5. 建立 `canonical/workflows/daily-digest.md` ✅
+- [x] D6. 驗證：`./bin/agent daily-digest --today` — 掃描 11 檔、去重 10 篇、LLM 消化正常 ✅
+- [x] D7. 驗證：`./bin/agent daily-digest --today --send` — Google Doc 建立 + Gmail 寄出 ✅
 
-## Section E：互動學習對話 + CLI 收尾
-- [ ] E1. 建立 `canonical/workflows/daily-learning.md` — 互動學習 skill（消化漏斗核心：蘇格拉底/考試/深聊式提問 → 歸納 → 自動產出 insights + learnings）
-- [ ] E2. 更新 `bin/agent` — 新增 daily-digest 指令 + help 更新
-- [ ] E3. 更新 `CLAUDE.md` CLI 速查表 +5 指令
-- [ ] E4. 更新 `PLAN.md` Phase 5c 狀態為完成
-- [ ] E5. 更新 `GUIDE.md` — 加入 Phase 5c 完整使用說明
-- [ ] E6. 執行 `bin/sync` 同步 workflows
-- [ ] E7. 驗證：`./bin/agent help` — 確認所有新指令
-- [ ] E8. 驗證：`./bin/agent sync` — 同步正常
-- [ ] E9. 驗證：啟動 /daily-learning skill 做互動對話測試
+### Section D 額外發現
+- LLM 思考殘留：claude --print 偶爾帶 chain-of-thought prefix，加入 `_clean_llm_output()` 清理
+- Google OAuth：需先在 GCP 同意畫面加自己為測試者，否則 403 access_denied
+- Google token 存在 config/google-token.json，refresh 自動
+
+## Section E：互動學習對話 + CLI 收尾 ✅
+- [x] E1. 建立 `canonical/workflows/daily-learning.md` — 互動學習 skill ✅
+- [x] E2. 更新 `bin/agent` — 新增 daily-digest 指令 + help 完整更新（含 5c-1 的 4 指令）✅
+- [x] E3. 更新 `CLAUDE.md` CLI 速查表 +5 指令 ✅
+- [x] E4. 更新 `PLAN.md` Phase 5c 狀態為完成 ✅
+- [x] E5. 更新 `GUIDE.md` — 加入 Phase 5c 完整使用說明（新增 6.7 節）✅
+- [x] E6. 執行 `bin/sync` 同步 workflows ✅（6 個新 skills 已同步）
+- [x] E7. 驗證：`./bin/agent help` — 所有新指令確認 ✅
+- [x] E8. 驗證：`./bin/agent sync` — 同步正常 ✅
+- [ ] E9. 驗證：啟動 /daily-learning skill 做互動對話測試（需新 session）
 
 ## Finalize
 - [ ] 產出 walkthrough.md

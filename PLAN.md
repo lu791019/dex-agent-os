@@ -1026,12 +1026,12 @@ def ask_claude(system_prompt: str, user_prompt: str) -> str:
 | E | 互動學習對話：/daily-learning skill + CLI 整合 + 收尾 | 5 |
 
 **任務：**
-- [ ] Section A：readwise_api.py 共用模組 + config + template + podcast_transcript.py 重構
-- [ ] Section B：learning_note.py（--url / --file / --readwise / --rss 四種模式）
-- [ ] Section C：readwise_sync.py + rss_sync.py + subscriptions.opml + MCP 設定
-- [ ] Section D：daily_digest.py + google_api.py + Google Docs/Gmail 整合
-- [ ] Section E：/daily-learning skill + bin/agent +4 指令 + CLAUDE.md / PLAN.md 更新
-- [ ] Commit
+- [x] Section A：readwise_api.py 共用模組 + config + template + podcast_transcript.py 重構 ✅
+- [x] Section B：learning_note.py（--url / --file / --readwise / --rss / --anybox 五種模式）✅
+- [x] Section C：readwise_sync.py + rss_sync.py + anybox_sync.py + subscriptions.opml ✅
+- [x] Section D：daily_digest.py + google_api.py + Google Docs/Gmail 整合 ✅
+- [x] Section E：/daily-learning skill + bin/agent +5 指令 + CLAUDE.md / PLAN.md 更新 ✅
+- [ ] Commit + merge
 
 ---
 
