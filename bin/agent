@@ -76,6 +76,9 @@ case "$command" in
   youtube-add)
     python3 "$ROOT_DIR/scripts/collectors/youtube_transcript.py" "$@"
     ;;
+  learning-note)
+    python3 "$ROOT_DIR/scripts/generators/learning_note.py" "$@"
+    ;;
   podcast-add)
     python3 "$ROOT_DIR/scripts/collectors/podcast_transcript.py" "$@"
     ;;
