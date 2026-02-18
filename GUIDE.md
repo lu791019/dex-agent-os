@@ -1,7 +1,7 @@
 # Dex Agent OS — 使用說明書
 
-> 版本：Phase 5a-ext — Podwise Notion/Readwise 串接
-> 最後更新：2026-02-13
+> 版本：Phase 5b — FB / Blog / 短影音 / 影評管線
+> 最後更新：2026-02-18
 
 ---
 
@@ -88,6 +88,10 @@ echo "THREADS_ACCESS_TOKEN=你的token" >> .env
 | 1 | `/daily-content [日期]` | IDE | 一鍵完整管線：L1 → L2 + Dayflow → 6 篇 Threads 草稿（兩組視角各 3 篇） | `500_Content/topics/YYYY-MM-DD-threads-from-*/` |
 | 2 | `./bin/agent topic-create <insight-file>` | CLI | 從 insight 卡片建立結構化主題（含核心論點、頻道適合度） | `500_Content/topics/<slug>/TOPIC.md` |
 | 3 | `./bin/agent topic-to-thread <topic-slug>` | CLI | 從 TOPIC.md 產出 Threads 草稿，自動套用 Style DNA | `500_Content/topics/<slug>/threads-draft.md` |
+| 3' | `./bin/agent topic-to-fb <topic-slug>` | CLI | 從 TOPIC.md 產出 Facebook 貼文草稿 | `500_Content/topics/<slug>/fb-draft.md` |
+| 3'' | `./bin/agent topic-to-blog <topic-slug>` | CLI | 從 TOPIC.md 產出部落格文章草稿 | `500_Content/topics/<slug>/blog-draft.md` |
+| 3''' | `./bin/agent topic-to-short-video <topic-slug>` | CLI | 從 TOPIC.md 產出短影音腳本 | `500_Content/topics/<slug>/short-video-draft.md` |
+| 4 | `./bin/agent film-review --title "..."` | CLI | 從電影資訊產出影評 | `600_Life/film/reviews/YYYY-MM-DD-slug.md` |
 
 #### C. 每週彙總（週日或週一）
 
@@ -165,6 +169,8 @@ echo "THREADS_ACCESS_TOKEN=你的token" >> .env
 | `--transcript FILE` | podcast-add | 指定手動逐字稿檔案路徑 |
 | `--latest N` | podcast-add (--apple/--notion/--readwise) | 自動匯入最新 N 集 |
 | `--all` | podcast-add (--notion/--readwise) | 匯入全部（不限日期） |
+| `--notes "..."` | film-review | 觀影筆記（選用） |
+| `--rating N` | film-review | 評分 1-10（選用） |
 
 ### 跨 IDE 共用指令
 
@@ -623,6 +629,68 @@ Step 5: 寫入檔案 + 產出摘要
 
 > **提醒：** 兩組來源可能產出類似主題（因為同一天的內容），發布前請檢查去重。
 
+### 主題轉 Facebook（topic-to-fb）
+
+從 TOPIC.md 產出 Facebook 貼文草稿：
+
+```bash
+./bin/agent topic-to-fb <topic-slug>          # 產出草稿
+./bin/agent topic-to-fb <topic-slug> --force  # 覆蓋既有
+```
+
+**輸出：** `500_Content/topics/<slug>/fb-draft.md`（自動更新 TOPIC.md 的 checklist）
+
+### 主題轉部落格（topic-to-blog）
+
+從 TOPIC.md 產出部落格文章草稿（長篇、含 SEO 結構）：
+
+```bash
+./bin/agent topic-to-blog <topic-slug>          # 產出草稿
+./bin/agent topic-to-blog <topic-slug> --force  # 覆蓋既有
+```
+
+**輸出：** `500_Content/topics/<slug>/blog-draft.md`
+
+### 主題轉短影音（topic-to-short-video）
+
+從 TOPIC.md 產出短影音腳本（含 Hook、分鏡、CTA）：
+
+```bash
+./bin/agent topic-to-short-video <topic-slug>          # 產出草稿
+./bin/agent topic-to-short-video <topic-slug> --force  # 覆蓋既有
+```
+
+**輸出：** `500_Content/topics/<slug>/short-video-draft.md`
+
+### 影評產出（film-review）
+
+從電影資訊產出結構化影評：
+
+```bash
+./bin/agent film-review --title "電影名"                          # 基本用法
+./bin/agent film-review --title "電影名" --notes "觀影筆記"       # 附帶筆記
+./bin/agent film-review --title "電影名" --rating 8               # 指定評分
+./bin/agent film-review --title "電影名" --notes "..." --rating 8 --force  # 完整參數
+```
+
+**輸出：** `600_Life/film/reviews/YYYY-MM-DD-slug.md`
+
+### 一個主題 → 多頻道
+
+Phase 5b 實現了「一次建立主題，多頻道產出」的流程：
+
+```
+insight / 手動 → topic-create → TOPIC.md
+                                   ├→ topic-to-thread     → Threads 草稿
+                                   ├→ topic-to-fb         → Facebook 貼文
+                                   ├→ topic-to-blog       → 部落格文章
+                                   └→ topic-to-short-video → 短影音腳本
+
+電影觀影 → film-review → 影評
+```
+
+每個 TOPIC.md 中都有 checklist 追蹤各頻道產出狀態。
+
 ### DNA 的有機生長
 
 ```
@@ -934,7 +1002,7 @@ dex-agent-os/
 │   └── skills/             skill 定義
 │
 ├── scripts/            ← Python 腳本
-│   ├── generators/         daily_journal.py / daily_dayflow_digest.py / topic_create.py / topic_to_thread.py / weekly_review.py / weekly_newsletter.py
+│   ├── generators/         daily_journal.py / daily_dayflow_digest.py / topic_create.py / topic_to_thread.py / topic_to_fb.py / topic_to_blog.py / topic_to_short_video.py / film_review.py / weekly_review.py / weekly_newsletter.py
 │   ├── extractors/         journal_knowledge_extract.py（知識萃取）
 │   ├── analyzers/          extract_style.py（風格 DNA 萃取）
 │   ├── collectors/         threads_collector.py / youtube_transcript.py / podcast_transcript.py
@@ -1072,6 +1140,10 @@ vim ~/dex-agent-os/canonical/rules/10-writing-style.md
 | `youtube-note-template.md` | YouTube 學習筆記格式 | `youtube_transcript.py` |
 | `podcast-digest-template.md` | 週度消化報告格式 | `podcast_digest.py` |
 | `podcast-pptx-template.md` | 簡報結構模板 | `podcast_digest.py --pptx` |
+| `fb-post-template.md` | Facebook 貼文格式 | `topic_to_fb.py` |
+| `blog-template.md` | 部落格文章格式 | `topic_to_blog.py` |
+| `short-video-template.md` | 短影音腳本格式 | `topic_to_short_video.py` |
+| `film-review-template.md` | 影評格式 | `film_review.py` |
 
 ### L1 工作日誌模板
 
@@ -1302,12 +1374,16 @@ tail -40 ~/CLAUDE.md
 | Podwise Notion/Readwise 匯入 | `./bin/agent podcast-add --notion/--readwise` | 5a-ext |
 | 週度 Podcast & YouTube 消化報告 | `./bin/agent podcast-digest` / `/podcast-weekly` | 5a |
 | 簡報結構化內容產出 | `./bin/agent podcast-digest --pptx` | 5a |
+| 主題 → Facebook 貼文 | `./bin/agent topic-to-fb` | 5b |
+| 主題 → 部落格文章 | `./bin/agent topic-to-blog` | 5b |
+| 主題 → 短影音腳本 | `./bin/agent topic-to-short-video` | 5b |
+| 影評產出 | `./bin/agent film-review` | 5b |
 
 ### 尚未實作（計畫中）
 
 | 功能 | 計畫 Phase |
 |------|------------|
-| 其餘頻道（FB / Blog / 短影音 / 影評） | Phase 5 |
+| 學習輸入管線 + 每日消化系統 | Phase 5c |
 | 會議筆記 / 諮詢紀錄 workflow | Phase 6 |
 | 專案管理 / 訂閱管理 | Phase 6 |
 | launchd 自動排程 | Phase 7 |

@@ -1008,6 +1008,33 @@ def ask_claude(system_prompt: str, user_prompt: str) -> str:
 
 ---
 
+### Phase 5c：學習輸入管線 + 每日消化系統
+
+**目標：** 建立完整的「每日學習消化系統」：多來源匯入 → 每日摘要報告 → 互動學習對話 → 結構化洞察產出
+
+**詳細計畫：** 見 `implementation_plan_phase5c.md`
+**任務追蹤：** 見 `task_phase5c.md`
+
+**範圍拆分（5 個 Section）：**
+
+| Section | 內容 | 預估檔案 |
+|---------|------|---------|
+| A | 核心基礎：Readwise API 共用模組 + config + template | 4 |
+| B | learning-note：--url / --file / --readwise / --rss | 2 |
+| C | 批次匯入：readwise-sync (Plan A) + rss-sync (Plan B) + MCP 設定 | 5 |
+| D | 每日消化報告：daily-digest + Google Docs API + Gmail 寄送 | 4 |
+| E | 互動學習對話：/daily-learning skill + CLI 整合 + 收尾 | 5 |
+
+**任務：**
+- [ ] Section A：readwise_api.py 共用模組 + config + template + podcast_transcript.py 重構
+- [ ] Section B：learning_note.py（--url / --file / --readwise / --rss 四種模式）
+- [ ] Section C：readwise_sync.py + rss_sync.py + subscriptions.opml + MCP 設定
+- [ ] Section D：daily_digest.py + google_api.py + Google Docs/Gmail 整合
+- [ ] Section E：/daily-learning skill + bin/agent +4 指令 + CLAUDE.md / PLAN.md 更新
+- [ ] Commit
+
+---
+
 ### Phase 6：專案/產品管理 + 會議筆記 + 諮詢紀錄 + 訂閱管理
 
 **目標：** 工作面完善
