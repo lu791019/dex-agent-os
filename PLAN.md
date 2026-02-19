@@ -1032,6 +1032,7 @@ def ask_claude(system_prompt: str, user_prompt: str) -> str:
 - [x] Section D：daily_digest.py + google_api.py + Google Docs/Gmail 整合 ✅
 - [x] Section E：/daily-learning skill + bin/agent +5 指令 + CLAUDE.md / PLAN.md 更新 ✅
 - [x] Commit + merge ✅（merged to master, walkthrough.md 已產出）
+- [x] 追加：gmail_sync.py — Gmail 電子報批次匯入 + google_api.py 加 gmail.readonly scope ✅
 
 ---
 

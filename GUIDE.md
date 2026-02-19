@@ -1036,14 +1036,32 @@ Podwise 線：Notion DB / Readwise → API 取得 → LLM 結構化 → episode 
 ./bin/agent daily-digest --force        # 覆蓋已存在的 digest
 ```
 
-#### Google API 設定（--send 功能，選用）
+### Gmail 電子報匯入
+
+```bash
+./bin/agent gmail-sync                                    # 列出最近 7 天電子報
+./bin/agent gmail-sync --latest 5 --force                 # 匯入最新 5 封
+./bin/agent gmail-sync --from "newsletter@substack.com" --latest 3 --force  # 篩選寄件者
+./bin/agent gmail-sync --label "newsletters" --latest 5 --force             # 篩選 label
+./bin/agent gmail-sync --query "from:substack.com" --days 30 --latest 10 --force  # 自訂搜尋
+```
+
+- 預設搜尋 Gmail 的 Promotions + Updates 分類（電子報常見位置）
+- `--from` 可填任何 email 或 domain（如 `substack.com`）
+- `--label` 可填任何 Gmail 標籤
+- `--query` 可寫完整 Gmail 搜尋語法
+- 輸出：`000_Inbox/readings/YYYY-MM-DD-gmail-<slug>.md`
+- 需要 Google API 設定（見下方）
+
+#### Google API 設定（daily-digest --send + gmail-sync 共用）
 
 1. GCP Console → 建專案 → 啟用 **Google Docs API** + **Gmail API**
 2. OAuth 同意畫面 → External → 加自己的 Gmail 為測試者
 3. 建立 OAuth 桌面應用程式憑證 → 下載 JSON
 4. 存為 `config/google-credentials.json`
-5. `.env` 加 `DIGEST_EMAIL=you@gmail.com`
-6. 首次 `--send` 會開瀏覽器授權，token 自動存在 `config/google-token.json`
+5. `.env` 加 `DIGEST_EMAIL=you@gmail.com`（daily-digest --send 用）
+6. 首次執行會開瀏覽器授權，token 自動存在 `config/google-token.json`
+7. 若新增 scope（如 gmail.readonly），需刪除 `config/google-token.json` 重新授權
 
 ### 互動學習對話
 
@@ -1061,7 +1079,7 @@ Podwise 線：Notion DB / Readwise → API 取得 → LLM 結構化 → episode 
 | `READWISE_TOKEN` | Readwise v2 + v3 API | readwise-sync / learning-note --readwise |
 | `ANYBOX_API_KEY` | Anybox 本地 API | anybox-sync / learning-note --anybox |
 | `DIGEST_EMAIL` | Gmail 寄信收件者 | daily-digest --send |
-| Google credentials | OAuth 憑證檔 | daily-digest --send |
+| Google credentials | OAuth 憑證檔 | daily-digest --send / gmail-sync |
 
 ### MCP Server（Claude Code 互動式存取）
 
