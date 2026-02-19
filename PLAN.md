@@ -1036,6 +1036,38 @@ def ask_claude(system_prompt: str, user_prompt: str) -> str:
 
 ---
 
+### Phase 5d：500_Content 結構重組 + sync-all + daily-content 改造
+
+**目標：** 將 500_Content 拆為 510/520/530 三層，統一內容管線流程
+
+**詳細計畫：** 見 `implementation_plan_phase5d.md`
+**任務追蹤：** 見 `task_phase5d.md`
+
+**範圍拆分（5 個 Section）：**
+
+| Section | 內容 |
+|---------|------|
+| A | 資料夾建立 + 現有檔案搬遷（git mv） |
+| B | config.py + 所有 generator 腳本路徑更新 |
+| C | 新增 `sync-all` 指令（一鍵批次匯入） |
+| D | `/daily-content` 改走 insight → topic → draft 完整流程 |
+| E | 文件更新（CLAUDE.md / GUIDE.md / PLAN.md / workflows / MEMORY.md） |
+
+**關鍵決策：**
+- 500_Content → 510_Insights / 520_Topics / 530_Channels
+- 530_Channels 按日期資料夾分（`threads/2026-02-18/xxx.md`）
+- 不區分待發/已發，手動發布
+- `/daily-content` 改走 extract → topic-create → topic-to-thread 完整流水線
+
+**任務：**
+- [ ] Section A：資料夾建立 + 檔案搬遷
+- [ ] Section B：config.py + 腳本路徑更新 + 測試
+- [ ] Section C：sync-all 指令
+- [ ] Section D：/daily-content 改造
+- [ ] Section E：文件更新 + 收尾 + merge
+
+---
+
 ### Phase 6：專案/產品管理 + 會議筆記 + 諮詢紀錄 + 訂閱管理
 
 **目標：** 工作面完善
