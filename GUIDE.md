@@ -950,6 +950,7 @@ Podwise 線：Notion DB / Readwise → API 取得 → LLM 結構化 → episode 
   Readwise Reader   → readwise-sync --reader
   RSS feeds         → rss-sync --feed URL
   Anybox 書籤       → anybox-sync --starred
+  Gmail 電子報      → gmail-sync --from / --label
   URL / 本地檔案    → learning-note --url / --file
   YouTube           → youtube-add（既有）
   Podcast           → podcast-add（既有）
@@ -995,6 +996,13 @@ Podwise 線：Notion DB / Readwise → API 取得 → LLM 結構化 → episode 
 ./bin/agent anybox-sync --starred                     # 列出星號書籤
 ./bin/agent anybox-sync --starred --latest 3 --force  # 匯入最新 3 筆
 ./bin/agent anybox-sync --tag "to-read" --latest 5
+
+# Gmail 電子報（需 Google API 設定）
+./bin/agent gmail-sync                                    # 列出最近 7 天電子報
+./bin/agent gmail-sync --latest 5 --force                 # 匯入最新 5 封
+./bin/agent gmail-sync --from "newsletter@substack.com" --latest 3 --force
+./bin/agent gmail-sync --label "newsletters" --latest 5 --force
+./bin/agent gmail-sync --query "from:substack.com" --days 30 --latest 10 --force
 ```
 
 #### Learning Note（單篇 / 批次 → LLM 學習筆記）
@@ -1543,6 +1551,7 @@ tail -40 ~/CLAUDE.md
 | Readwise 批次匯入（v2 + v3 Reader） | `./bin/agent readwise-sync` | 5c |
 | RSS 批次匯入 | `./bin/agent rss-sync` | 5c |
 | Anybox 書籤批次匯入 | `./bin/agent anybox-sync` | 5c |
+| Gmail 電子報批次匯入 | `./bin/agent gmail-sync` | 5c+ |
 | 每日學習消化報告 | `./bin/agent daily-digest` | 5c |
 | Google Doc + Gmail 發送 | `./bin/agent daily-digest --send` | 5c |
 | 互動學習對話 | `/daily-learning` | 5c |

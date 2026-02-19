@@ -89,6 +89,9 @@ case "$command" in
   anybox-sync)
     python3 "$ROOT_DIR/scripts/collectors/anybox_sync.py" "$@"
     ;;
+  gmail-sync)
+    python3 "$ROOT_DIR/scripts/collectors/gmail_sync.py" "$@"
+    ;;
   daily-digest)
     python3 "$ROOT_DIR/scripts/generators/daily_digest.py" "$@"
     ;;
@@ -136,6 +139,7 @@ Commands:
   readwise-sync --reader [--latest N] [--force]          Readwise Reader 批次匯入
   rss-sync [--feed URL] [--opml FILE] [--latest N]       RSS 批次匯入
   anybox-sync [--tag TAG] [--starred] [--latest N]       Anybox 書籤批次匯入
+  gmail-sync [--label X] [--from ADDR] [--latest N]      Gmail 電子報批次匯入
   youtube-add "URL" [--force] [--date YYYY-MM-DD]         YouTube 字幕 → 學習筆記
   podcast-add --transcript FILE --title "..." [--force]   手動逐字稿 → episode 筆記
   podcast-add --apple [--latest N]                        Apple Podcast 快取匯入
@@ -168,6 +172,8 @@ Examples:
   ./bin/agent readwise-sync --reader --latest 5  匯入 Reader 最新 5 篇原文
   ./bin/agent rss-sync --feed "https://jvns.ca/atom.xml" --latest 3  匯入 RSS 最新 3 篇
   ./bin/agent anybox-sync --starred --latest 3  匯入星號書籤最新 3 筆
+  ./bin/agent gmail-sync --latest 5  列出最近 5 封電子報
+  ./bin/agent gmail-sync --from "newsletter@substack.com" --latest 3 --force  匯入指定寄件者
   ./bin/agent youtube-add "URL"     YouTube 影片 → 結構化學習筆記
   ./bin/agent podcast-add --transcript file.txt --title "..." 手動逐字稿
   ./bin/agent podcast-add --apple   匯入 Apple Podcast 快取

@@ -29,6 +29,7 @@ TOKEN_PATH = ROOT_DIR / "config" / "google-token.json"
 SCOPES = [
     "https://www.googleapis.com/auth/documents",
     "https://www.googleapis.com/auth/gmail.send",
+    "https://www.googleapis.com/auth/gmail.readonly",
 ]
 
 
