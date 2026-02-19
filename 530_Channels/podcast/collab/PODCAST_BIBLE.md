@@ -66,30 +66,30 @@
 podcast 每集大綱的素材可來自以下來源：
 
 - `100_Journal/daily/` — 日記中的洞察與靈感
-- `500_Content/insights/` — 萃取後的洞察
+- `510_Insights/` — 萃取後的洞察
 - `000_Inbox/ideas/` — 靈感收集
 - `300_Learning/podcasts/episodes/` — 聽其他 podcast 的筆記
 - `300_Learning/youtube/` — YouTube 學習筆記
 - `300_Learning/podcasts/weekly/` — 週度消化報告中的內容種子
-- `500_Content/podcast/ideas/` — podcast 專屬的主題靈感
+- `530_Channels/podcast/ideas/` — podcast 專屬的主題靈感
 
 ## 內容產出（輸出管線）
 
 ```
 主題靈感 / 洞察 / 學習筆記
          ↓
-  500_Content/podcast/ideas/    ← 主題卡片（一個想法一個檔案）
+  530_Channels/podcast/ideas/    ← 主題卡片（一個想法一個檔案）
          ↓
-  500_Content/podcast/episodes/ ← 單集大綱（結構化 markdown）
+  530_Channels/podcast/episodes/ ← 單集大綱（結構化 markdown）
          ↓
-  500_Content/podcast/scripts/  ← 文字稿（錄音用）
+  530_Channels/podcast/scripts/  ← 文字稿（錄音用）
          ↓
   錄音 → 發布
 ```
 
 ## 單集大綱格式
 
-每集大綱存放於 `500_Content/podcast/episodes/EPxx-slug.md`，格式參考：
+每集大綱存放於 `530_Channels/podcast/episodes/EPxx-slug.md`，格式參考：
 
 ```markdown
 ---

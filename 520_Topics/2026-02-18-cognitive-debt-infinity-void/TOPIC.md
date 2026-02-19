@@ -1,7 +1,7 @@
 ---
 title: 認知債務是 AI 時代的無量空處
 status: drafting
-source: 500_Content/insights/2026-02-18-cognitive-debt-infinity-void.md
+source: 510_Insights/2026-02-18-cognitive-debt-infinity-void.md
 tags: [AI, 認知債務, 開發者生產力, 咒術迴戰]
 created: 2026-02-18
 ---

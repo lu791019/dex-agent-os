@@ -70,12 +70,12 @@
 | 來源 | 路徑 | 篩選角度 |
 |------|------|----------|
 | 日記洞察 | `100_Journal/daily/` | 技術學習、系統建構、職涯反思 |
-| 萃取洞察 | `500_Content/insights/` | AI / 自動化 / 工程 / 電影觀後感 |
+| 萃取洞察 | `510_Insights/` | AI / 自動化 / 工程 / 電影觀後感 |
 | 靈感收集 | `000_Inbox/ideas/` | 技術教學、工具分享、電影金句 |
 | Podcast 筆記 | `300_Learning/podcasts/episodes/` | 技術趨勢、AI 應用、職涯觀點 |
 | YouTube 筆記 | `300_Learning/youtube/` | 教學方法、技術深潛 |
 | 電影筆記 | `600_Life/movies/` | 電影 × 職涯的連結點 |
-| 個人頻道靈感 | `500_Content/podcast/solo/ideas/` | 專屬主題卡片 |
+| 個人頻道靈感 | `530_Channels/podcast/solo/ideas/` | 專屬主題卡片 |
 
 ## 內容產出（輸出管線）
 

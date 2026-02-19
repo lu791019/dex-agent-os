@@ -31,9 +31,9 @@
 | 靈感/想法 | `000_Inbox/ideas/` |
 | 閱讀筆記 | `000_Inbox/readings/` |
 | 學習筆記 | `300_Learning/input/` |
-| 主題草稿 | `500_Content/topics/<slug>/` |
-| 電子報草稿 | `500_Content/newsletter/drafts/` |
-| 各頻道草稿 | `500_Content/<channel>/queue/` |
+| 洞察卡片 | `510_Insights/` |
+| 主題草稿 | `520_Topics/<slug>/TOPIC.md` |
+| 各頻道草稿 | `530_Channels/<channel>/<date>/` |
 | 會議紀錄 | `200_Work/meetings/YYYY-MM-DD-title/` |
 | 諮詢紀錄 | `200_Work/consultations/YYYY-MM-DD-person-topic/` |
 | 專案狀態 | `400_Projects/` |

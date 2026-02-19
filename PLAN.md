@@ -2,7 +2,7 @@
 
 > 個人 AI 代理人作業系統
 > 涵蓋：生產力、學習、輸入輸出、工作管理、專案、產品、寫作
-> 最後更新：2026-02-11
+> 最後更新：2026-02-19
 
 ---
 
@@ -99,7 +99,7 @@ Dex Agent OS 是一套「個人 Agent OS」，由四層組成：
    /weekly-review         /topic-create
           │                     │
           ▼                     ▼
-   週回顧 + 學習摘要    500_Content/topics/<slug>/TOPIC.md
+   週回顧 + 學習摘要    520_Topics/<slug>/TOPIC.md
                                 │
           ┌──────┬──────┬───────┼───────┬──────┬──────┐
           ▼      ▼      ▼      ▼       ▼      ▼      ▼
@@ -134,7 +134,7 @@ work-log 合併進 Agent OS，但 `/work-log` 指令保持全域可用：
 L0 — 自動記錄    git commit hook 自動追加         ~/work-logs/YYYY/MM/
 L1 — 完整日誌    /work-log 產出詳細工作日誌       ~/work-logs/YYYY/MM/
 L2 — 精煉日記    Agent OS 讀 L1 → 摘要/洞察/行動  100_Journal/daily/
-L3 — 週報        Agent OS 讀 7 天 L2 → 主題+草稿  500_Content/newsletter/drafts/
+L3 — 週報        Agent OS 讀 7 天 L2 → 主題+草稿  530_Channels/newsletter/
 ```
 
 ### Dayflow 活動摘要（與 L1→L2 平行的獨立管線）
@@ -340,39 +340,25 @@ dex-agent-os/
         features/                     #   功能規格
         metrics.md                    #   關鍵指標追蹤
 
-  # --- 500: 內容生產管線 ---
-  500_Content/
+  # --- 510: 洞察卡片（seed ideas） ---
+  510_Insights/
+    YYYY-MM-DD-slug.md                # 從日記/學習萃取的洞察種子
+
+  # --- 520: 主題企劃 ---
+  520_Topics/
+    slug/
+      TOPIC.md                        #   核心論點 + 素材 + 進度追蹤
+
+  # --- 530: 各頻道草稿 ---
+  530_Channels/
+    threads/YYYY-MM-DD/slug.md        # Threads 草稿
+    facebook/YYYY-MM-DD/slug.md       # Facebook 草稿
+    blog/YYYY-MM-DD/slug.md           # Blog 草稿
+    newsletter/YYYY-Wxx-type.md       # 電子報草稿
+    short-video/YYYY-MM-DD/slug.md    # 短影音腳本
+    film-reviews/YYYY-MM-DD/slug.md   # 影評草稿
+    podcast/{solo,collab}/            # Podcast 文稿
     presentations/                    # ✅ 簡報輸出
-    topics/                           # 主題庫（內容原子）
-      topic-slug/
-        TOPIC.md                      #   核心論點 + 素材 + 進度追蹤
-        threads-draft.md
-        fb-draft.md
-        newsletter-section.md
-        blog-draft.md
-        podcast-script.md
-        short-video-script.md
-    newsletter/                       # 電子報
-      drafts/
-      archive/
-    threads/                          # Threads
-      queue/                          #   待發草稿
-      posted/                         #   已發存檔
-    facebook/                         # Facebook
-      queue/
-      posted/
-    blog/                             # WordPress 長文
-      drafts/
-      posted/
-    podcast/                          # Podcast
-      episodes/
-        ep-xx-title/
-          script.md
-          show-notes.md
-      ideas/
-    short-video/                      # 短影音
-      ideas/
-      scripts/
 
   # --- 600: 個人 ---
   600_Life/
@@ -619,9 +605,9 @@ vim ~/dex-agent-os/canonical/rules/10-writing-style.md
 |------|--------|------|------|
 | 1. 捕捉 | `/daily-idea-capture` | 今日對話/閱讀/靈感 | `000_Inbox/ideas/` |
 | 2. 消化 | `/learning-note` | 文章/課程/影片 | `300_Learning/input/` |
-| 3. 提煉主題 | `/topic-create` | Journal + Learning + Ideas | `500_Content/topics/<slug>/TOPIC.md` |
-| 4. 多格式產出 | `/topic-to-<channel>` | TOPIC.md + style-dna + template | `500_Content/topics/<slug>/<channel>-draft.md` |
-| 5. 彙整電子報 | `/weekly-newsletter` | 本週多個主題段落 | `500_Content/newsletter/drafts/` |
+| 3. 提煉主題 | `/topic-create` | Journal + Learning + Ideas | `520_Topics/<slug>/TOPIC.md` |
+| 4. 多格式產出 | `/topic-to-<channel>` | TOPIC.md + style-dna + template | `530_Channels/<channel>/<date>/<slug>.md` |
+| 5. 彙整電子報 | `/weekly-newsletter` | 本週多個主題段落 | `530_Channels/newsletter/` |
 | 6. 發布 + 存檔 | 手動發布 → `/wp-archive` | 已發布內容 | `700_Archive/` |
 
 ---
@@ -700,7 +686,7 @@ vim ~/dex-agent-os/canonical/rules/10-writing-style.md
 | 工具 | 角色 | 整合方式 |
 |------|------|----------|
 | Readwise Reader | 輸入 | API → `000_Inbox/readings/` |
-| Heptabase | 輸入 + 輸出 | API → `300_Learning/` + `500_Content/topics/` |
+| Heptabase | 輸入 + 輸出 | API → `300_Learning/` + `520_Topics/` |
 | Notion | 輸出 | API → 日記、專案追蹤、訂閱、內容日曆、人脈 |
 | Obsidian | 輸入 + 輸出 | symlink → `000_Inbox/`、`600_Life/` |
 | Discord | 輸入 | Bot API → `data/raw/` |
@@ -888,8 +874,8 @@ def ask_claude(system_prompt: str, user_prompt: str) -> str:
 |------|------|------|
 | `800_System/references/examples/threads/` (78 篇) | Threads 範例 | `collect-threads` |
 | `800_System/references/style-dna/threads-dna.md` | Style DNA | `extract-style` |
-| `500_Content/topics/2026-02-09-threads-from-dayflow-l1/` (3 篇) | Threads 草稿 | `/daily-content` |
-| `500_Content/topics/2026-02-09-threads-from-l2/` (3 篇) | Threads 草稿 | `/daily-content` |
+| `530_Channels/threads/2026-02-09/threads-from-dayflow-l1/` (3 篇) | Threads 草稿 | `/daily-content` |
+| `530_Channels/threads/2026-02-09/threads-from-l2/` (3 篇) | Threads 草稿 | `/daily-content` |
 
 ---
 
@@ -925,7 +911,7 @@ def ask_claude(system_prompt: str, user_prompt: str) -> str:
 **任務追蹤：** 見 `task_phase5a.md`
 
 **已完成項目：**
-- [x] 目錄結構：`300_Learning/{podcasts/{episodes,weekly,transcripts},youtube}`、`500_Content/presentations`
+- [x] 目錄結構：`300_Learning/{podcasts/{episodes,weekly,transcripts},youtube}`、`530_Channels/presentations`
 - [x] 模板：podcast-episode / youtube-note / podcast-digest / podcast-pptx（4 個）
 - [x] 更新 `config.py` 新增 6 個路徑常數
 - [x] 更新 `.gitignore` 加入 `transcripts/`
@@ -1036,7 +1022,9 @@ def ask_claude(system_prompt: str, user_prompt: str) -> str:
 
 ---
 
-### Phase 5d：500_Content 結構重組 + sync-all + daily-content 改造
+### Phase 5d：500_Content 結構重組 + sync-all + daily-content 改造 ✅ 已完成
+
+**完成日期：** 2026-02-19
 
 **目標：** 將 500_Content 拆為 510/520/530 三層，統一內容管線流程
 
@@ -1060,11 +1048,11 @@ def ask_claude(system_prompt: str, user_prompt: str) -> str:
 - `/daily-content` 改走 extract → topic-create → topic-to-thread 完整流水線
 
 **任務：**
-- [ ] Section A：資料夾建立 + 檔案搬遷
-- [ ] Section B：config.py + 腳本路徑更新 + 測試
-- [ ] Section C：sync-all 指令
-- [ ] Section D：/daily-content 改造
-- [ ] Section E：文件更新 + 收尾 + merge
+- [x] Section A：資料夾建立 + 檔案搬遷
+- [x] Section B：config.py + 腳本路徑更新 + 測試
+- [x] Section C：sync-all 指令
+- [x] Section D：/daily-content 改造
+- [x] Section E：文件更新 + 收尾 + merge
 
 ---
 

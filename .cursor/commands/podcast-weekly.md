@@ -54,7 +54,7 @@ python3 scripts/generators/podcast_digest.py [TARGET_DATE] [--force]
 python3 scripts/generators/podcast_digest.py [TARGET_DATE] --pptx [--force]
 ```
 
-- 輸出 markdown：`500_Content/presentations/YYYY-Wxx-market-trends.md`
+- 輸出 markdown：`530_Channels/presentations/YYYY-Wxx-market-trends.md`
 - 可用 `/pptx` skill 轉為 .pptx
 
 ### Step 4：產出摘要
@@ -70,7 +70,7 @@ python3 scripts/generators/podcast_digest.py [TARGET_DATE] --pptx [--force]
 ### 簡報（如有）
 | 檔案 | 說明 |
 |------|------|
-| 500_Content/presentations/YYYY-Wxx-market-trends.md | 簡報結構化內容 |
+| 530_Channels/presentations/YYYY-Wxx-market-trends.md | 簡報結構化內容 |
 ```
 
 ## 注意事項
