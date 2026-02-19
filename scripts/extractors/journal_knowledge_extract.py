@@ -23,7 +23,7 @@ sys.path.insert(0, str(ROOT_DIR / "scripts"))
 
 from lib.config import (
     CLAUDE_MEMORY_DIR,
-    CONTENT_INSIGHTS_DIR,
+    INSIGHTS_DIR,
     INBOX_IDEAS_DIR,
     JOURNAL_DIR,
     KNOWLEDGE_DIR,
@@ -383,7 +383,7 @@ def _write_insight_file(item: dict) -> None:
 
     # 決定目標目錄
     if classification == "content":
-        dest_dir = CONTENT_INSIGHTS_DIR
+        dest_dir = INSIGHTS_DIR
     elif classification == "personal":
         dest_dir = LIFE_PERSONAL_DIR
     else:

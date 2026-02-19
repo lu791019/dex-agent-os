@@ -161,7 +161,7 @@ Examples:
   ./bin/agent collect-threads       抓取你的 Threads 文章（需先設定 Meta App）
   ./bin/agent extract-style threads 從範例提取 Threads 風格 DNA
   ./bin/agent topic-create          列出可用 insights
-  ./bin/agent topic-create 500_Content/insights/xxx.md    從 insight 建立主題
+  ./bin/agent topic-create 510_Insights/xxx.md    從 insight 建立主題
   ./bin/agent topic-to-thread slug  主題 → Threads 草稿
   ./bin/agent topic-to-fb slug     主題 → Facebook 貼文草稿
   ./bin/agent topic-to-blog slug   主題 → 部落格文章草稿

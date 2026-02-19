@@ -9,8 +9,8 @@ from pathlib import Path
 ROOT_DIR = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(ROOT_DIR / "scripts"))
 
-from lib.config import TOPICS_DIR, STYLE_DNA_DIR, RULES_DIR
-from lib.file_utils import read_text, today_str, write_text
+from lib.config import TOPICS_DIR, BLOG_DIR, STYLE_DNA_DIR, RULES_DIR
+from lib.file_utils import ensure_dir, extract_created_date, read_text, today_str, write_text
 from lib.llm import ask_claude
 
 # ── 常數 ──────────────────────────────────────────────
@@ -136,9 +136,7 @@ def main():
 
         print("[topic-to-blog] 可用的主題：\n")
         for slug, title in topics:
-            draft_exists = (TOPICS_DIR / slug / "blog-draft.md").exists()
-            status = " [已有草稿]" if draft_exists else ""
-            print(f"  {slug}{status}")
+            print(f"  {slug}")
             print(f"    {title}")
         print(f"\n用法：./bin/agent topic-to-blog <slug>")
         return
@@ -151,16 +149,19 @@ def main():
         print(f"[topic-to-blog] ERROR: 找不到 {topic_file.relative_to(ROOT_DIR)}", file=sys.stderr)
         sys.exit(1)
 
-    # 2. 檢查輸出
-    draft_path = topic_dir / "blog-draft.md"
+    # 2. 讀取主題 + 決定輸出路徑
+    topic_content = read_text(topic_file)
+    created_date = extract_created_date(topic_content)
+    draft_dir = ensure_dir(BLOG_DIR / created_date)
+    draft_path = draft_dir / f"{slug}.md"
+
     if draft_path.exists() and not args.force:
-        response = input(f"[topic-to-blog] blog-draft.md 已存在，覆蓋？(y/N) ").strip().lower()
+        response = input(f"[topic-to-blog] {draft_path.name} 已存在，覆蓋？(y/N) ").strip().lower()
         if response != "y":
             print("[topic-to-blog] Cancelled.")
             sys.exit(0)
 
     # 3. 讀取參考資料
-    topic_content = read_text(topic_file)
     style_dna = read_text(STYLE_DNA_DIR / "blog-dna.md")
     writing_rules = read_text(RULES_DIR / "10-writing-style.md")
 
