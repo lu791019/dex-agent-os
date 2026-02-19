@@ -10,7 +10,7 @@ from pathlib import Path
 ROOT_DIR = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(ROOT_DIR / "scripts"))
 
-from lib.config import TOPICS_DIR, CONTENT_INSIGHTS_DIR, TEMPLATES_DIR
+from lib.config import TOPICS_DIR, INSIGHTS_DIR, TEMPLATES_DIR
 from lib.file_utils import ensure_dir, read_text, today_str, write_text
 from lib.llm import ask_claude
 
@@ -45,10 +45,10 @@ def _slugify(text: str) -> str:
 
 def _list_insights() -> list[Path]:
     """列出所有可用的 insight 檔案。"""
-    if not CONTENT_INSIGHTS_DIR.exists():
+    if not INSIGHTS_DIR.exists():
         return []
     return sorted(
-        f for f in CONTENT_INSIGHTS_DIR.glob("*.md")
+        f for f in INSIGHTS_DIR.glob("*.md")
         if f.name != ".gitkeep"
     )
 

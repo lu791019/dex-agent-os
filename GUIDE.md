@@ -1,7 +1,7 @@
 # Dex Agent OS — 使用說明書
 
-> 版本：Phase 5c — 學習輸入管線 + 每日消化系統
-> 最後更新：2026-02-18
+> 版本：Phase 5d — 500_Content 拆分 + sync-all 一鍵匯入
+> 最後更新：2026-02-19
 
 ---
 
@@ -77,21 +77,21 @@ echo "THREADS_ACCESS_TOKEN=你的token" >> .env
 | 1 | `/work-log [日期]` | IDE | 收集 Claude Code 對話、git commits、Dayflow 資料，產出 L1 完整工作日誌 | `~/work-logs/YYYY/MM/YYYY-MM-DD.md` |
 | 2 | `./bin/agent dayflow [日期]` | CLI | 從 Dayflow SQLite 讀取螢幕活動，產出行為分析摘要 | `100_Journal/daily/YYYY-MM-DD-dayflow.md` |
 | 3 | `./bin/agent journal [日期]` | CLI | 從 L1 工作日誌 + Dayflow 摘要（如存在）提煉精華，壓縮為 L2 精煉日記 | `100_Journal/daily/YYYY-MM-DD.md` |
-| 4 | `./bin/agent extract [日期\|all]` | CLI | 從 L2 日記萃取知識（學習/反思/靈感）到記憶庫 | `~/.claude/projects/-Users-dex-dex-agent-os/memory/` + `800_System/knowledge/` + `500_Content/insights/` |
+| 4 | `./bin/agent extract [日期\|all]` | CLI | 從 L2 日記萃取知識（學習/反思/靈感）到記憶庫 | `~/.claude/projects/-Users-dex-dex-agent-os/memory/` + `800_System/knowledge/` + `510_Insights/` |
 | 5 | `/daily-review` | IDE | 互動式每日回顧：AI 呈現摘要 → 問你 3 個問題 → 更新 L2 日記洞察 | 更新既有 L2 日記 |
 
-> **一鍵替代 1-3：** `/daily-content [日期]` 會自動執行 L1 → Dayflow → L2（L2 會自動讀取 Dayflow 摘要），並額外產出 6 篇 Threads 草稿。
+> **一鍵替代 1-3：** `/daily-content [日期]` 會自動執行 L1 → Dayflow → L2 → extract → topic-create → topic-to-thread 完整流水線（L2 會自動讀取 Dayflow 摘要），並產出 Threads 草稿。
 
 #### B. 每日內容生產（有素材想發文時）
 
 | 順序 | 指令 | 類型 | 說明 | 輸出位置 |
 |:----:|------|:----:|------|----------|
-| 1 | `/daily-content [日期]` | IDE | 一鍵完整管線：L1 → L2 + Dayflow → 6 篇 Threads 草稿（兩組視角各 3 篇） | `500_Content/topics/YYYY-MM-DD-threads-from-*/` |
-| 2 | `./bin/agent topic-create <insight-file>` | CLI | 從 insight 卡片建立結構化主題（含核心論點、頻道適合度） | `500_Content/topics/<slug>/TOPIC.md` |
-| 3 | `./bin/agent topic-to-thread <topic-slug>` | CLI | 從 TOPIC.md 產出 Threads 草稿，自動套用 Style DNA | `500_Content/topics/<slug>/threads-draft.md` |
-| 3' | `./bin/agent topic-to-fb <topic-slug>` | CLI | 從 TOPIC.md 產出 Facebook 貼文草稿 | `500_Content/topics/<slug>/fb-draft.md` |
-| 3'' | `./bin/agent topic-to-blog <topic-slug>` | CLI | 從 TOPIC.md 產出部落格文章草稿 | `500_Content/topics/<slug>/blog-draft.md` |
-| 3''' | `./bin/agent topic-to-short-video <topic-slug>` | CLI | 從 TOPIC.md 產出短影音腳本 | `500_Content/topics/<slug>/short-video-draft.md` |
+| 1 | `/daily-content [日期]` | IDE | 一鍵完整管線：L1 → L2 + Dayflow → extract → topic-create → topic-to-thread | `530_Channels/threads/YYYY-MM-DD/` |
+| 2 | `./bin/agent topic-create <insight-file>` | CLI | 從 insight 卡片建立結構化主題（含核心論點、頻道適合度） | `520_Topics/<slug>/TOPIC.md` |
+| 3 | `./bin/agent topic-to-thread <topic-slug>` | CLI | 從 TOPIC.md 產出 Threads 草稿，自動套用 Style DNA | `530_Channels/threads/<created-date>/<slug>.md` |
+| 3' | `./bin/agent topic-to-fb <topic-slug>` | CLI | 從 TOPIC.md 產出 Facebook 貼文草稿 | `530_Channels/facebook/<created-date>/<slug>.md` |
+| 3'' | `./bin/agent topic-to-blog <topic-slug>` | CLI | 從 TOPIC.md 產出部落格文章草稿 | `530_Channels/blog/<created-date>/<slug>.md` |
+| 3''' | `./bin/agent topic-to-short-video <topic-slug>` | CLI | 從 TOPIC.md 產出短影音腳本 | `530_Channels/short-video/<created-date>/<slug>.md` |
 | 4 | `./bin/agent film-review --title "..."` | CLI | 從電影資訊產出影評 | `600_Life/film/reviews/YYYY-MM-DD-slug.md` |
 
 #### C. 學習輸入 + 每日消化（持續 / 每天）
@@ -106,7 +106,7 @@ echo "THREADS_ACCESS_TOKEN=你的token" >> .env
 | 2'' | `./bin/agent learning-note --rss FEED --latest N` | CLI | RSS 文章 → LLM 學習筆記 | 同上 |
 | 3 | `./bin/agent daily-digest [--today]` | CLI | 掃描當日所有學習內容 → LLM 消化摘要 | `100_Journal/digest/YYYY-MM-DD-digest.md` |
 | 3' | `./bin/agent daily-digest --send` | CLI | 同上 + 建立 Google Doc + 寄 Gmail | Google Docs + Gmail |
-| 4 | `/daily-learning` | IDE | 互動學習對話：逐篇提問 → 歸納洞察 | `500_Content/insights/` + `300_Learning/input/` |
+| 4 | `/daily-learning` | IDE | 互動學習對話：逐篇提問 → 歸納洞察 | `510_Insights/` + `300_Learning/input/` |
 
 > **流程建議：** 每天先用 sync 指令匯入新內容 → 選感興趣的跑 learning-note → 跑 daily-digest → 用 /daily-learning 深度消化。
 
@@ -121,7 +121,7 @@ echo "THREADS_ACCESS_TOKEN=你的token" >> .env
 | 2''' | `./bin/agent podcast-add --readwise [--latest N]` | CLI | Readwise Podwise 匯入 | 同上 |
 | 3 | `./bin/agent podcast-digest [日期]` | CLI | 週度消化報告（合併 YouTube + Podcast） | `300_Learning/podcasts/weekly/YYYY-Wxx-podcast-digest.md` |
 | 4 | `./bin/agent weekly-review [日期]` | CLI | 從 7 天 L2 日記 + Dayflow 彙整為結構化週回顧 | `100_Journal/weekly/YYYY-Wxx.md` |
-| 5 | `./bin/agent weekly-newsletter [日期]` | CLI | 從 L2 + Topics + Insights 產出電子報草稿（月度輪替 4 種類型） | `500_Content/newsletter/drafts/YYYY-Wxx-{type}.md` |
+| 5 | `./bin/agent weekly-newsletter [日期]` | CLI | 從 L2 + Topics + Insights 產出電子報草稿（月度輪替 4 種類型） | `530_Channels/newsletter/YYYY-Wxx-{type}.md` |
 
 > **一鍵替代 3：** `/podcast-weekly [日期]` 一鍵產出 digest + 可選簡報。
 > **一鍵替代 4-5：** `/weekly-content [日期]` 會自動依序產出週回顧 + 電子報草稿。
@@ -145,6 +145,7 @@ echo "THREADS_ACCESS_TOKEN=你的token" >> .env
 | 指令 | 類型 | 說明 |
 |------|:----:|------|
 | `./bin/agent sync` 或 `./bin/sync` | CLI | 將 `canonical/` 規則同步到 `.agent/` `.cursor/` `.claude/` 三個 IDE |
+| `./bin/agent sync-all` | CLI | 一鍵批次匯入所有來源（Readwise Reader + RSS + Anybox + Gmail） |
 | `./bin/agent help` | CLI | 顯示 CLI 使用說明與範例 |
 
 #### G. 規格驅動開發（OpenSpec / OPSX）
@@ -352,7 +353,7 @@ echo "THREADS_ACCESS_TOKEN=你的token" >> .env
 
 ```
 下班前 / 睡前（方式 A — 一鍵完成）：
-  1. /daily-content                     → L1 + L2 + Dayflow + 6 篇 Threads 草稿
+  1. /daily-content                     → L1 + L2 + Dayflow + extract → topic-create → Threads 草稿
   2. ./bin/agent extract                → 萃取知識到記憶庫
   3. /daily-review（選用）              → 互動回顧，補充洞察
 
@@ -389,7 +390,7 @@ echo "THREADS_ACCESS_TOKEN=你的token" >> .env
     │
     ├─ 「學到什麼」 → learnings.md（Claude 自動載入）+ archive
     ├─ 「卡在哪裡」 → reflections.md（Claude 自動載入）+ archive
-    └─ 「洞察 & 靈感」→ 500_Content/insights/ 或 000_Inbox/ideas/ 或 600_Life/personal/
+    └─ 「洞察 & 靈感」→ 510_Insights/ 或 000_Inbox/ideas/ 或 600_Life/personal/
 ```
 
 ### 為什麼寫到 memory/ 就能「記住」？
@@ -457,7 +458,7 @@ echo "THREADS_ACCESS_TOKEN=你的token" >> .env
 
 | 分類 | 目的地 | 條件 |
 |------|--------|------|
-| `content` | `500_Content/insights/` | 有明確頻道標記（→ Threads / Blog / Newsletter 等） |
+| `content` | `510_Insights/` | 有明確頻道標記（→ Threads / Blog / Newsletter 等） |
 | `idea` | `000_Inbox/ideas/` | 沒有明確頻道但有潛力的想法 |
 | `personal` | `600_Life/personal/reflections/` | 關於個人成長、職涯、生活的反思 |
 
@@ -533,10 +534,14 @@ Phase 3 建立了從素材到 Threads 草稿的完整管線，並透過 Style DN
 素材來源                          內容產出
 ─────────                        ─────────
 Insight 卡片 ──→ topic-create ──→ TOPIC.md ──→ topic-to-thread ──→ Threads 草稿
-L1 工作日誌  ──→ /daily-content ──→ 3 篇 Threads（Dayflow+L1 視角）
-L2 精煉日記  ──→ /daily-content ──→ 3 篇 Threads（L2 視角）
+L1/L2 日記   ──→ /daily-content ──→ extract → topic-create → topic-to-thread
                                       ↑
                               Style DNA（風格指紋）
+
+輸出位置：
+  510_Insights/                         ← 洞察素材
+  520_Topics/<slug>/TOPIC.md            ← 結構化主題
+  530_Channels/threads/<date>/<slug>.md ← 頻道草稿
 ```
 
 ### Threads 範例收集
@@ -596,7 +601,7 @@ L2 精煉日記  ──→ /daily-content ──→ 3 篇 Threads（L2 視角）
 
 ```bash
 # 從 insight 建立
-./bin/agent topic-create 500_Content/insights/2026-02-07-xxx.md
+./bin/agent topic-create 510_Insights/2026-02-07-xxx.md
 
 # 手動建立
 ./bin/agent topic-create --title "用 Claude Code 打造個人 Agent OS"
@@ -605,7 +610,7 @@ L2 精煉日記  ──→ /daily-content ──→ 3 篇 Threads（L2 視角）
 ./bin/agent topic-create
 ```
 
-**輸出：** `500_Content/topics/<slug>/TOPIC.md`（含核心論點、關鍵素材、頻道適合度、已產出 checklist）
+**輸出：** `520_Topics/<slug>/TOPIC.md`（含核心論點、關鍵素材、頻道適合度、已產出 checklist）
 
 ### 主題轉 Threads（topic-to-thread）
 
@@ -616,11 +621,11 @@ L2 精煉日記  ──→ /daily-content ──→ 3 篇 Threads（L2 視角）
 ./bin/agent topic-to-thread <topic-slug> --force  # 覆蓋既有
 ```
 
-**輸出：** `500_Content/topics/<slug>/threads-draft.md`（自動更新 TOPIC.md 的 checklist）
+**輸出：** `530_Channels/threads/<created-date>/<slug>.md`（自動更新 TOPIC.md 的 checklist）
 
 ### 每日內容管線（/daily-content）
 
-一鍵從工作紀錄產出 6 篇 Threads 草稿的完整管線：
+一鍵從工作紀錄走完 extract → topic-create → topic-to-thread 完整流水線：
 
 ```
 /daily-content                    → 今天
@@ -633,18 +638,16 @@ L2 精煉日記  ──→ /daily-content ──→ 3 篇 Threads（L2 視角）
 ```
 Step 1: L1 工作日誌（/work-log，如不存在自動觸發）
 Step 2: Dayflow 活動摘要 → L2 精煉日記（依序執行，L2 會讀取 Dayflow）
-Step 3: 讀取素材 + Style DNA
-Step 4: 生成 6 篇 Threads 草稿（兩組各 3 篇，平行執行）
-        ├── Dayflow + L1 → 3 篇（日常活動視角）
-        └── L2 → 3 篇（深度反思視角）
-Step 5: 寫入檔案 + 產出摘要
+Step 3: extract — 從 L2 萃取 insights
+Step 4: topic-create — 從 insights 建立 TOPIC.md
+Step 5: topic-to-thread — 從 TOPIC.md 產出 Threads 草稿（套用 Style DNA）
+Step 6: 寫入檔案 + 產出摘要
 ```
 
 **輸出目錄：**
-- `500_Content/topics/YYYY-MM-DD-threads-from-dayflow-l1/`（3 篇）
-- `500_Content/topics/YYYY-MM-DD-threads-from-l2/`（3 篇）
+- `530_Channels/threads/YYYY-MM-DD/`（按日期資料夾）
 
-> **提醒：** 兩組來源可能產出類似主題（因為同一天的內容），發布前請檢查去重。
+> **提醒：** 同一天的 insights 可能產出類似主題，發布前請檢查去重。
 
 ### 主題轉 Facebook（topic-to-fb）
 
@@ -655,7 +658,7 @@ Step 5: 寫入檔案 + 產出摘要
 ./bin/agent topic-to-fb <topic-slug> --force  # 覆蓋既有
 ```
 
-**輸出：** `500_Content/topics/<slug>/fb-draft.md`（自動更新 TOPIC.md 的 checklist）
+**輸出：** `530_Channels/facebook/<created-date>/<slug>.md`（自動更新 TOPIC.md 的 checklist）
 
 ### 主題轉部落格（topic-to-blog）
 
@@ -666,7 +669,7 @@ Step 5: 寫入檔案 + 產出摘要
 ./bin/agent topic-to-blog <topic-slug> --force  # 覆蓋既有
 ```
 
-**輸出：** `500_Content/topics/<slug>/blog-draft.md`
+**輸出：** `530_Channels/blog/<created-date>/<slug>.md`
 
 ### 主題轉短影音（topic-to-short-video）
 
@@ -677,7 +680,7 @@ Step 5: 寫入檔案 + 產出摘要
 ./bin/agent topic-to-short-video <topic-slug> --force  # 覆蓋既有
 ```
 
-**輸出：** `500_Content/topics/<slug>/short-video-draft.md`
+**輸出：** `530_Channels/short-video/<created-date>/<slug>.md`
 
 ### 影評產出（film-review）
 
@@ -726,7 +729,7 @@ Phase 4 建立了週級別的彙總系統：個人週回顧 + 對外電子報，
 
 ```
 7 天 L2 日記 + Dayflow ──→ 週回顧（100_Journal/weekly/）
-7 天 L2 日記 + Topics + Insights ──→ 電子報草稿（500_Content/newsletter/drafts/）
+7 天 L2 日記 + Topics + Insights ──→ 電子報草稿（530_Channels/newsletter/）
                                          ↑ Newsletter DNA（如有）
 ```
 
@@ -770,7 +773,7 @@ Phase 4 建立了週級別的彙總系統：個人週回顧 + 對外電子報，
 ./bin/agent weekly-newsletter --force                  # 強制覆蓋
 ```
 
-**輸出：** `500_Content/newsletter/drafts/YYYY-Wxx-{type}.md`
+**輸出：** `530_Channels/newsletter/YYYY-Wxx-{type}.md`
 
 ### Newsletter DNA（提升品質的關鍵）
 
@@ -804,7 +807,7 @@ Phase 4 建立了週級別的彙總系統：個人週回顧 + 對外電子報，
   1. /weekly-content（或分步）     → 週回顧 + 電子報草稿
   2. 審閱週回顧                    → 可直接發布或作為個人參考
   3. 審閱電子報草稿                → 修改後發送
-  4. 發送後歸檔到 500_Content/newsletter/archive/
+  4. 發送後歸檔到 700_Archive/newsletter/
 ```
 
 ---
@@ -922,7 +925,7 @@ Podwise 線：Notion DB / Readwise → API 取得 → LLM 結構化 → episode 
 - 市場趨勢觀察（跨集歸納 2-3 個趨勢）
 - 核心學習、內容種子、推薦片段、下週想深入
 
-**簡報產出：** `--pptx` 會產出 `500_Content/presentations/YYYY-Wxx-market-trends.md`，可用 `/pptx` skill 轉為 .pptx 檔案。
+**簡報產出：** `--pptx` 會產出 `530_Channels/presentations/YYYY-Wxx-market-trends.md`，可用 `/pptx` skill 轉為 .pptx 檔案。
 
 ### 建議每週操作流程
 
@@ -970,7 +973,7 @@ Podwise 線：Notion DB / Readwise → API 取得 → LLM 結構化 → episode 
       ▼
 互動學習對話 ─── /daily-learning ─────────────────
   讀取 digest → 逐篇提問（蘇格拉底 / 考試 / 深聊）
-  歸納洞察 → 500_Content/insights/
+  歸納洞察 → 510_Insights/
   補充想法 → 更新 300_Learning/input/ 的「我的想法」
 ```
 
@@ -1153,14 +1156,19 @@ dex-agent-os/
 │   ├── software/           軟體專案（STATUS.md / DECISIONS.md）
 │   └── products/           產品（overview / roadmap / features / metrics）
 │
-├── 500_Content/        ← 內容生產管線
-│   ├── topics/             主題庫（TOPIC.md → 多頻道草稿）
-│   ├── newsletter/         電子報（drafts / archive）
-│   ├── threads/            Threads（queue / posted）
-│   ├── facebook/           Facebook
-│   ├── blog/               WordPress 長文
-│   ├── podcast/            Podcast
-│   └── short-video/        短影音
+├── 510_Insights/       ← 洞察素材庫（extract 產出）
+│
+├── 520_Topics/         ← 主題庫（TOPIC.md → 多頻道草稿）
+│   └── <slug>/TOPIC.md
+│
+├── 530_Channels/       ← 各頻道草稿（按日期資料夾）
+│   ├── threads/            Threads（YYYY-MM-DD/<slug>.md）
+│   ├── facebook/           Facebook（YYYY-MM-DD/<slug>.md）
+│   ├── blog/               WordPress 長文（YYYY-MM-DD/<slug>.md）
+│   ├── short-video/        短影音（YYYY-MM-DD/<slug>.md）
+│   ├── newsletter/         電子報（YYYY-Wxx-{type}.md）
+│   ├── presentations/      簡報
+│   └── podcast/            Podcast
 │
 ├── 600_Life/           ← 個人
 │   ├── career/             職涯（反思 / 目標 / 機會評估）
@@ -1236,16 +1244,16 @@ dex-agent-os/
 | 記一次諮詢 | `200_Work/consultations/YYYY-MM-DD-person-topic/notes.md` |
 | 寫學習筆記 | `300_Learning/input/tech/` 或 `courses/` |
 | 追蹤專案進度 | `400_Projects/software/project-name/STATUS.md` |
-| 發展一個主題 | `500_Content/topics/topic-slug/TOPIC.md` |
-| 寫 Threads 草稿 | `500_Content/topics/topic-slug/threads-draft.md` |
-| 寫電子報 | `500_Content/newsletter/drafts/` |
+| 發展一個主題 | `520_Topics/topic-slug/TOPIC.md` |
+| 寫 Threads 草稿 | `530_Channels/threads/YYYY-MM-DD/<slug>.md` |
+| 寫電子報 | `530_Channels/newsletter/` |
 | 存已發布的內容 | `700_Archive/<channel>/` |
 | 記 YouTube 學習筆記 | `300_Learning/youtube/` |
 | 記 Podcast episode | `300_Learning/podcasts/episodes/` |
 | 看本週消化報告 | `300_Learning/podcasts/weekly/` |
 | 看累積學到什麼 | `~/.claude/projects/.../memory/learnings.md` |
 | 看卡關反思教訓 | `~/.claude/projects/.../memory/reflections.md` |
-| 看洞察素材庫 | `500_Content/insights/` |
+| 看洞察素材庫 | `510_Insights/` |
 | 看全域速查表 | `~/CLAUDE.md` 末尾「## 累積學習」 |
 | 看完整學習歷史 | `800_System/knowledge/learnings-archive.md` |
 | 改寫作風格規則 | `canonical/rules/10-writing-style.md` → `bin/sync` |
@@ -1376,9 +1384,9 @@ vim ~/dex-agent-os/canonical/rules/10-writing-style.md
 | 靈感/想法 | `000_Inbox/ideas/` |
 | 閱讀筆記 | `000_Inbox/readings/` |
 | 學習筆記 | `300_Learning/input/` |
-| 主題草稿 | `500_Content/topics/<slug>/` |
-| 電子報草稿 | `500_Content/newsletter/drafts/` |
-| 各頻道草稿 | `500_Content/<channel>/queue/` |
+| 主題草稿 | `520_Topics/<slug>/` |
+| 電子報草稿 | `530_Channels/newsletter/` |
+| 各頻道草稿 | `530_Channels/<channel>/YYYY-MM-DD/` |
 | 會議紀錄 | `200_Work/meetings/YYYY-MM-DD-title/` |
 | 諮詢紀錄 | `200_Work/consultations/YYYY-MM-DD-person-topic/` |
 | 專案狀態 | `400_Projects/` |
@@ -1458,7 +1466,7 @@ vim ~/dex-agent-os/200_Work/consultations/2026-02-08-alice-career/notes.md
 ### 場景六：從工作紀錄一鍵產出 Threads 草稿
 
 ```bash
-# 在 Claude Code 中執行完整內容管線
+# 在 Claude Code 中執行完整內容管線（extract → topic-create → topic-to-thread）
 /daily-content
 
 # 指定日期
@@ -1467,9 +1475,8 @@ vim ~/dex-agent-os/200_Work/consultations/2026-02-08-alice-career/notes.md
 # 如果 L1 已存在，跳過 work-log 步驟
 /daily-content --skip-worklog
 
-# 完成！6 篇 Threads 草稿已產出：
-# 500_Content/topics/2026-02-09-threads-from-dayflow-l1/  ← Dayflow+L1 視角 x3
-# 500_Content/topics/2026-02-09-threads-from-l2/          ← L2 深度反思 x3
+# 完成！Threads 草稿已產出：
+# 530_Channels/threads/2026-02-09/<slug>.md
 ```
 
 ### 場景七：建立 Style DNA 系統
@@ -1504,7 +1511,7 @@ cat 800_System/references/style-dna/threads-dna.md
 
 # 查看產出
 cat 100_Journal/weekly/2026-W07.md
-cat 500_Content/newsletter/drafts/2026-W07-deep-dive.md
+cat 530_Channels/newsletter/2026-W07-deep-dive.md
 ```
 
 ### 場景九：萃取日記知識並更新全域記憶
@@ -1519,7 +1526,7 @@ cat 500_Content/newsletter/drafts/2026-W07-deep-dive.md
 # 3. 檢查結果
 cat ~/.claude/projects/-Users-dex-dex-agent-os/memory/learnings.md
 cat ~/.claude/projects/-Users-dex-dex-agent-os/memory/reflections.md
-ls 500_Content/insights/
+ls 510_Insights/
 
 # 4. 滿意後更新全域速查表
 ./bin/agent extract --global
@@ -1552,7 +1559,7 @@ tail -40 ~/CLAUDE.md
 | 風格 DNA 萃取（Threads） | `./bin/agent extract-style threads` | 3 |
 | 主題建立（從 insight） | `./bin/agent topic-create` | 3 |
 | 主題 → Threads 草稿 | `./bin/agent topic-to-thread` | 3 |
-| 每日內容管線（6 篇 Threads） | `/daily-content` | 3 |
+| 每日內容管線（extract → topic → thread） | `/daily-content` | 3 |
 | 個人週回顧 | `./bin/agent weekly-review` | 4 |
 | 電子報草稿（4 種月度輪替類型） | `./bin/agent weekly-newsletter` | 4 |
 | 一鍵週報管線 | `/weekly-content` | 4 |

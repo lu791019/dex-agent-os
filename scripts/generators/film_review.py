@@ -10,13 +10,11 @@ from typing import Optional
 ROOT_DIR = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(ROOT_DIR / "scripts"))
 
-from lib.config import STYLE_DNA_DIR, RULES_DIR
-from lib.file_utils import read_text, today_str, write_text
+from lib.config import FILM_REVIEWS_DIR, STYLE_DNA_DIR, RULES_DIR
+from lib.file_utils import ensure_dir, read_text, today_str, write_text
 from lib.llm import ask_claude
 
 # ── 常數 ──────────────────────────────────────────────
-
-REVIEWS_DIR = ROOT_DIR / "600_Life" / "film" / "reviews"
 
 SYSTEM_PROMPT = """\
 你是 Dex 的個人 AI 代理人，負責撰寫影評。
@@ -110,7 +108,8 @@ def main():
     # 1. 準備輸出路徑
     date = today_str()
     slug = _slugify(args.title)
-    review_path = REVIEWS_DIR / f"{date}-{slug}.md"
+    review_dir = ensure_dir(FILM_REVIEWS_DIR / date)
+    review_path = review_dir / f"{slug}.md"
 
     if review_path.exists() and not args.force:
         response = input(f"[film-review] {review_path.name} 已存在，覆蓋？(y/N) ").strip().lower()

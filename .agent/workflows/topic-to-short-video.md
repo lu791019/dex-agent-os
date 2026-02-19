@@ -12,7 +12,7 @@ description: "Topic to Short Video — 主題轉短影音腳本"
 - IDE 內：`/topic-to-short-video`
 
 ## 輸入來源
-1. **主題檔案**：`500_Content/topics/<slug>/TOPIC.md`
+1. **主題檔案**：`520_Topics/<slug>/TOPIC.md`
 2. **寫作規則**：`canonical/rules/10-writing-style.md`
 
 ## 處理邏輯
@@ -26,7 +26,7 @@ description: "Topic to Short Video — 主題轉短影音腳本"
 4. 更新 TOPIC.md 的「已產出」checklist
 
 ## 輸出
-- 路徑：`500_Content/topics/<slug>/short-video-script.md`
+- 路徑：`530_Channels/short-video/<created-date>/<slug>.md`
 - 存在時：提示覆蓋或使用 --force
 
 ## 原則

@@ -8,7 +8,7 @@
 - IDE 內：`/topic-to-thread`
 
 ## 輸入來源
-1. **主題檔案**：`500_Content/topics/<slug>/TOPIC.md`
+1. **主題檔案**：`520_Topics/<slug>/TOPIC.md`
 2. **風格 DNA**：`800_System/references/style-dna/threads-dna.md`（如存在）
 3. **寫作規則**：`canonical/rules/10-writing-style.md` 的 Threads 風格區段
 
@@ -23,7 +23,7 @@
 5. 更新 TOPIC.md 的「已產出」checklist
 
 ## 輸出
-- 路徑：`500_Content/topics/<slug>/threads-draft.md`
+- 路徑：`530_Channels/threads/<created-date>/<slug>.md`
 - 存在時：提示覆蓋或使用 --force
 
 ## 原則

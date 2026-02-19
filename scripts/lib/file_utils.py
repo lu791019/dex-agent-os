@@ -29,6 +29,13 @@ def today_str() -> str:
     return datetime.now().strftime("%Y-%m-%d")
 
 
+def extract_created_date(content: str) -> str:
+    """從 frontmatter 取 created 日期，找不到則回傳 today。"""
+    import re
+    match = re.search(r"^created:\s*(\d{4}-\d{2}-\d{2})", content, re.MULTILINE)
+    return match.group(1) if match else today_str()
+
+
 def week_date_range(date_str: str = None) -> tuple[str, str, int, int]:
     """回傳 (week_start_mon, week_end_sun, iso_week, week_of_month)。"""
     if date_str:

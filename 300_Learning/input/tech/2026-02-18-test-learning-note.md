@@ -26,7 +26,7 @@ tags: [agent-os, 個人知識管理, 內容自動化, CLI工具]
 ## 實作筆記
 - **每日最小流程**：`/daily-content` 一鍵完成 L1 → Dayflow → L2 + 6 篇 Threads 草稿；或分步執行 `/work-log` → `dayflow` → `journal` → `extract`
 - **Style DNA 建立**：`collect-threads --limit 100` 抓範例 → `extract-style threads` 萃取 7 維度風格指紋（結構、Hook、語氣、CTA、長度、高互動特徵、禁忌）
-- **知識萃取分流**：「學到什麼」→ learnings.md、「卡在哪裡」→ reflections.md、「洞察」→ 依 LLM 分類寫入 `500_Content/insights/` 或 `000_Inbox/ideas/` 或 `600_Life/personal/`
+- **知識萃取分流**：「學到什麼」→ learnings.md、「卡在哪裡」→ reflections.md、「洞察」→ 依 LLM 分類寫入 `510_Insights/` 或 `000_Inbox/ideas/` 或 `600_Life/personal/`
 - **電子報月度輪替**：W1 策展 / W2 深度 / W3 混合 / W4 月度反思，可用 `--type` 覆寫
 - **Podwise 串接**：Notion Integration + Readwise Token 設定完成後，`podcast-add --notion --latest 5` 即可自動匯入
 - **冪等性機制**：`800_System/knowledge/.processed` JSON 記錄 hash，內容未變不重處理，`--force` 可強制覆蓋

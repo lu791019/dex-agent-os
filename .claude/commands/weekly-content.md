@@ -44,7 +44,7 @@ python3 scripts/generators/weekly_review.py [TARGET_DATE] [--force]
 python3 scripts/generators/weekly_newsletter.py [TARGET_DATE] [--type TYPE] [--force]
 ```
 
-- 輸出：`500_Content/newsletter/drafts/YYYY-Wxx-{type}.md`
+- 輸出：`530_Channels/newsletter/YYYY-Wxx-{type}.md`
 - 類型會自動根據月內週數輪替：
   - Week 1: curated（主題策展）
   - Week 2: deep-dive（長篇深度）
@@ -69,7 +69,7 @@ python3 scripts/generators/weekly_newsletter.py [TARGET_DATE] [--type TYPE] [--f
 ### 電子報草稿
 | 檔案 | 類型 |
 |------|------|
-| 500_Content/newsletter/drafts/YYYY-Wxx-{type}.md | {type_label} |
+| 530_Channels/newsletter/YYYY-Wxx-{type}.md | {type_label} |
 ```
 
 並提醒使用者：

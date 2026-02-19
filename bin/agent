@@ -110,6 +110,14 @@ case "$command" in
   sync)
     "$ROOT_DIR/bin/sync" "$@"
     ;;
+  sync-all)
+    echo "[sync-all] 開始批次匯入..."
+    python3 "$ROOT_DIR/scripts/collectors/readwise_sync.py" --reader --latest 10 "$@"
+    python3 "$ROOT_DIR/scripts/collectors/rss_sync.py" --latest 10 "$@"
+    python3 "$ROOT_DIR/scripts/collectors/anybox_sync.py" --latest 10 "$@"
+    python3 "$ROOT_DIR/scripts/collectors/gmail_sync.py" --latest 10 "$@"
+    echo "[sync-all] 批次匯入完成"
+    ;;
   help|--help|-h)
     cat <<EOF
 Dex Agent OS — CLI
@@ -150,6 +158,7 @@ Commands:
   weekly-review [YYYY-MM-DD] [--force]                    產出個人週回顧
   weekly-newsletter [YYYY-MM-DD] [--type TYPE] [--force]  產出電子報草稿
   sync                                                    跨平台同步 canonical → IDE
+  sync-all [--latest N] [--force]                         一鍵批次匯入（readwise+rss+anybox+gmail）
   help                                                    顯示此說明
 
 Examples:
@@ -161,7 +170,7 @@ Examples:
   ./bin/agent collect-threads       抓取你的 Threads 文章（需先設定 Meta App）
   ./bin/agent extract-style threads 從範例提取 Threads 風格 DNA
   ./bin/agent topic-create          列出可用 insights
-  ./bin/agent topic-create 500_Content/insights/xxx.md    從 insight 建立主題
+  ./bin/agent topic-create 510_Insights/xxx.md    從 insight 建立主題
   ./bin/agent topic-to-thread slug  主題 → Threads 草稿
   ./bin/agent topic-to-fb slug     主題 → Facebook 貼文草稿
   ./bin/agent topic-to-blog slug   主題 → 部落格文章草稿
@@ -186,6 +195,8 @@ Examples:
   ./bin/agent podcast-digest --pptx 同時產出簡報
   ./bin/agent weekly-review         產出本週的週回顧
   ./bin/agent weekly-newsletter     產出本週的電子報草稿
+  ./bin/agent sync-all              一鍵匯入所有來源最新 10 筆
+  ./bin/agent sync-all --latest 5   每個來源最新 5 筆
   ./bin/agent weekly-newsletter --type deep-dive  指定電子報類型
   ./bin/agent sync                  同步規則到所有 IDE
 EOF

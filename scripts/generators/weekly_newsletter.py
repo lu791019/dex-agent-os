@@ -14,10 +14,10 @@ sys.path.insert(0, str(ROOT_DIR / "scripts"))
 from lib.config import (
     JOURNAL_DIR,
     WEEKLY_DIR,
-    NEWSLETTER_DRAFTS_DIR,
+    NEWSLETTER_DIR,
     TEMPLATES_DIR,
     TOPICS_DIR,
-    CONTENT_INSIGHTS_DIR,
+    INSIGHTS_DIR,
     STYLE_DNA_DIR,
     RULES_DIR,
 )
@@ -99,9 +99,9 @@ def collect_topics(start_date: str, end_date: str) -> list[tuple[str, str]]:
 def collect_insights(start_date: str, end_date: str) -> list[tuple[str, str]]:
     """收集日期範圍內的 insights。"""
     results = []
-    if not CONTENT_INSIGHTS_DIR.exists():
+    if not INSIGHTS_DIR.exists():
         return results
-    for f in sorted(CONTENT_INSIGHTS_DIR.glob("*.md")):
+    for f in sorted(INSIGHTS_DIR.glob("*.md")):
         if f.name == ".gitkeep":
             continue
         if len(f.stem) >= 10 and start_date <= f.stem[:10] <= end_date:
@@ -311,7 +311,7 @@ def main():
         print(f"[weekly-newsletter] 月度補充：{len(monthly_journals)} 篇月日記 + {len(monthly_reviews)} 篇週回顧")
 
     # 5. 檢查輸出
-    output_path = NEWSLETTER_DRAFTS_DIR / f"{year}-W{iso_week:02d}-{nl_type}.md"
+    output_path = NEWSLETTER_DIR / f"{year}-W{iso_week:02d}-{nl_type}.md"
     if output_path.exists() and not args.force:
         print(f"[weekly-newsletter] {output_path.name} 已存在，使用 --force 覆蓋", file=sys.stderr)
         sys.exit(1)
@@ -354,7 +354,7 @@ created: {today_str()}
 """
 
     # 9. 寫入
-    ensure_dir(NEWSLETTER_DRAFTS_DIR)
+    ensure_dir(NEWSLETTER_DIR)
     write_text(output_path, draft_content)
     print(f"[weekly-newsletter] Done: {output_path.relative_to(ROOT_DIR)}")
 

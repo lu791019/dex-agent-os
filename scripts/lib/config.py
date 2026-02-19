@@ -19,9 +19,18 @@ TEMPLATES_DIR = ROOT_DIR / "800_System" / "templates"
 # 規則
 RULES_DIR = ROOT_DIR / "canonical" / "rules"
 
-# 內容
-CONTENT_DIR = ROOT_DIR / "500_Content"
-TOPICS_DIR = CONTENT_DIR / "topics"
+# 內容管線（510/520/530）
+INSIGHTS_DIR = ROOT_DIR / "510_Insights"
+TOPICS_DIR = ROOT_DIR / "520_Topics"
+CHANNELS_DIR = ROOT_DIR / "530_Channels"
+THREADS_DIR = CHANNELS_DIR / "threads"
+FACEBOOK_DIR = CHANNELS_DIR / "facebook"
+BLOG_DIR = CHANNELS_DIR / "blog"
+NEWSLETTER_DIR = CHANNELS_DIR / "newsletter"
+SHORT_VIDEO_DIR = CHANNELS_DIR / "short-video"
+FILM_REVIEWS_DIR = CHANNELS_DIR / "film-reviews"
+PODCAST_CONTENT_DIR = CHANNELS_DIR / "podcast"
+PRESENTATIONS_DIR = CHANNELS_DIR / "presentations"
 
 # 系統
 STYLE_DNA_DIR = ROOT_DIR / "800_System" / "references" / "style-dna"
@@ -33,7 +42,6 @@ WORKLOG_TEMPLATES_DIR = ROOT_DIR / "work-log" / "templates"
 
 # 知識萃取
 INBOX_IDEAS_DIR = ROOT_DIR / "000_Inbox" / "ideas"
-CONTENT_INSIGHTS_DIR = ROOT_DIR / "500_Content" / "insights"
 LIFE_PERSONAL_DIR = ROOT_DIR / "600_Life" / "personal" / "reflections"
 KNOWLEDGE_DIR = ROOT_DIR / "800_System" / "knowledge"
 CLAUDE_MEMORY_DIR = Path.home() / ".claude" / "projects" / "-Users-dex-dex-agent-os" / "memory"
@@ -41,16 +49,11 @@ CLAUDE_MEMORY_DIR = Path.home() / ".claude" / "projects" / "-Users-dex-dex-agent
 # Threads API
 THREADS_TOKEN_PATH = ROOT_DIR / "config" / ".threads-token"
 
-# 電子報
-NEWSLETTER_DRAFTS_DIR = CONTENT_DIR / "newsletter" / "drafts"
-NEWSLETTER_ARCHIVE_DIR = CONTENT_DIR / "newsletter" / "archive"
-
 # Podcast & YouTube
 PODCAST_EPISODES_DIR = ROOT_DIR / "300_Learning" / "podcasts" / "episodes"
 PODCAST_WEEKLY_DIR = ROOT_DIR / "300_Learning" / "podcasts" / "weekly"
 PODCAST_TRANSCRIPTS_DIR = ROOT_DIR / "300_Learning" / "podcasts" / "transcripts"
 YOUTUBE_DIR = ROOT_DIR / "300_Learning" / "youtube"
-PRESENTATIONS_DIR = CONTENT_DIR / "presentations"
 
 # Apple Podcast TTML 快取
 APPLE_PODCAST_TTML_DIR = (

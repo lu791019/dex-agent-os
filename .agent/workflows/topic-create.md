@@ -13,7 +13,7 @@ description: "Topic Create — 從洞察建立主題"
 - IDE 內：`/topic-create`
 
 ## 輸入來源
-1. **Insight 卡片**：`500_Content/insights/*.md`（由 `./bin/agent extract` 自動產出）
+1. **Insight 卡片**：`510_Insights/*.md`（由 `./bin/agent extract` 自動產出）
 2. **手動描述**：用 `--title` 參數直接輸入主題名稱
 3. **模板**：`800_System/templates/topic-template.md`
 
@@ -26,7 +26,7 @@ description: "Topic Create — 從洞察建立主題"
 3. 自動產生 slug（從標題轉換），建立目錄
 
 ## 輸出
-- 路徑：`500_Content/topics/<slug>/TOPIC.md`
+- 路徑：`520_Topics/<slug>/TOPIC.md`
 - 如果目錄已存在，提示使用者是否覆蓋
 
 ## 原則
