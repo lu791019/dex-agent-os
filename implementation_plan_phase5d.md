@@ -1,6 +1,7 @@
 # Phase 5d — 500_Content 結構重組 + sync-all + daily-content 改造
 
 > 日期：2026-02-19
+> 狀態：**已完成** — 2026-02-19 merged to master
 > 目標：將 500_Content 拆為 510/520/530 三層，統一內容管線流程
 
 ---
