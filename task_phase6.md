@@ -71,5 +71,5 @@
 - [x] 更新 `MEMORY.md`
 - [x] 驗證：`./bin/agent help` 顯示所有新指令
 - [x] 驗證：`bin/sync` 無錯誤
-- [ ] Commit Section E
-- [ ] 產出 `walkthrough.md`
+- [x] Commit Section E（`fa430cf`）
+- [x] 產出 `walkthrough.md`
