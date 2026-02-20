@@ -75,7 +75,18 @@ LEARNING_INPUT_DIR = ROOT_DIR / "300_Learning" / "input"
 READINGS_DIR = ROOT_DIR / "000_Inbox" / "readings"
 DIGEST_DIR = ROOT_DIR / "100_Journal" / "digest"
 
+# 工作（會議 & 諮詢）
+MEETINGS_DIR = ROOT_DIR / "200_Work" / "meetings"
+CONSULTATIONS_DIR = ROOT_DIR / "200_Work" / "consultations"
+
+# 專案 & 產品
+PROJECTS_SOFTWARE_DIR = ROOT_DIR / "400_Projects" / "software"
+PROJECTS_PRODUCTS_DIR = ROOT_DIR / "400_Projects" / "products"
+
 # Podwise 串接（Notion + Readwise）
 NOTION_TOKEN = os.getenv("NOTION_TOKEN", "")
 NOTION_PODWISE_DB_ID = os.getenv("NOTION_PODWISE_DB_ID", "")
 READWISE_TOKEN = os.getenv("READWISE_TOKEN", "")
+
+# Fireflies.ai
+FIREFLIES_API_KEY = os.getenv("FIREFLIES_API_KEY", "")
