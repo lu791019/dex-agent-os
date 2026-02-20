@@ -4,6 +4,7 @@ data/raw/
 .mcp.json
 config/.threads-token
 config/google-token.json
+config/google-credentials.json
 300_Learning/podcasts/transcripts/
 
 # === 大型二進位檔 ===
