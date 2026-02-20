@@ -70,6 +70,26 @@
 
 ---
 
+## 工作紀錄產出
+> 以下資料由 scan-work-outputs.py 自動掃描產生
+
+### 會議筆記
+| 標題 | 與會者 | 來源 | 路徑 |
+|------|--------|------|------|
+| {{MEETING_TITLE}} | {{MEETING_ATTENDEES}} | {{MEETING_SOURCE}} | {{MEETING_PATH}} |
+
+### 諮詢紀錄
+| 主題 | 對象 | 方向 | 路徑 |
+|------|------|------|------|
+| {{CONSULTATION_TITLE}} | {{CONSULTATION_PERSON}} | {{CONSULTATION_DIRECTION}} | {{CONSULTATION_PATH}} |
+
+### 專案狀態更新
+| 專案 | 類型 | 路徑 |
+|------|------|------|
+| {{PROJECT_NAME}} | {{PROJECT_TYPE}} | {{PROJECT_PATH}} |
+
+---
+
 ## Dayflow 活動紀錄
 > 以下資料由 Dayflow 自動記錄螢幕活動並透過 AI 分析產生
 

@@ -30,6 +30,10 @@ SCOPES = [
     "https://www.googleapis.com/auth/documents",
     "https://www.googleapis.com/auth/gmail.send",
     "https://www.googleapis.com/auth/gmail.readonly",
+    "https://www.googleapis.com/auth/classroom.courses.readonly",
+    "https://www.googleapis.com/auth/classroom.announcements.readonly",
+    "https://www.googleapis.com/auth/classroom.coursework.students.readonly",
+    "https://www.googleapis.com/auth/classroom.student-submissions.students.readonly",
 ]
 
 
@@ -135,6 +139,76 @@ def create_google_doc(title: str, markdown_content: str) -> str | None:
 
     except Exception as e:
         print(f"[google-api] 建立 Google Doc 失敗：{e}", file=sys.stderr)
+        return None
+
+
+def get_classroom_service():
+    """取得 Google Classroom API service。
+
+    Returns:
+        googleapiclient.discovery.Resource or None
+    """
+    creds = authenticate()
+    if not creds:
+        return None
+
+    try:
+        from googleapiclient.discovery import build
+        return build("classroom", "v1", credentials=creds)
+    except Exception as e:
+        print(f"[google-api] 建立 Classroom service 失敗：{e}", file=sys.stderr)
+        return None
+
+
+def read_google_doc(url: str) -> str | None:
+    """從 Google Doc URL 讀取純文字內容。
+
+    支援格式：
+      https://docs.google.com/document/d/DOC_ID/edit
+      https://docs.google.com/document/d/DOC_ID
+
+    Args:
+        url: Google Doc URL
+
+    Returns:
+        文件純文字內容，或 None（失敗時）
+    """
+    import re
+
+    match = re.search(r"/document/d/([a-zA-Z0-9_-]+)", url)
+    if not match:
+        print(f"[google-api] 無法從 URL 解析 Doc ID：{url}", file=sys.stderr)
+        return None
+
+    doc_id = match.group(1)
+    creds = authenticate()
+    if not creds:
+        return None
+
+    try:
+        from googleapiclient.discovery import build
+
+        docs_service = build("docs", "v1", credentials=creds)
+        doc = docs_service.documents().get(documentId=doc_id).execute()
+
+        # 遍歷文件結構，提取純文字
+        text_parts = []
+        for element in doc.get("body", {}).get("content", []):
+            if "paragraph" in element:
+                for run in element["paragraph"].get("elements", []):
+                    if "textRun" in run:
+                        text_parts.append(run["textRun"]["content"])
+
+        text = "".join(text_parts).strip()
+        if not text:
+            print(f"[google-api] Google Doc 內容為空：{url}", file=sys.stderr)
+            return None
+
+        print(f"[google-api] 已讀取 Google Doc（{len(text)} 字元）")
+        return text
+
+    except Exception as e:
+        print(f"[google-api] 讀取 Google Doc 失敗：{e}", file=sys.stderr)
         return None
 
 

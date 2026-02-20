@@ -1,0 +1,18 @@
+諮詢對象：小明
+背景：剛轉職到資料工程領域半年，想了解職涯發展方向。
+
+主要問題：
+1. 資料工程和 ML 工程的分界在哪裡？應該往哪個方向深耕？
+2. 目前在做 ETL pipeline，覺得比較無聊，怎麼找到更有挑戰性的工作內容？
+3. 想開始寫技術文章，但不知道從何開始。
+
+討論重點：
+- 資料工程的核心價值在於「讓資料可靠地流動」，不只是寫 pipeline
+- 建議先把 data quality 和 observability 做好，這是最容易被忽略但最有價值的部分
+- 技術寫作可以從記錄自己踩過的坑開始，不需要寫什麼大架構文章
+- 推薦看 Data Engineering Weekly newsletter 和 Seattle Data Guy 的內容
+
+行動項：
+- 小明：這週找出目前 pipeline 中 data quality 最差的三個 table
+- 小明：下個月寫出第一篇技術文章（記錄一個 debug 經驗）
+- 我：分享 data observability 工具比較文件
