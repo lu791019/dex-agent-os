@@ -1077,6 +1077,7 @@ def ask_claude(system_prompt: str, user_prompt: str) -> str:
 - Google Classroom 同步（老師角色，--active-only / --student-name 篩選）
 - Fireflies.ai 同步（graceful fallback，無訂閱也不 crash）
 - 共用 input_loader.py（消除 meeting/consultation 60% 重複碼）
+- Work-log 整合（scan-work-outputs.py 掃描 meetings/consultations/projects 加入 L1 工作日誌）
 
 ---
 

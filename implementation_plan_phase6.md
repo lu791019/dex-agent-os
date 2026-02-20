@@ -6,6 +6,13 @@
 每項功能包含：模板 + workflow + Python generator/collector + CLI 指令 + IDE skill。
 訂閱管理和 product 類留後續 Phase。
 
+### 追加：Work-log 整合（Section F）
+
+將會議筆記、諮詢紀錄、專案狀態更新整合進 `/work-log` L1 工作日誌流程：
+- 新增 `work-log/scripts/scan-work-outputs.py`：掃描 `200_Work/meetings/`、`200_Work/consultations/`、`400_Projects/*/STATUS.md`
+- 修改 `/work-log` skill（Step 3.9）呼叫掃描腳本，將參考清單（標題+路徑）加入 L1
+- L2 精煉日記自然涵蓋「今天開了什麼會、諮詢了誰」
+
 ## User Review Required
 
 > **NOTE**

@@ -73,3 +73,12 @@
 - [x] 驗證：`bin/sync` 無錯誤
 - [x] Commit Section E（`fa430cf`）
 - [x] 產出 `walkthrough.md`
+
+## Section F：Work-log 整合 ✅
+
+- [x] 建立 `work-log/scripts/scan-work-outputs.py`（掃描 meetings/consultations/projects，輸出 markdown 參考清單）
+- [x] 修改 `~/.claude/commands/work-log.md`（加 Step 3.9 + 工作紀錄產出 section）
+- [x] 修改 `work-log/templates/daily-template.md`（加「工作紀錄產出」section）
+- [x] 驗證：`scan-work-outputs.py --date 2026-02-20` 正確掃描三種資料
+- [x] 驗證：空日期回傳「該日無」訊息
+- [x] 更新 `PLAN.md` + `GUIDE.md`

@@ -1254,6 +1254,41 @@ claude mcp add <name> --scope project -- npx -y <package>
 ./bin/agent meeting-notes --transcript 200_Work/meetings/2026-02-20-slug/transcript.md --title "會議標題"
 ```
 
+### work-log 工作紀錄整合
+
+`/work-log [日期]` 產出 L1 工作日誌時，會自動掃描當日的會議筆記、諮詢紀錄、專案狀態更新，將參考清單（標題 + 路徑）加入日誌。
+
+**掃描範圍：**
+
+- `200_Work/meetings/{date}-*/notes.md` → 會議筆記
+- `200_Work/consultations/{date}-*/notes.md` → 諮詢紀錄
+- `400_Projects/*/STATUS.md`（當日修改的）→ 專案狀態
+
+**範例：**
+
+如果 2026-02-20 有以下內容：
+```
+200_Work/meetings/2026-02-20-weekly/notes.md
+200_Work/consultations/2026-02-20-alice/notes.md
+400_Projects/dex-agent-os/STATUS.md (2026-02-20 修改)
+```
+
+那麼產出的 L1 工作日誌會自動包含：
+```markdown
+### 今日工作項目參考
+
+**會議**
+- 2026-02-20 週會 → `200_Work/meetings/2026-02-20-weekly/notes.md`
+
+**諮詢**
+- 2026-02-20 與 Alice 的諮詢 → `200_Work/consultations/2026-02-20-alice/notes.md`
+
+**專案更新**
+- dex-agent-os → `400_Projects/dex-agent-os/STATUS.md`
+```
+
+這讓 L2 精煉日記自然涵蓋「今天開了什麼會、諮詢了誰、哪些專案有更新」，無需手動複製內容，只保留參考連結。
+
 ### 會議轉錄工具整合對照表
 
 | 工具 | 免費額度 | 整合方式 | 備註 |
