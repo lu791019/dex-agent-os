@@ -107,6 +107,9 @@ case "$command" in
   weekly-newsletter)
     python3 "$ROOT_DIR/scripts/generators/weekly_newsletter.py" "$@"
     ;;
+  project-status)
+    python3 "$ROOT_DIR/scripts/generators/project_status.py" "$@"
+    ;;
   meeting-notes)
     python3 "$ROOT_DIR/scripts/generators/meeting_notes.py" "$@"
     ;;
