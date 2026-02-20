@@ -110,6 +110,9 @@ case "$command" in
   classroom-sync)
     python3 "$ROOT_DIR/scripts/collectors/classroom_sync.py" "$@"
     ;;
+  fireflies-sync)
+    python3 "$ROOT_DIR/scripts/collectors/fireflies_sync.py" "$@"
+    ;;
   sync)
     "$ROOT_DIR/bin/sync" "$@"
     ;;
