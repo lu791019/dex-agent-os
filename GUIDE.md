@@ -1,7 +1,7 @@
 # Dex Agent OS — 使用說明書
 
-> 版本：Phase 5d — 500_Content 拆分 + sync-all 一鍵匯入
-> 最後更新：2026-02-19
+> 版本：Phase 6 P1 — 會議 / 諮詢 / 專案狀態 / Classroom / Fireflies
+> 最後更新：2026-02-20
 
 ---
 
@@ -15,6 +15,7 @@
 - [6. 週回顧與電子報系統](#6-週回顧與電子報系統)
 - [6.5 Podcast & YouTube 消化系統](#65-podcast--youtube-消化系統)
 - [6.7 學習輸入管線 + 每日消化](#67-學習輸入管線--每日消化)
+- [6.8 工作管理系統](#68-工作管理系統)
 - [7. 檔案架構與分類](#7-檔案架構與分類)
 - [8. 跨平台同步](#8-跨平台同步)
 - [9. 模板系統](#9-模板系統)
@@ -126,6 +127,22 @@ echo "THREADS_ACCESS_TOKEN=你的token" >> .env
 > **一鍵替代 3：** `/podcast-weekly [日期]` 一鍵產出 digest + 可選簡報。
 > **一鍵替代 4-5：** `/weekly-content [日期]` 會自動依序產出週回顧 + 電子報草稿。
 
+#### H. 工作管理（會議後 / 諮詢後 / 專案追蹤）
+
+| 順序 | 指令 | 類型 | 說明 | 輸出位置 |
+|:----:|------|:----:|------|----------|
+| 1 | `./bin/agent meeting-notes --title "..." [輸入來源]` | CLI | 逐字稿/筆記/Google Doc/Fireflies → 結構化會議筆記 | `200_Work/meetings/YYYY-MM-DD-slug/notes.md` |
+| 2 | `./bin/agent consultation-notes --title "..." --person "..." [輸入來源]` | CLI | 多來源 → 諮詢紀錄（支援 giving/receiving 方向） | `200_Work/consultations/YYYY-MM-DD-slug/notes.md` |
+| 3 | `./bin/agent project-status [專案名]` | CLI | 讀 STATUS.md + git log → LLM 更新專案狀態 | `400_Projects/{software|products}/<name>/STATUS.md` |
+| 4 | `./bin/agent classroom-sync --courses` | CLI | 列出 Google Classroom 課程（老師角色） | 終端輸出 |
+| 4' | `./bin/agent classroom-sync --course-id ID --announcements` | CLI | 拉課程公告 → 會議筆記格式 | `200_Work/meetings/` |
+| 5 | `./bin/agent fireflies-sync --list` | CLI | 列出 Fireflies.ai 可用逐字稿 | 終端輸出 |
+| 5' | `./bin/agent fireflies-sync --latest N` | CLI | 匯入最近 N 場會議逐字稿 | `200_Work/meetings/YYYY-MM-DD-slug/transcript.md` |
+
+> **輸入來源參數（4 種擇一）：** `--transcript FILE`（檔案逐字稿）、`--notes "..."`（手動筆記）、`--google-doc URL`（Tactiq/Scribbl 存的 Google Doc）、`--fireflies`（Fireflies.ai 最新逐字稿）
+
+> **會議轉錄工具整合：** Tactiq（免費 10 會/月）→ `--google-doc`、Scribbl（免費 15 會/月）→ `--google-doc`、Otter.ai（免費 300 分/月）→ 手動匯出走 `--transcript`、Fireflies.ai（需訂閱）→ `--fireflies`、Mac 聽寫 → `--transcript`
+
 #### E. 知識管理（每週一次或累積足夠時）
 
 | 順序 | 指令 | 類型 | 說明 | 輸出位置 |
@@ -189,6 +206,20 @@ echo "THREADS_ACCESS_TOKEN=你的token" >> .env
 | `--all` | podcast-add (--notion/--readwise) | 匯入全部（不限日期） |
 | `--notes "..."` | film-review | 觀影筆記（選用） |
 | `--rating N` | film-review | 評分 1-10（選用） |
+| `--transcript FILE` | meeting-notes, consultation-notes | 逐字稿檔案路徑 |
+| `--notes "..."` | meeting-notes, consultation-notes | 手動筆記文字 |
+| `--google-doc URL` | meeting-notes, consultation-notes | Google Doc URL（Tactiq/Scribbl） |
+| `--fireflies` | meeting-notes, consultation-notes | 使用 Fireflies.ai 最新逐字稿 |
+| `--person "..."` | consultation-notes | 諮詢對象 |
+| `--direction giving\|receiving` | consultation-notes | 諮詢方向（預設 giving） |
+| `--attendees "..."` | meeting-notes | 與會者（逗號分隔） |
+| `--courses` | classroom-sync | 列出所有課程 |
+| `--active-only` | classroom-sync | 僅顯示活躍課程 |
+| `--student-name NAME` | classroom-sync | 按學生名稱篩選課程 |
+| `--course-id ID` | classroom-sync | 指定課程 ID |
+| `--announcements` | classroom-sync | 拉課程公告 |
+| `--coursework` | classroom-sync | 拉作業 + 學生提交 |
+| `--list` | fireflies-sync | 列出可用逐字稿 |
 
 ### 跨 IDE 共用指令
 
@@ -205,6 +236,11 @@ echo "THREADS_ACCESS_TOKEN=你的token" >> .env
 | `/weekly-review` | ✓ | ✓ | ✓ |
 | `/weekly-newsletter` | ✓ | ✓ | ✓ |
 | `/podcast-weekly` | ✓ | ✓ | ✓ |
+| `/meeting-notes` | ✓ | ✓ | ✓ |
+| `/consultation-notes` | ✓ | ✓ | ✓ |
+| `/project-status` | ✓ | ✓ | ✓ |
+| `/classroom-sync` | ✓ | ✓ | ✓ |
+| `/fireflies-sync` | ✓ | ✓ | ✓ |
 
 以下為 Claude Code 專屬指令（`.claude/commands/` 中定義）：
 
@@ -1114,6 +1150,122 @@ claude mcp add <name> --scope project -- npx -y <package>
 
 ---
 
+## 6.8 工作管理系統
+
+### 概覽
+
+工作管理系統涵蓋三個場景：**會議紀錄**、**諮詢紀錄**、**專案狀態追蹤**，外加兩個外部資料來源整合（Google Classroom、Fireflies.ai）。
+
+### 會議筆記流程
+
+```
+逐字稿/筆記/Google Doc/Fireflies
+           │
+           ▼
+    input_loader（四選一）
+           │
+           ▼
+    meeting_notes.py（LLM）
+           │
+           ▼
+  200_Work/meetings/YYYY-MM-DD-slug/notes.md
+```
+
+**四種輸入來源：**
+
+| 來源 | 參數 | 說明 |
+|------|------|------|
+| 檔案逐字稿 | `--transcript FILE` | Otter.ai 匯出、Mac 聽寫等 |
+| 手動筆記 | `--notes "..."` | 快速會議摘要 |
+| Google Doc | `--google-doc URL` | Tactiq / Scribbl 自動存檔 |
+| Fireflies.ai | `--fireflies` | GraphQL API 拉取（需訂閱） |
+
+**範例：**
+```bash
+# 從 Otter.ai 匯出的逐字稿
+./bin/agent meeting-notes --transcript ~/Downloads/meeting.txt --title "週會" --attendees "Alice, Bob"
+
+# 從 Tactiq 存的 Google Doc
+./bin/agent meeting-notes --google-doc "https://docs.google.com/document/d/xxx" --title "客戶會議"
+
+# 快速手動筆記
+./bin/agent meeting-notes --notes "討論了 A 方案和 B 方案，決定用 A" --title "技術決策"
+```
+
+### 諮詢紀錄流程
+
+與會議筆記共用 `input_loader`，但多了 `--person` 和 `--direction` 參數：
+
+```bash
+# 提供諮詢（giving）
+./bin/agent consultation-notes --transcript record.txt --title "職涯諮詢" --person "Alice" --direction giving
+
+# 接受諮詢（receiving）
+./bin/agent consultation-notes --notes "問了 X 問題，得到 Y 建議" --title "技術顧問" --person "Bob" --direction receiving
+```
+
+### 專案狀態追蹤
+
+```bash
+# 列出所有專案
+./bin/agent project-status
+
+# 更新指定專案的 STATUS.md
+./bin/agent project-status dex-agent-os --force
+```
+
+讀取 `STATUS.md` + `DECISIONS.md` + `README.md` + 近 30 天 git log，由 LLM 產出更新版 STATUS.md。
+
+### Google Classroom 同步
+
+以**老師角色**存取 Google Classroom API，支援篩選：
+
+```bash
+# 列出所有課程
+./bin/agent classroom-sync --courses
+
+# 僅活躍課程
+./bin/agent classroom-sync --courses --active-only
+
+# 按學生名稱篩選
+./bin/agent classroom-sync --courses --student-name "王小明"
+
+# 拉指定課程的公告
+./bin/agent classroom-sync --course-id 12345 --announcements --latest 5
+
+# 拉指定課程的作業 + 學生提交
+./bin/agent classroom-sync --course-id 12345 --coursework --latest 5
+```
+
+> **注意：** 首次使用需在 GCP 啟用 Classroom API + 刪除 `config/google-token.json` 重新授權。
+
+### Fireflies.ai 同步
+
+```bash
+# 列出可用逐字稿（無 token 時顯示設定引導）
+./bin/agent fireflies-sync --list
+
+# 匯入最近 3 場
+./bin/agent fireflies-sync --latest 3 --force
+```
+
+匯入後的逐字稿可接 `meeting-notes` 處理：
+```bash
+./bin/agent meeting-notes --transcript 200_Work/meetings/2026-02-20-slug/transcript.md --title "會議標題"
+```
+
+### 會議轉錄工具整合對照表
+
+| 工具 | 免費額度 | 整合方式 | 備註 |
+|------|---------|---------|------|
+| **Tactiq** | 10 會議/月 | `--google-doc URL` | 自動存 Google Docs |
+| **Scribbl** | 15 會議/月 | `--google-doc URL` | 自動存 Google Docs |
+| **Fireflies.ai** | 3 credits | `--fireflies` | 需 Business plan |
+| **Otter.ai** | 300 分鐘/月 | `--transcript FILE` | 手動匯出 TXT |
+| **Mac 聽寫** | 無限 | `--transcript FILE` | 系統內建 |
+
+---
+
 ## 7. 檔案架構與分類
 
 ### 編號目錄系統
@@ -1580,13 +1732,18 @@ tail -40 ~/CLAUDE.md
 | 每日學習消化報告 | `./bin/agent daily-digest` | 5c |
 | Google Doc + Gmail 發送 | `./bin/agent daily-digest --send` | 5c |
 | 互動學習對話 | `/daily-learning` | 5c |
+| 會議筆記（4 種輸入來源） | `./bin/agent meeting-notes` / `/meeting-notes` | 6 |
+| 諮詢紀錄（giving/receiving） | `./bin/agent consultation-notes` / `/consultation-notes` | 6 |
+| 專案狀態追蹤 | `./bin/agent project-status` / `/project-status` | 6 |
+| Google Classroom 同步（老師角色） | `./bin/agent classroom-sync` / `/classroom-sync` | 6 |
+| Fireflies.ai 同步（graceful fallback） | `./bin/agent fireflies-sync` / `/fireflies-sync` | 6 |
+| 共用輸入載入器（transcript/notes/google-doc/fireflies） | `scripts/lib/input_loader.py` | 6 |
 
 ### 尚未實作（計畫中）
 
 | 功能 | 計畫 Phase |
 |------|------------|
-| 會議筆記 / 諮詢紀錄 workflow | Phase 6 |
-| 專案管理 / 訂閱管理 | Phase 6 |
+| 產品管理 / 訂閱管理 | Phase 6 P2 |
 | launchd 自動排程 | Phase 7 |
 
 ---

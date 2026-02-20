@@ -22,6 +22,11 @@
 #   ./bin/agent podcast-digest [YYYY-MM-DD] [--pptx] [--force]
 #   ./bin/agent weekly-review [YYYY-MM-DD] [--force]
 #   ./bin/agent weekly-newsletter [YYYY-MM-DD] [--type TYPE] [--force]
+#   ./bin/agent meeting-notes --title "..." [--transcript FILE|--notes|--google-doc|--fireflies]
+#   ./bin/agent consultation-notes --title "..." --person "..." [輸入來源]
+#   ./bin/agent project-status [專案名] [--type software|products]
+#   ./bin/agent classroom-sync [--courses] [--active-only] [--student-name NAME]
+#   ./bin/agent fireflies-sync [--list] [--latest N] [--force]
 #   ./bin/agent sync
 #   ./bin/agent help
 
@@ -172,9 +177,22 @@ Commands:
   podcast-digest [YYYY-MM-DD] [--pptx] [--force]         週度消化報告（合併 YT + Podcast）
   weekly-review [YYYY-MM-DD] [--force]                    產出個人週回顧
   weekly-newsletter [YYYY-MM-DD] [--type TYPE] [--force]  產出電子報草稿
+  meeting-notes --title "..." [輸入來源] [--force]        多來源 → 會議筆記
+  consultation-notes --title "..." --person "..." [輸入來源]
+                                                          多來源 → 諮詢紀錄
+  project-status [專案名] [--type software|products]       專案狀態更新
+  classroom-sync [--courses] [--active-only] [--student-name NAME]
+                                                          Google Classroom 同步
+  fireflies-sync [--list] [--latest N] [--force]          Fireflies.ai 逐字稿同步
   sync                                                    跨平台同步 canonical → IDE
   sync-all [--latest N] [--force]                         一鍵批次匯入（readwise+rss+anybox+gmail）
   help                                                    顯示此說明
+
+  輸入來源（meeting-notes / consultation-notes 共用，擇一）：
+    --transcript FILE    逐字稿檔案
+    --notes "..."        手動筆記
+    --google-doc URL     Google Doc（Tactiq/Scribbl）
+    --fireflies          Fireflies.ai 最新逐字稿
 
 Examples:
   ./bin/agent journal               產出今天的精煉日記
@@ -213,6 +231,13 @@ Examples:
   ./bin/agent sync-all              一鍵匯入所有來源最新 10 筆
   ./bin/agent sync-all --latest 5   每個來源最新 5 筆
   ./bin/agent weekly-newsletter --type deep-dive  指定電子報類型
+  ./bin/agent meeting-notes --transcript meeting.txt --title "週會"  逐字稿 → 會議筆記
+  ./bin/agent meeting-notes --google-doc "URL" --title "客戶會議"   Google Doc → 會議筆記
+  ./bin/agent consultation-notes --notes "重點" --title "諮詢" --person "Alice"  諮詢紀錄
+  ./bin/agent project-status                列出所有專案
+  ./bin/agent project-status dex-agent-os   更新專案狀態
+  ./bin/agent classroom-sync --courses      列出 Classroom 課程
+  ./bin/agent fireflies-sync --list         列出 Fireflies 逐字稿
   ./bin/agent sync                  同步規則到所有 IDE
 EOF
     ;;

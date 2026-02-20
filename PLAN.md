@@ -1056,17 +1056,35 @@ def ask_claude(system_prompt: str, user_prompt: str) -> str:
 
 ---
 
-### Phase 6：專案/產品管理 + 會議筆記 + 諮詢紀錄 + 訂閱管理
+### Phase 6 P1：會議 / 諮詢 / 專案狀態 / Classroom / Fireflies ✅
 
-**目標：** 工作面完善
+**目標：** 工作面核心功能
+
+**狀態：** 完成（2026-02-20）
 
 **任務：**
-- [ ] `800_System/templates/meeting-notes-template.md`
-- [ ] `canonical/workflows/meeting-notes.md`
-- [x] `800_System/templates/consultation-notes-template.md`（✅ Phase 2 中已完成，含方向、核心問題、建議、內容萃取欄位）
-- [ ] `canonical/workflows/consultation-notes.md`（諮詢結束 → 摘要 + 行動項 + 內容萃取建議）
-- [ ] `800_System/templates/project-status-template.md`
-- [ ] `canonical/workflows/project-status.md` + `project-kickoff.md`
+- [x] Section A：Config + 模板 + 測試資料（`e51cd94`）
+- [x] Section B：Google Classroom collector + Google Docs reader（`76f3c18`）
+- [x] Section C1：Fireflies.ai collector — graceful fallback（`be5d648`）
+- [x] Section C2：共用 input_loader + meeting/consultation notes（`b97897b`）
+- [x] Section D：project-status generator（`be2f7e7`）
+- [x] Section E：Workflows + Skills + 文件更新 + 收尾
+
+**新增功能：**
+- 會議筆記（4 種輸入來源：--transcript / --notes / --google-doc / --fireflies）
+- 諮詢紀錄（giving / receiving 方向）
+- 專案狀態追蹤（讀 STATUS.md + git log → LLM 更新）
+- Google Classroom 同步（老師角色，--active-only / --student-name 篩選）
+- Fireflies.ai 同步（graceful fallback，無訂閱也不 crash）
+- 共用 input_loader.py（消除 meeting/consultation 60% 重複碼）
+
+---
+
+### Phase 6 P2：產品管理 + 訂閱管理（未開始）
+
+**目標：** 工作面補完
+
+**任務：**
 - [ ] `canonical/workflows/product-feature-spec.md` + `product-roadmap-update.md`
 - [ ] `200_Work/subscriptions/overview.md` 初始版
 - [ ] `canonical/workflows/subscription-review.md`
