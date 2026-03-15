@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
-# bin/sync — Dex Agent OS 跨平台同步腳本
+# bin/sync — Delegates to sync.py for cross-platform support
+exec python3 "$(dirname "$0")/sync.py" "$@"
+
+# === 以下為原始 bash 版本（保留備用，不執行） ===
+exit 0
+
+# bin/sync — Dex Agent OS 跨平台同步腳本（原始版本）
 # 將 canonical/ 內容同步到 .agent/ (Antigravity)、.cursor/ (Cursor)、.claude/ (Claude Code)
 # 同時同步全域 Claude Code skills 到 Antigravity/Cursor
 

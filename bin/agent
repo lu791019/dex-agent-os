@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
-# bin/agent — Dex Agent OS CLI 入口
+# bin/agent — Delegates to agent.py for cross-platform support
+exec python3 "$(dirname "$0")/agent.py" "$@"
+
+# === 以下為原始 bash 版本（保留備用，不執行） ===
+exit 0
+
+# bin/agent — Dex Agent OS CLI 入口（原始版本）
 #
 # Usage:
 #   ./bin/agent journal [YYYY-MM-DD] [--force]

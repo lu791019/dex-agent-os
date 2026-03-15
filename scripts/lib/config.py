@@ -1,7 +1,11 @@
 """Dex Agent OS — 路徑與常數設定"""
 
 import os
+import platform
 from pathlib import Path
+
+_IS_MAC = platform.system() == "Darwin"
+_IS_WIN = platform.system() == "Windows"
 
 # 專案根目錄
 ROOT_DIR = Path(__file__).resolve().parent.parent.parent
@@ -44,7 +48,20 @@ WORKLOG_TEMPLATES_DIR = ROOT_DIR / "work-log" / "templates"
 INBOX_IDEAS_DIR = ROOT_DIR / "000_Inbox" / "ideas"
 LIFE_PERSONAL_DIR = ROOT_DIR / "600_Life" / "personal" / "reflections"
 KNOWLEDGE_DIR = ROOT_DIR / "800_System" / "knowledge"
-CLAUDE_MEMORY_DIR = Path.home() / ".claude" / "projects" / "-Users-dex-dex-agent-os" / "memory"
+def _compute_claude_memory_dir() -> Path:
+    """根據 ROOT_DIR 動態計算 Claude Code 記憶路徑"""
+    raw = str(ROOT_DIR)
+    if _IS_WIN:
+        # C:\Users\dex\dex-agent-os → -C-Users-dex-dex-agent-os
+        encoded = raw.replace("\\", "-").replace(":", "")
+        if not encoded.startswith("-"):
+            encoded = "-" + encoded
+    else:
+        # /Users/dex/dex-agent-os → -Users-dex-dex-agent-os
+        encoded = raw.replace("/", "-")
+    return Path.home() / ".claude" / "projects" / encoded / "memory"
+
+CLAUDE_MEMORY_DIR = _compute_claude_memory_dir()
 
 # Threads API
 THREADS_TOKEN_PATH = ROOT_DIR / "config" / ".threads-token"
@@ -55,20 +72,28 @@ PODCAST_WEEKLY_DIR = ROOT_DIR / "300_Learning" / "podcasts" / "weekly"
 PODCAST_TRANSCRIPTS_DIR = ROOT_DIR / "300_Learning" / "podcasts" / "transcripts"
 YOUTUBE_DIR = ROOT_DIR / "300_Learning" / "youtube"
 
-# Apple Podcast TTML 快取
-APPLE_PODCAST_TTML_DIR = (
-    Path.home()
-    / "Library"
-    / "Group Containers"
-    / "243LU875E5.groups.com.apple.podcasts"
-    / "Library"
-    / "Cache"
-    / "Assets"
-    / "TTML"
-)
+# Apple Podcast TTML 快取（macOS 專屬）
+if _IS_MAC:
+    APPLE_PODCAST_TTML_DIR = (
+        Path.home()
+        / "Library"
+        / "Group Containers"
+        / "243LU875E5.groups.com.apple.podcasts"
+        / "Library"
+        / "Cache"
+        / "Assets"
+        / "TTML"
+    )
+else:
+    APPLE_PODCAST_TTML_DIR = None
 
-# Dayflow
-DAYFLOW_DB = Path.home() / "Library" / "Application Support" / "Dayflow" / "chunks.sqlite"
+# Dayflow（macOS 專屬）
+if _IS_MAC:
+    DAYFLOW_DB = Path.home() / "Library" / "Application Support" / "Dayflow" / "chunks.sqlite"
+elif _IS_WIN:
+    DAYFLOW_DB = Path(os.environ.get("APPDATA", str(Path.home() / "AppData" / "Roaming"))) / "Dayflow" / "chunks.sqlite"
+else:
+    DAYFLOW_DB = None
 
 # 學習輸入 & 每日消化
 LEARNING_INPUT_DIR = ROOT_DIR / "300_Learning" / "input"
