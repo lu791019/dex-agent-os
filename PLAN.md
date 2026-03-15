@@ -1081,6 +1081,53 @@ def ask_claude(system_prompt: str, user_prompt: str) -> str:
 
 ---
 
+### /daily-all — 一鍵每日全流程 ✅ 已實作 + 測試
+
+**完成日期：** 2026-02-22
+
+**目標：** 整合四大管線（學習輸入+每日消化、工作管理、日記系統、內容生產）為一鍵 IDE skill。
+
+**設計定案：** 2026-02-21，15 步流程。詳見 MEMORY.md。
+
+**範圍：**
+- [x] 新建 `.claude/commands/daily-all.md`（不改 /daily-content）
+- [x] 修改 `.claude/commands/daily-learning.md`（限制 3-5 篇 × 1 件事）
+- [x] 不新增 Python script，全靠現有指令串接
+
+**流程摘要：**
+```
+自動：sync-all → fireflies/classroom/project-status → /work-log → dayflow → journal → daily-digest → digest insight 萃取
+互動（可跳）：/daily-learning → /daily-review
+收斂：extract --type all → topic-create → topic-to-thread + topic-to-fb → 摘要
+```
+
+**參數：** `/daily-all [DATE] [--skip-interactive]`
+
+**I/O 對照表：**
+
+| Step | 名稱 | 輸入 | 產出位置 |
+|------|------|------|----------|
+| 1 | sync-all | 外部 API | `000_Inbox/readings/DATE-*.md` |
+| 2 | Fireflies | Fireflies API | `200_Work/meetings/DATE-*.md` |
+| 3 | Classroom | Google Classroom API | 僅列出課程（不產檔案） |
+| 4 | project-status | `400_Projects/*/STATUS.md` + git log | `400_Projects/*/STATUS.md`（原地更新） |
+| 5 | L1 工作日誌 | git log + scan-work-outputs | `~/work-logs/YYYY/MM/DATE.md` |
+| 6 | Dayflow | Dayflow SQLite DB | `100_Journal/daily/DATE-dayflow.md` |
+| 7 | L2 精煉日記 | Step 5 L1 + Step 6 dayflow | `100_Journal/daily/DATE.md` |
+| 8 | Digest | Step 1 readings | `100_Journal/digest/DATE-digest.md` |
+| 9 | Digest→Insight | Step 8 digest「今日洞察」 | `510_Insights/DATE-*.md` |
+| 10 | 互動學習 | Step 8 digest + Step 9 insights | `510_Insights/DATE-*.md`（新增） |
+| 11 | 每日回顧 | Step 5 L1 + Step 7 L2 | `100_Journal/daily/DATE.md`（更新洞察區塊） |
+| 12 | Extract | Step 7/11 L2（含更新） | `510_Insights/` + `memory/learnings.md` + `memory/reflections.md` |
+| 13 | Topic | 全部 `510_Insights/DATE-*.md` | `520_Topics/slug/TOPIC.md` |
+| 14 | Drafts | Step 13 TOPIC.md | `530_Channels/threads/DATE/*.md` + `530_Channels/facebook/DATE/*.md` |
+
+**已知限制：**
+
+**Step 5 /work-log 巢狀 skill 問題** — `/work-log` 是 projectSettings skill，巢狀呼叫和 CLI 都無法執行。目前暫行方案 C（daily-all 內聯：用 git log + scan-work-outputs 由當前 LLM 產生 L1）。方案 A（Python 腳本 `scripts/generators/work_log.py`）留待 Phase 7 自動化排程時實作。
+
+---
+
 ### Phase 6 P2：產品管理 + 訂閱管理（未開始）
 
 **目標：** 工作面補完
@@ -1154,3 +1201,6 @@ def ask_claude(system_prompt: str, user_prompt: str) -> str:
 | 2026-02-11 | 簡報產出為 markdown 結構而非直接 .pptx | 可用已有的 `/pptx` skill 轉換，保持管線解耦 |
 | 2026-02-13 | Podwise 串接先寫好程式碼，等訂閱後設定 env vars | 架構先行，避免未來重新設計 |
 | 2026-02-13 | Notion API 用純 requests 不裝 notion-client | 零新依賴，requests 已是現有依賴 |
+| 2026-02-21 | /daily-all 15 步流程，topic-create/thread/fb 只跑一次 | 收斂在最後一次性產出，避免重複；extract 放互動後，能抓 /daily-review 更新 |
+| 2026-02-21 | digest「今日洞察」用 skill 層 LLM 萃取（方案 C） | 零程式碼改動，先用 skill 處理；穩定後再考慮抽成獨立 script |
+| 2026-02-21 | /daily-learning 限制 3-5 篇 × 1 件事 | 避免 context 膨脹和 insight 重複 |

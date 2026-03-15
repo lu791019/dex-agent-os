@@ -88,6 +88,9 @@ def authenticate():
                 creds = None
 
         if not creds:
+            # Google 有時回傳的 scope 少於請求的（如 Classroom），
+            # 設定此環境變數讓 oauthlib 不因 scope 不匹配而報錯
+            os.environ["OAUTHLIB_RELAX_TOKEN_SCOPE"] = "1"
             flow = InstalledAppFlow.from_client_secrets_file(str(CREDENTIALS_PATH), SCOPES)
             creds = flow.run_local_server(port=0)
 

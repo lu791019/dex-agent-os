@@ -47,3 +47,8 @@
 - **Context switch 成本**：上午同時處理非技術（定價提案）和技術（Agent OS）任務，切換有摩擦。Dayflow 數據顯示提案階段實際高度聚焦，真正切換發生在提案前後過渡期
 - **提案收尾拖延**：Dayflow 捕捉到約 6 分鐘靜止期，可能反覆猶豫措辭。LINE 提案花了近 2 小時，下次先在 markdown 定稿再貼
 - **Podwise 實作待啟動**：Notion API / Readwise API 研究完成但串接尚未動手
+
+## 2026-02-21
+- `/work-log` 是 IDE skill，巢狀呼叫可能失敗——需要在新 session 實測才能確認
+- `claude --print` 跑 daily-digest 超過 300 秒 timeout，尚未解決
+- 初次實作時誤編輯 `.claude/commands/` 而非 `canonical/`，被 sync 覆蓋後才發現

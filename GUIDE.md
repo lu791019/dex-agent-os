@@ -82,6 +82,8 @@ echo "THREADS_ACCESS_TOKEN=你的token" >> .env
 | 5 | `/daily-review` | IDE | 互動式每日回顧：AI 呈現摘要 → 問你 3 個問題 → 更新 L2 日記洞察 | 更新既有 L2 日記 |
 
 > **一鍵替代 1-3：** `/daily-content [日期]` 會自動執行 L1 → Dayflow → L2 → extract → topic-create → topic-to-thread 完整流水線（L2 會自動讀取 Dayflow 摘要），並產出 Threads 草稿。
+>
+> **一鍵全流程：** `/daily-all [日期]` 整合所有管線（sync-all → 工作管理 → 日記 → digest → 互動學習/回顧 → extract → topic-create → thread + fb），`--skip-interactive` 跳過互動步驟。詳見第 5 節「一鍵每日全流程」。
 
 #### B. 每日內容生產（有素材想發文時）
 
@@ -835,6 +837,65 @@ Phase 4 建立了週級別的彙總系統：個人週回顧 + 對外電子報，
 /weekly-content 2026-02-10         → 指定日期所在週
 /weekly-content --type deep-dive   → 指定電子報類型
 ```
+
+### 一鍵每日全流程（/daily-all）— 設計中，尚未實作
+
+在 Claude Code 中執行 `/daily-all`，整合四大管線一次完成。
+
+```
+/daily-all                         → 今天，含互動
+/daily-all 2026-02-21              → 指定日期
+/daily-all --skip-interactive      → 跳過互動步驟（/daily-learning + /daily-review）
+```
+
+**15 步流程：**
+
+| 區段 | Step | 指令 | 說明 |
+|------|------|------|------|
+| 自動同步 | 1 | `sync-all` | Readwise+RSS+Anybox+Gmail（無 token 自動 skip） |
+| | 2 | `fireflies-sync --latest 5` | 無 API key → skip |
+| | 3 | `classroom-sync --courses` | 無 token → skip |
+| | 4 | `project-status` (全部) | 無專案 → skip |
+| 日記 | 5 | `/work-log DATE` | L1（含 scan-work-outputs） |
+| | 6 | `dayflow DATE` | Dayflow 活動摘要 |
+| | 7 | `journal DATE` | L2（依賴 5+6） |
+| 每日消化 | 8 | `daily-digest DATE` | 閱讀消化報告（依賴 1） |
+| | 9 | skill LLM 萃取 | 從 digest「今日洞察」→ 510_Insights/ |
+| 互動（可跳） | 10 | `/daily-learning` | 挑 3-5 篇深聊，每篇 1 件事 |
+| | 11 | `/daily-review` | 反思工作，更新 L2 |
+| 收斂產出 | 12 | `extract --type all` | 從 L2 萃取 insights+learnings+reflections |
+| | 13 | `topic-create --force` | 所有新 insight（step 9+10+12） |
+| | 14a/b | `topic-to-thread` + `topic-to-fb` | 一次性產出草稿 |
+| | 15 | 最終摘要 | 顯示所有產出總覽 |
+
+> **與 /daily-content 的關係：** `/daily-content` 只涵蓋日記 + 內容生產（step 5-7, 12-14），`/daily-all` 是超集，額外包含 sync、工作管理、digest、互動學習/回顧。
+
+**各步驟 I/O 對照表：**
+
+| Step | 名稱 | 輸入 | 產出位置 |
+|------|------|------|----------|
+| 1 | sync-all | 外部 API | `000_Inbox/readings/DATE-*.md` |
+| 2 | Fireflies | Fireflies API | `200_Work/meetings/DATE-*.md` |
+| 3 | Classroom | Google Classroom API | 僅列出課程（不產檔案） |
+| 4 | project-status | `400_Projects/*/STATUS.md` + git log | `400_Projects/*/STATUS.md`（原地更新） |
+| 5 | L1 工作日誌 | git log + scan-work-outputs | `~/work-logs/YYYY/MM/DATE.md` |
+| 6 | Dayflow | Dayflow SQLite DB | `100_Journal/daily/DATE-dayflow.md` |
+| 7 | L2 精煉日記 | Step 5 L1 + Step 6 dayflow | `100_Journal/daily/DATE.md` |
+| 8 | Digest | Step 1 readings | `100_Journal/digest/DATE-digest.md` |
+| 9 | Digest→Insight | Step 8 digest「今日洞察」 | `510_Insights/DATE-*.md` |
+| 10 | 互動學習 | Step 8 digest + Step 9 insights | `510_Insights/DATE-*.md`（新增） |
+| 11 | 每日回顧 | Step 5 L1 + Step 7 L2 | `100_Journal/daily/DATE.md`（更新洞察區塊） |
+| 12 | Extract | Step 7/11 L2（含更新） | `510_Insights/` + `memory/learnings.md` + `memory/reflections.md` |
+| 13 | Topic | 全部 `510_Insights/DATE-*.md` | `520_Topics/slug/TOPIC.md` |
+| 14 | Drafts | Step 13 TOPIC.md | `530_Channels/threads/DATE/*.md` + `530_Channels/facebook/DATE/*.md` |
+
+**已知問題與解法：**
+
+| 問題 | 狀態 | 解法 |
+|------|------|------|
+| Step 5 `/work-log` 巢狀 skill 無法執行 | 暫行方案 C | daily-all 內聯：用 git log + scan-work-outputs 由當前 LLM 產生 L1。方案 A（Python 腳本）留待 Phase 7 |
+| Google OAuth scope 不匹配 | 已修復 | `google_api.py` 加 `OAUTHLIB_RELAX_TOKEN_SCOPE=1` |
+| GCP Classroom API 未啟用 | 已解決 | 需在 GCP Console 手動啟用 |
 
 ### 建議每週操作流程
 
@@ -1778,6 +1839,8 @@ tail -40 ~/CLAUDE.md
 
 | 功能 | 計畫 Phase |
 |------|------------|
+| 一鍵每日全流程（/daily-all） | 設計完成，待實作 |
+| 主題 → LinkedIn 貼文 | 待辦 |
 | 產品管理 / 訂閱管理 | Phase 6 P2 |
 | launchd 自動排程 | Phase 7 |
 

@@ -2,7 +2,7 @@
 
 > 完成日期：2026-02-20
 > Branch：`feature/phase6-p1`
-> Commits：6 個（e51cd94 → fa430cf）
+> Commits：8 個（e51cd94 → e64c836），已 merge to master
 
 ---
 
@@ -101,6 +101,7 @@ Scopes 用 `.students` 版本（非 `.me`），可存取所有學生的作業和
 ## 四、Git 提交記錄
 
 ```
+e64c836 feat: integrate work outputs (meetings/consultations/projects) into work-log L1
 fa430cf docs: add Phase 6 P1 workflows, skills, and update all documentation
 be2f7e7 feat: add project status generator (reads STATUS.md + git log → LLM update)
 b97897b feat: add input_loader + meeting notes / consultation notes generators
@@ -117,6 +118,7 @@ e51cd94 feat: add Phase 6 infrastructure — config paths, templates, test fixtu
 2. **Fireflies 需訂閱**：目前無訂閱，`--list` 會顯示設定引導。未來訂閱後直接設 `FIREFLIES_API_KEY` 即可
 3. **會議轉錄推薦**：Tactiq（免費 10 會/月）或 Scribbl（免費 15 會/月）→ 自動存 Google Docs → 用 `--google-doc URL`
 4. **bin/sync 已執行**：workflows 和 skills 已同步到 .agent/ + .cursor/
+5. **work-log 整合**：`/work-log` 產出 L1 時會自動掃描當日的會議筆記、諮詢紀錄、專案狀態，加入參考清單
 
 ---
 
@@ -124,4 +126,3 @@ e51cd94 feat: add Phase 6 infrastructure — config paths, templates, test fixtu
 
 - **Phase 6 P2**：產品管理 + 訂閱管理（未排期）
 - **Phase 7**：職涯 + launchd 排程自動化
-- **立即可做**：merge `feature/phase6-p1` → `master`
