@@ -68,7 +68,7 @@ Dex Agent OS 是一套以 CLI + AI 驅動的個人生產力系統，將每天的
 | Claude Pro 訂閱 | 所有 LLM 呼叫走 Pro 額度，不花 API 費用 |
 | Git | 版本控制、工作日誌 |
 
-### 安裝
+### 安裝（macOS / Linux）
 
 ```bash
 # 1. Clone
@@ -80,23 +80,57 @@ pip install -r requirements.txt
 
 # 3. 設定環境變數
 cp config/.env.example .env
-# 編輯 .env 填入你的 API tokens
+# 編輯 .env 填入你的 API tokens（見下方說明）
 
 # 4. 查看可用指令
 ./bin/agent help
 ```
 
-### 選用整合（依需求設定）
+### 安裝（Windows）
 
-| 整合 | 用途 | 設定方式 |
-|------|------|----------|
-| Threads API | 內容收集 + 風格分析 | `.env` 中加 `THREADS_ACCESS_TOKEN` |
-| Readwise | 閱讀摘要批次匯入 | `.env` 中加 `READWISE_TOKEN` |
-| Anybox | macOS 書籤匯入 | `.env` 中加 `ANYBOX_API_KEY` |
-| Google OAuth | Gmail 匯入、Classroom、Google Docs | `config/google-credentials.json`（見 GUIDE.md） |
-| Fireflies.ai | 會議逐字稿同步 | `.env` 中加 `FIREFLIES_API_KEY` |
-| Notion | Podwise Podcast 匯入 | `.env` 中加 `NOTION_TOKEN` + `NOTION_PODWISE_DB_ID` |
-| Dayflow | 螢幕活動追蹤（macOS） | 安裝 Dayflow app |
+```powershell
+# 1. Clone
+git clone https://github.com/lu791019/dex-agent-os.git
+cd dex-agent-os
+
+# 2. 安裝 Python 依賴
+pip install -r requirements.txt
+
+# 3. 設定環境變數
+copy config\.env.example .env
+# 用記事本或 VS Code 編輯 .env 填入你的 API tokens（見下方說明）
+
+# 4. 查看可用指令
+python bin\agent.py help
+# 或
+bin\agent.bat help
+
+# 5. 驗證跨平台功能
+python -m pytest tests\ -v
+```
+
+> **Windows 注意事項：**
+> - 使用 `python bin\agent.py <command>` 或 `bin\agent.bat <command>` 執行指令
+> - Dayflow、Apple Podcast 為 macOS 專屬功能，Windows 上會自動跳過
+> - Google OAuth 流程（Gmail、Classroom）在 Windows 上相同，需要瀏覽器授權
+
+### .env 環境變數設定
+
+從 `config/.env.example` 複製為 `.env` 後，依需求填入以下 token：
+
+| 變數 | 必要性 | 用途 | 取得方式 |
+|------|--------|------|----------|
+| `THREADS_ACCESS_TOKEN` | 選用 | Threads 內容收集 + 風格分析 | [Meta Developer Dashboard](https://developers.facebook.com) → 建立 App → Threads API → 用戶權杖產生器 |
+| `READWISE_TOKEN` | 選用 | 閱讀摘要 + Reader 文章批次匯入 | [readwise.io/access_token](https://readwise.io/access_token) |
+| `ANYBOX_API_KEY` | 選用 | Anybox 書籤匯入（macOS） | Anybox app 設定 → API |
+| `NOTION_TOKEN` | 選用 | Podwise Podcast 匯入 | [notion.so/my-integrations](https://www.notion.so/my-integrations) → 建立 Integration |
+| `NOTION_PODWISE_DB_ID` | 選用 | Podwise 資料庫 ID | Notion database URL 中的 32 碼 ID |
+| `FIREFLIES_API_KEY` | 選用 | 會議逐字稿同步 | [Fireflies Dashboard](https://app.fireflies.ai/integrations/custom/fireflies)（需 Business plan） |
+| `DIGEST_EMAIL` | 選用 | 每日消化報告寄送 | 你的 Gmail 地址 |
+
+**Google OAuth（Gmail / Classroom / Google Docs）：** 需要另外設定 `config/google-credentials.json`，詳見 [GUIDE.md](GUIDE.md) 第 13 節疑難排解。
+
+> **提醒：** `.env` 已在 `.gitignore` 中，不會被推到 GitHub。所有 token 都是選用的，沒有設定的功能會自動跳過或顯示提示。
 
 ## CLI 指令速查
 
