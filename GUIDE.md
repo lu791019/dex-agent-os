@@ -32,12 +32,14 @@
 
 | 需求 | 說明 |
 |------|------|
-| macOS | 目前僅支援 macOS（Dayflow、launchd） |
-| Python 3 | 腳本執行 |
+| macOS / Windows / Linux | 跨平台支援（Dayflow、Apple Podcast 為 macOS 專屬） |
+| Python 3.9+ | 腳本執行 |
 | Claude Code CLI | `claude --print` 用於 LLM 呼叫 |
 | Claude Pro 訂閱 | 所有 LLM 呼叫走 Pro 額度，不花 API 費用 |
-| Dayflow app | 螢幕活動追蹤（選用，沒有也能跑 journal） |
+| Dayflow app | 螢幕活動追蹤（macOS 選用，沒有也能跑 journal） |
 | Threads API Token | 內容生產管線需要（選用，見下方設定） |
+
+> **Windows 使用者：** 使用 `python bin\agent.py <command>` 或 `bin\agent.bat <command>` 執行指令。詳見 [README.md](README.md)。
 
 ### 第一次使用
 
