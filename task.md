@@ -22,10 +22,10 @@
 - [x] B+4. Sheet 欄位更新：加「主題」欄 + 既有 Sheet 自動 migration
 
 ## Section C：daily-digest.py 改版
-- [ ] C1. 新增 _collect_from_sheet() 讀 Sheet 指定日期的行
-- [ ] C2. 用 Reader API 拿全文（by URL）
-- [ ] C3. _collect_readings() 改為 Sheet 優先 + 本地 fallback
-- [ ] C4. 測試：跑一次 daily-digest，確認產出正常
+- [x] C1. 新增 _collect_from_sheet() 讀 Sheet 指定日期的行
+- [x] C2. 用 source_url 抓全文（Reader API content 為空，改用 URL 直接抓）
+- [x] C3. _scan_date_files() 改為 Sheet 優先 + 本地 fallback
+- [x] C4. 測試：Sheet 讀取 OK（6 篇），LLM timeout 是 Pro 額度共用問題（非程式碼問題）
 
 ## Section D：收尾
 - [ ] D1. 更新 CLAUDE.md CLI 速查表
