@@ -40,6 +40,9 @@ EXAMPLES_DIR = ROOT_DIR / "800_System" / "references" / "examples"
 WORKLOG_SCRIPTS_DIR = ROOT_DIR / "work-log" / "scripts"
 WORKLOG_TEMPLATES_DIR = ROOT_DIR / "work-log" / "templates"
 
+# 每日素材池
+DAILY_POOL_DIR = ROOT_DIR / "000_Inbox" / "daily"
+
 # 知識萃取
 INBOX_IDEAS_DIR = ROOT_DIR / "000_Inbox" / "ideas"
 LIFE_PERSONAL_DIR = ROOT_DIR / "600_Life" / "personal" / "reflections"
@@ -90,3 +93,10 @@ READWISE_TOKEN = os.getenv("READWISE_TOKEN", "")
 
 # Fireflies.ai
 FIREFLIES_API_KEY = os.getenv("FIREFLIES_API_KEY", "")
+
+# 多 Repo 工作日誌追蹤（逗號分隔的絕對路徑）
+WORK_REPOS = [
+    Path(p.strip()) for p in os.getenv("WORK_REPOS", "").split(",") if p.strip()
+]
+if not WORK_REPOS:
+    WORK_REPOS = [ROOT_DIR]

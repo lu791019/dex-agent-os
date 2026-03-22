@@ -33,6 +33,7 @@ alwaysApply: true
 | 每日精煉日記 | `100_Journal/daily/YYYY-MM-DD.md` |
 | Dayflow 活動摘要 | `100_Journal/daily/YYYY-MM-DD-dayflow.md` |
 | 每週回顧 | `100_Journal/weekly/YYYY-Wxx.md` |
+| 每日素材池 | `000_Inbox/daily/YYYY-MM-DD.md` |
 | 靈感/想法 | `000_Inbox/ideas/` |
 | 閱讀筆記 | `000_Inbox/readings/` |
 | 學習筆記 | `300_Learning/input/` |
