@@ -28,6 +28,6 @@
 - [x] C4. 測試：Sheet 讀取 OK（6 篇），LLM timeout 是 Pro 額度共用問題（非程式碼問題）
 
 ## Section D：收尾
-- [ ] D1. 更新 CLAUDE.md CLI 速查表
-- [ ] D2. launchd 排程（每日自動跑 reader-to-sheets）
-- [ ] D3. Git commit
+- [x] D1. 更新 CLAUDE.md CLI 速查表
+- [ ] D2. launchd 排程（每日自動跑 reader-to-sheets）← 留新 session
+- [x] D3. Git commit

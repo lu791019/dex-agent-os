@@ -64,7 +64,8 @@ Dex 是資料工程 / 軟體後端 / AI 應用實作者，也是內容創作者�
 | | `rss-sync [--feed URL] [--latest N]` | RSS 批次匯入 |
 | | `anybox-sync [--starred] [--latest N]` | Anybox 書籤批次匯入 |
 | | `gmail-sync [--from ADDR] [--latest N]` | Gmail 電子報批次匯入 |
-| | `daily-digest [--today] [--send]` | 每日學習消化報告 |
+| | `reader-to-sheets [--days N] [--no-llm]` | Reader → Google Sheet（中文摘要+主題分類） |
+| | `daily-digest [--today] [--send]` | 每日學習消化報告（Sheet 優先） |
 | | `youtube-add "URL"` | YouTube 字幕 → 學習筆記 |
 | | `podcast-add [模式]` | Podcast → episode 筆記（`--transcript` / `--apple` / `--notion` / `--readwise`） |
 | | `podcast-digest [--pptx]` | 週度 Podcast + YouTube 消化報告 |
