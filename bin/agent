@@ -85,6 +85,9 @@ case "$command" in
   learning-note)
     python3 "$ROOT_DIR/scripts/generators/learning_note.py" "$@"
     ;;
+  reader-to-sheets)
+    python3 "$ROOT_DIR/scripts/collectors/reader_to_sheets.py" "$@"
+    ;;
   readwise-sync)
     python3 "$ROOT_DIR/scripts/collectors/readwise_sync.py" "$@"
     ;;

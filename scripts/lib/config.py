@@ -94,6 +94,9 @@ READWISE_TOKEN = os.getenv("READWISE_TOKEN", "")
 # Fireflies.ai
 FIREFLIES_API_KEY = os.getenv("FIREFLIES_API_KEY", "")
 
+# Google Sheets — Reader 週報
+GOOGLE_SHEET_ID = os.getenv("GOOGLE_SHEET_ID", "")
+
 # 多 Repo 工作日誌追蹤（逗號分隔的絕對路徑）
 WORK_REPOS = [
     Path(p.strip()) for p in os.getenv("WORK_REPOS", "").split(",") if p.strip()
