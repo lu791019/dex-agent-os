@@ -17,6 +17,7 @@
 from __future__ import annotations
 
 import argparse
+import re
 import sys
 import time
 from datetime import datetime, timedelta
@@ -54,6 +55,8 @@ EXCLUDE_SITES = {
 
 SEEKING_ALPHA_KEY = "seeking alpha"
 
+TOPIC_CATEGORIES = ["技術", "生產力", "職涯", "創作", "投資", "產業", "生活", "其他"]
+
 # RSS 白名單（site_name 模糊匹配，只有這些 RSS 來源會進主工作表）
 RSS_WHITELIST = {
     "medium",
@@ -87,10 +90,21 @@ RSS_WHITELIST = {
     "workplace insights",
 }
 
-HEADER_ROW = ["日期", "分類", "作者", "標題", "來源URL", "摘要"]
+HEADER_ROW = ["日期", "分類", "作者", "標題", "來源URL", "摘要", "主題"]
 
 
 # ── 工具函式 ──────────────────────────────────────────
+
+
+def _strip_html(text: str) -> str:
+    """去除 HTML 標籤並壓縮空白，優先擷取 article 區塊。"""
+    m = re.search(r"<article[^>]*>(.*?)</article>", text, flags=re.DOTALL | re.IGNORECASE)
+    if m:
+        text = m.group(1)
+    text = re.sub(r"<(style|script|noscript)[^>]*>.*?</\1>", "", text, flags=re.DOTALL | re.IGNORECASE)
+    text = re.sub(r"<[^>]+>", " ", text)
+    text = re.sub(r"\s+", " ", text)
+    return text.strip()
 
 
 def _is_excluded(site_name: str) -> bool:
@@ -121,7 +135,7 @@ def _doc_to_row(doc: dict) -> list[str]:
     summary = (doc.get("summary", "") or "").replace("\n", " ").strip()
     if len(summary) > 500:
         summary = summary[:497] + "..."
-    return [updated, category, author, title, source_url, summary]
+    return [updated, category, author, title, source_url, summary, ""]
 
 
 def _ensure_sheet_exists(service, spreadsheet_id: str, sheet_name: str):
@@ -170,10 +184,122 @@ def _append_rows(service, spreadsheet_id: str, sheet_name: str, rows: list[list[
     ).execute()
 
 
+# ── LLM 摘要 + 分類 ─────────────────────────────────────
+
+
+def _parse_llm_enrichment(response: str, expected_count: int) -> list[tuple[str, str]]:
+    """解析 LLM 回應，提取中文摘要和主題分類。"""
+    results = []
+    for line in response.strip().split("\n"):
+        line = line.strip()
+        if not line or line.startswith("<"):
+            continue
+        parts = line.split("|")
+        if len(parts) >= 3:
+            summary_zh = "|".join(parts[1:-1]).strip()
+            topic = parts[-1].strip()
+            if topic not in TOPIC_CATEGORIES:
+                topic = "其他"
+            results.append((summary_zh, topic))
+    while len(results) < expected_count:
+        results.append(("", "其他"))
+    return results[:expected_count]
+
+
+def _fetch_url_content(url: str, max_chars: int = 1500) -> str:
+    """嘗試抓取 URL 網頁內容，去 HTML 後截斷。"""
+    if not url or not url.startswith("http"):
+        return ""
+    import urllib.request
+    import urllib.error
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            raw = resp.read().decode("utf-8", errors="ignore")
+        return _strip_html(raw)[:max_chars]
+    except Exception:
+        return ""
+
+
+def _enrich_rows_with_llm(rows: list[list[str]], batch_size: int = 5) -> list[list[str]]:
+    """用 LLM 為每篇文章產生中文摘要和主題分類（盡量抓全文）。"""
+    from lib.llm import ask_claude
+
+    total = len(rows)
+    for i in range(0, total, batch_size):
+        batch = rows[i:i + batch_size]
+        batch_num = i // batch_size + 1
+        total_batches = (total + batch_size - 1) // batch_size
+        print(f"[reader-to-sheets] LLM batch {batch_num}/{total_batches}（{len(batch)} 篇）...")
+
+        # 嘗試用 source_url 抓原文
+        articles = []
+        fetched = 0
+        for j, row in enumerate(batch):
+            source_url = row[4]
+            content = _fetch_url_content(source_url)
+            if content:
+                fetched += 1
+
+            entry = f"{j+1}. 標題: {row[3]} / 作者: {row[2]}"
+            if content:
+                entry += f"\n   內容摘錄: {content}"
+            elif row[5]:
+                entry += f" / 原摘要: {row[5]}"
+            articles.append(entry)
+
+        if fetched:
+            print(f"[reader-to-sheets]   抓到 {fetched}/{len(batch)} 篇全文")
+
+        prompt = (
+            f"以下是 {len(batch)} 篇文章，請為每篇提供繁體中文摘要和主題分類。\n\n"
+            "摘要要求：2-3 句，約 100-150 字，包含核心論點和為什麼值得看。\n"
+            "主題分類只能從以下選擇：技術、生產力、職涯、創作、投資、產業、生活、其他\n\n"
+            "回覆格式（嚴格遵守，每篇一行，不要加任何其他文字）：\n"
+            "編號|中文摘要|主題分類\n\n"
+            "範例：\n"
+            "1|這篇探討 AI 輔助開發的實戰經驗，作者分享三個月內將程式碼審查時間縮短 40% 的具體做法，特別值得注意的是 prompt engineering 在 code review 場景的應用思路。|技術\n"
+            "2|作者從遠端工作五年的經驗出發，歸納時間管理五大法則，其中「異步溝通優先」和「深度工作時段保護」對知識工作者特別有參考價值。|生產力\n\n"
+            "文章列表：\n" + "\n".join(articles)
+        )
+
+        try:
+            response = ask_claude(prompt)
+            results = _parse_llm_enrichment(response, len(batch))
+            for j, row in enumerate(batch):
+                if j < len(results):
+                    summary_zh, topic = results[j]
+                    if summary_zh:
+                        row[5] = summary_zh
+                    row[6] = topic
+        except Exception as e:
+            print(f"[reader-to-sheets] LLM batch {batch_num} 失敗: {e}，保留原摘要")
+
+    return rows
+
+
+def _update_header_if_needed(service, spreadsheet_id: str, sheet_name: str):
+    """如果既有工作表缺少「主題」欄，補上 header。"""
+    result = service.spreadsheets().values().get(
+        spreadsheetId=spreadsheet_id,
+        range=f"'{sheet_name}'!1:1",
+    ).execute()
+    header = result.get("values", [[]])[0]
+    if "主題" not in header:
+        col_letter = chr(ord("A") + len(header))
+        service.spreadsheets().values().update(
+            spreadsheetId=spreadsheet_id,
+            range=f"'{sheet_name}'!{col_letter}1",
+            valueInputOption="RAW",
+            body={"values": [["主題"]]},
+        ).execute()
+        print(f"[reader-to-sheets] 更新 {sheet_name} header：加入「主題」欄")
+
+
 # ── 主邏輯 ────────────────────────────────────────────
 
 
-def sync_to_sheets(days: int = 7, since: str | None = None, dry_run: bool = False):
+def sync_to_sheets(days: int = 7, since: str | None = None, dry_run: bool = False, use_llm: bool = True):
     """從 Reader API 拉資料並寫入 Google Sheet。"""
 
     if not GOOGLE_SHEET_ID:
@@ -266,9 +392,11 @@ def sync_to_sheets(days: int = 7, since: str | None = None, dry_run: bool = Fals
 
     sheet_id = GOOGLE_SHEET_ID
 
-    # 確保工作表存在
+    # 確保工作表存在 + header 更新
     _ensure_sheet_exists(service, sheet_id, "Readings")
     _ensure_sheet_exists(service, sheet_id, "Seeking Alpha")
+    _update_header_if_needed(service, sheet_id, "Readings")
+    _update_header_if_needed(service, sheet_id, "Seeking Alpha")
 
     # 讀取已存在的標題避免重複寫入
     existing_main = _get_existing_titles(service, sheet_id, "Readings")
@@ -280,6 +408,14 @@ def sync_to_sheets(days: int = 7, since: str | None = None, dry_run: bool = Fals
     print(f"\n[reader-to-sheets] 新增（去除 Sheet 已存在）：")
     print(f"  主工作表：{len(new_main)} 篇")
     print(f"  Seeking Alpha：{len(new_sa)} 篇")
+
+    # LLM 摘要 + 分類（只處理新增的）
+    if use_llm and (new_main or new_sa):
+        print("\n[reader-to-sheets] 開始 LLM 中文摘要 + 主題分類...")
+        if new_main:
+            new_main = _enrich_rows_with_llm(new_main)
+        if new_sa:
+            new_sa = _enrich_rows_with_llm(new_sa)
 
     _append_rows(service, sheet_id, "Readings", new_main)
     _append_rows(service, sheet_id, "Seeking Alpha", new_sa)
@@ -295,9 +431,10 @@ def main():
     parser.add_argument("--days", type=int, default=7, help="拉取過去 N 天（預設 7）")
     parser.add_argument("--since", type=str, default=None, help="拉取指定日期後 (YYYY-MM-DD)")
     parser.add_argument("--dry-run", action="store_true", help="預覽不寫入")
+    parser.add_argument("--no-llm", action="store_true", help="跳過 LLM 摘要/分類")
     args = parser.parse_args()
 
-    sync_to_sheets(days=args.days, since=args.since, dry_run=args.dry_run)
+    sync_to_sheets(days=args.days, since=args.since, dry_run=args.dry_run, use_llm=not args.no_llm)
 
 
 if __name__ == "__main__":
