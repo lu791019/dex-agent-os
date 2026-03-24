@@ -20,7 +20,7 @@ Dex 是資料工程 / 軟體後端 / AI 應用實作者，也是內容創作者�
 
 | 目錄 | 用途 |
 |------|------|
-| `000_Inbox/` | 靈感、閱讀、待辦 |
+| `000_Inbox/` | 靈感、閱讀、待辦、每日素材池 |
 | `100_Journal/` | 每日 / 每週日記 |
 | `200_Work/` | 會議、程式實驗、行銷 |
 | `300_Learning/` | 學習輸入 / 輸出（含 Podcast & YouTube） |
@@ -41,6 +41,7 @@ Dex 是資料工程 / 軟體後端 / AI 應用實作者，也是內容創作者�
 | 身份、權限、檔案位置 | `canonical/rules/00-core.md` | 不確定檔案該放哪裡時 |
 | 各頻道寫作風格 | `canonical/rules/10-writing-style.md` | 產出任何內容前 |
 | 安全護欄 | `canonical/rules/20-safety.md` | 執行對外或破壞性操作前 |
+| 每日捕捉規則 | `canonical/rules/30-daily-capture.md` | 辨識標籤 + 觸發詞捷徑 |
 | Threads 風格 DNA | `800_System/references/style-dna/threads-dna.md` | 撰寫 Threads 草稿時 |
 
 ## CLI 指令速查（`./bin/agent <cmd>`）
@@ -63,7 +64,8 @@ Dex 是資料工程 / 軟體後端 / AI 應用實作者，也是內容創作者�
 | | `rss-sync [--feed URL] [--latest N]` | RSS 批次匯入 |
 | | `anybox-sync [--starred] [--latest N]` | Anybox 書籤批次匯入 |
 | | `gmail-sync [--from ADDR] [--latest N]` | Gmail 電子報批次匯入 |
-| | `daily-digest [--today] [--send]` | 每日學習消化報告 |
+| | `reader-to-sheets [--days N] [--no-llm]` | Reader → Google Sheet（中文摘要+主題分類） |
+| | `daily-digest [--today] [--send]` | 每日學習消化報告（Sheet 優先） |
 | | `youtube-add "URL"` | YouTube 字幕 → 學習筆記 |
 | | `podcast-add [模式]` | Podcast → episode 筆記（`--transcript` / `--apple` / `--notion` / `--readwise`） |
 | | `podcast-digest [--pptx]` | 週度 Podcast + YouTube 消化報告 |
@@ -74,6 +76,10 @@ Dex 是資料工程 / 軟體後端 / AI 應用實作者，也是內容創作者�
 | | `fireflies-sync [--list\|--latest N]` | Fireflies.ai 逐字稿同步 |
 | 週報 | `weekly-review [日期]` | 7 天 L2 → 個人週回顧 |
 | | `weekly-newsletter [--type]` | L2 + Topics → 電子報草稿 |
+| 即時 | `/轉譯` | 素材池 → Threads 草稿（印在對話中） |
+| | `/回顧` | 快速回顧今天（不存檔） |
+| | `/記住` | 萃取學習到 memory |
+| | `/模板` | 儲存寫文框架到 writing-frameworks.md |
 | 系統 | `sync-all [--latest N]` | 一鍵批次匯入（readwise+rss+anybox+gmail） |
 | | `sync` / `help` | 跨平台同步 / 使用說明 |
 

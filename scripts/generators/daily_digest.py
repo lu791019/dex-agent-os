@@ -29,6 +29,7 @@ sys.path.insert(0, str(ROOT_DIR / "scripts"))
 
 from lib.config import (
     DIGEST_DIR,
+    GOOGLE_SHEET_ID,
     LEARNING_INPUT_DIR,
     PODCAST_EPISODES_DIR,
     READINGS_DIR,
@@ -67,6 +68,80 @@ CATEGORY_MAP = {
 }
 
 
+# ── Google Sheet 讀取 ─────────────────────────────────
+
+
+def _collect_from_sheet(date_str: str) -> list[dict]:
+    """從 Google Sheet 讀取指定日期的 readings，回傳 item list。"""
+    if not GOOGLE_SHEET_ID:
+        return []
+    try:
+        from lib.google_api import get_sheets_service
+        service = get_sheets_service()
+        if not service:
+            return []
+    except Exception:
+        return []
+
+    items = []
+    for sheet_name in ("Readings", "Seeking Alpha"):
+        try:
+            result = service.spreadsheets().values().get(
+                spreadsheetId=GOOGLE_SHEET_ID,
+                range=f"'{sheet_name}'!A:G",
+            ).execute()
+        except Exception:
+            continue
+        rows = result.get("values", [])
+        for row in rows[1:]:  # skip header
+            if len(row) < 4:
+                continue
+            row_date = row[0] if len(row) > 0 else ""
+            if row_date != date_str:
+                continue
+            title = row[3] if len(row) > 3 else ""
+            url = row[4] if len(row) > 4 else ""
+            summary = row[5] if len(row) > 5 else ""
+            topic = row[6] if len(row) > 6 else ""
+
+            # 嘗試抓全文
+            content = ""
+            if url and url.startswith("http"):
+                content = _fetch_url_content(url)
+            if not content:
+                content = summary or title
+
+            items.append({
+                "path": Path(f"sheet:{sheet_name}"),
+                "title": title,
+                "url": url,
+                "category": topic if topic else "readings",
+                "source_dir": "sheet",
+                "content": content,
+            })
+
+    return items
+
+
+def _fetch_url_content(url: str, max_chars: int = 3000) -> str:
+    """抓取 URL 網頁內容，去 HTML 後截斷。"""
+    if not url or not url.startswith("http"):
+        return ""
+    import urllib.request
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            raw = resp.read().decode("utf-8", errors="ignore")
+        # strip HTML
+        text = re.sub(r"<article[^>]*>(.*?)</article>", r"\1", raw, flags=re.DOTALL | re.IGNORECASE)
+        text = re.sub(r"<(style|script|noscript)[^>]*>.*?</\1>", "", text, flags=re.DOTALL | re.IGNORECASE)
+        text = re.sub(r"<[^>]+>", " ", text)
+        text = re.sub(r"\s+", " ", text)
+        return text.strip()[:max_chars]
+    except Exception:
+        return ""
+
+
 # ── 掃描邏輯 ──────────────────────────────────────────
 
 def _extract_frontmatter(text: str) -> dict:
@@ -93,9 +168,14 @@ def _scan_date_files(date_str: str) -> list[dict]:
     items = []
     prefix = date_str
 
-    # 1. 000_Inbox/readings/ — 原文（readwise-sync / rss-sync / anybox-sync）
-    if READINGS_DIR.exists():
-        for f in sorted(READINGS_DIR.glob(f"{prefix}-*.md")):
+    # 1. Google Sheet 優先 → 本地 readings/ fallback
+    sheet_items = _collect_from_sheet(date_str)
+    if sheet_items:
+        items.extend(sheet_items)
+        print(f"[daily-digest] Sheet: {len(sheet_items)} 篇")
+    elif READINGS_DIR.exists():
+        local_readings = sorted(READINGS_DIR.glob(f"{prefix}-*.md"))
+        for f in local_readings:
             text = read_text(f)
             meta = _extract_frontmatter(text)
             items.append({
@@ -106,6 +186,8 @@ def _scan_date_files(date_str: str) -> list[dict]:
                 "source_dir": "readings",
                 "content": text,
             })
+        if local_readings:
+            print(f"[daily-digest] 本地 readings fallback: {len(local_readings)} 篇")
 
     # 2. 300_Learning/input/**/ — learning-note 產出（已消化）
     if LEARNING_INPUT_DIR.exists():

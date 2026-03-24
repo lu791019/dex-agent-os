@@ -109,11 +109,12 @@ python3 scripts/generators/daily_digest.py TARGET_DATE --force
 
 **驗證：** 確認 digest 檔案存在
 
-### Step 9：從 Digest 萃取 Insights
+### Step 9：從 Digest + 素材池萃取 Insights
 
 讀取 Step 8 產出的 digest 檔案，找到「今日洞察」或類似區塊。
+同時讀取素材池 `000_Inbox/daily/TARGET_DATE.md`（如果存在），從「心得」和「靈感」section 中找到可能的 insight 種子。
 
-**對每條洞察，產出一個 insight 檔案到 `510_Insights/`：**
+**對每條洞察（來自 digest 或素材池），產出一個 insight 檔案到 `510_Insights/`：**
 
 - 檔名格式：`TARGET_DATE-<slug>.md`
 - 使用標準 insight 格式：
@@ -138,7 +139,7 @@ status: raw
 - 檢查 `510_Insights/` 是否已有同 slug 的檔案，避免重複
 - 記錄本步驟產出的 insight 檔案清單
 
-**如果 digest 無「今日洞察」→ 跳過本步，記錄「無 digest insights」**
+**如果 digest 無「今日洞察」且素材池無「心得」「靈感」→ 跳過本步，記錄「無 insights 來源」**
 
 ---
 
@@ -219,12 +220,33 @@ python3 scripts/generators/topic_to_fb.py <slug> --force
 
 **驗證：** 檢查 `530_Channels/threads/TARGET_DATE/` 和 `530_Channels/facebook/TARGET_DATE/` 中有對應草稿
 
+**14c. 印出 Threads 草稿預覽：**
+
+產出草稿後，讀取 `530_Channels/threads/TARGET_DATE/*.md` 全部檔案，將每篇 Threads 草稿的主文直接印在對話中，方便 Dex 快速瀏覽：
+
+```
+### Threads 草稿預覽
+
+#### 1. <slug>
+（主文內容）
+
+#### 2. <slug>
+（主文內容）
+
+...
+```
+
 ### Step 15：產出最終摘要
 
 完成後輸出完整摘要：
 
 ```
 ## Daily All 產出總覽 — TARGET_DATE
+
+### 素材池
+| 來源 | 狀態 | 筆數 |
+|------|------|------|
+| 000_Inbox/daily/TARGET_DATE.md | ✓ / 無 | N 條（會議/經驗/心得/靈感/筆記） |
 
 ### 同步結果
 | 來源 | 狀態 | 筆數 |

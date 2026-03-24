@@ -34,6 +34,7 @@ SCOPES = [
     "https://www.googleapis.com/auth/classroom.announcements.readonly",
     "https://www.googleapis.com/auth/classroom.coursework.students.readonly",
     "https://www.googleapis.com/auth/classroom.student-submissions.students.readonly",
+    "https://www.googleapis.com/auth/spreadsheets",
 ]
 
 
@@ -212,6 +213,24 @@ def read_google_doc(url: str) -> str | None:
 
     except Exception as e:
         print(f"[google-api] 讀取 Google Doc 失敗：{e}", file=sys.stderr)
+        return None
+
+
+def get_sheets_service():
+    """取得 Google Sheets API service。
+
+    Returns:
+        googleapiclient.discovery.Resource or None
+    """
+    creds = authenticate()
+    if not creds:
+        return None
+
+    try:
+        from googleapiclient.discovery import build
+        return build("sheets", "v4", credentials=creds)
+    except Exception as e:
+        print(f"[google-api] 建立 Sheets service 失敗：{e}", file=sys.stderr)
         return None
 
 
