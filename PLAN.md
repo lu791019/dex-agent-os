@@ -2,7 +2,7 @@
 
 > 個人 AI 代理人作業系統
 > 涵蓋：生產力、學習、輸入輸出、工作管理、專案、產品、寫作
-> 最後更新：2026-02-19
+> 最後更新：2026-03-24
 
 ---
 
@@ -1125,6 +1125,30 @@ def ask_claude(system_prompt: str, user_prompt: str) -> str:
 **已知限制：**
 
 **Step 5 /work-log 巢狀 skill 問題** — `/work-log` 是 projectSettings skill，巢狀呼叫和 CLI 都無法執行。目前暫行方案 C（daily-all 內聯：用 git log + scan-work-outputs 由當前 LLM 產生 L1）。方案 A（Python 腳本 `scripts/generators/work_log.py`）留待 Phase 7 自動化排程時實作。
+
+---
+
+### Phase 6+：Reader → Google Sheet + 觸發詞 Skills ✅
+
+**目標：** 閱讀內容集中管理 + 每日捕捉工作流
+
+**已完成（2026-03-24 merge to master）：**
+- [x] `reader_to_sheets.py` — Reader API → Google Sheet（排除/白名單/去重/SA 獨立工作表）
+- [x] LLM 中文摘要（100-150 字，含核心論點）+ 主題分類（8 類）
+- [x] URL 全文擷取（RSS/podcast 有 HTTP URL 的抓原文餵 LLM）
+- [x] `daily_digest.py` 改讀 Sheet 優先 + 本地 fallback
+- [x] `daily-all` Step 1b 加入 `reader-to-sheets --no-llm`
+- [x] 觸發詞 Skills：`/轉譯`、`/回顧`、`/記住`、`/模板`
+- [x] 每日素材池規則：`canonical/rules/30-daily-capture.md`
+
+**已知限制：**
+- Reader API `content` 退訂後永遠 None，改用 source_url 直接抓網頁
+- email 的 source_url 只有 `mailto:`，無法取得原文
+- Reader token 壽命不確定（已退訂但目前仍可用）
+
+**待做：**
+- [ ] launchd 排程（reader-to-sheets --no-llm 每日自動跑）
+- [ ] email source_url 重建（用 author+title 拼 Substack URL）
 
 ---
 

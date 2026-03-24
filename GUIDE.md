@@ -1,7 +1,7 @@
 # Dex Agent OS — 使用說明書
 
-> 版本：Phase 6 P1 — 會議 / 諮詢 / 專案狀態 / Classroom / Fireflies
-> 最後更新：2026-02-20
+> 版本：Phase 6 P1 + Reader → Google Sheet + 觸發詞 Skills
+> 最後更新：2026-03-24
 
 ---
 
@@ -104,10 +104,12 @@ echo "THREADS_ACCESS_TOKEN=你的token" >> .env
 | 1 | `./bin/agent readwise-sync --reader --latest N` | CLI | Readwise Reader 文章批次匯入 | `000_Inbox/readings/YYYY-MM-DD-slug.md` |
 | 1' | `./bin/agent rss-sync --feed URL --latest N` | CLI | RSS feed 批次匯入 | 同上 |
 | 1'' | `./bin/agent anybox-sync --starred --latest N` | CLI | Anybox 星號書籤批次匯入 | 同上 |
+| 1''' | `./bin/agent gmail-sync --latest N` | CLI | Gmail 電子報批次匯入 | 同上 |
+| 1'''' | `./bin/agent reader-to-sheets --days N` | CLI | Reader → Google Sheet（中文摘要+主題分類） | Google Sheet |
 | 2 | `./bin/agent learning-note --url URL` | CLI | 單篇 URL → LLM 學習筆記 | `300_Learning/input/articles/YYYY-MM-DD-slug.md` |
 | 2' | `./bin/agent learning-note --readwise --reader --latest N` | CLI | Reader 文章 → LLM 學習筆記 | 同上 |
 | 2'' | `./bin/agent learning-note --rss FEED --latest N` | CLI | RSS 文章 → LLM 學習筆記 | 同上 |
-| 3 | `./bin/agent daily-digest [--today]` | CLI | 掃描當日所有學習內容 → LLM 消化摘要 | `100_Journal/digest/YYYY-MM-DD-digest.md` |
+| 3 | `./bin/agent daily-digest [--today]` | CLI | 從 Google Sheet（優先）或本地 readings/ 掃描當日內容 → LLM 消化摘要 | `100_Journal/digest/YYYY-MM-DD-digest.md` |
 | 3' | `./bin/agent daily-digest --send` | CLI | 同上 + 建立 Google Doc + 寄 Gmail | Google Docs + Gmail |
 | 4 | `/daily-learning` | IDE | 互動學習對話：逐篇提問 → 歸納洞察 | `510_Insights/` + `300_Learning/input/` |
 
@@ -838,7 +840,7 @@ Phase 4 建立了週級別的彙總系統：個人週回顧 + 對外電子報，
 /weekly-content --type deep-dive   → 指定電子報類型
 ```
 
-### 一鍵每日全流程（/daily-all）— 設計中，尚未實作
+### 一鍵每日全流程（/daily-all）— 已實作
 
 在 Claude Code 中執行 `/daily-all`，整合四大管線一次完成。
 
@@ -853,6 +855,7 @@ Phase 4 建立了週級別的彙總系統：個人週回顧 + 對外電子報，
 | 區段 | Step | 指令 | 說明 |
 |------|------|------|------|
 | 自動同步 | 1 | `sync-all` | Readwise+RSS+Anybox+Gmail（無 token 自動 skip） |
+| | 1b | `reader-to-sheets --days 2 --no-llm` | Reader → Google Sheet 快速同步（無 token → skip） |
 | | 2 | `fireflies-sync --latest 5` | 無 API key → skip |
 | | 3 | `classroom-sync --courses` | 無 token → skip |
 | | 4 | `project-status` (全部) | 無專案 → skip |
@@ -875,6 +878,7 @@ Phase 4 建立了週級別的彙總系統：個人週回顧 + 對外電子報，
 | Step | 名稱 | 輸入 | 產出位置 |
 |------|------|------|----------|
 | 1 | sync-all | 外部 API | `000_Inbox/readings/DATE-*.md` |
+| 1b | reader-to-sheets | Reader API | Google Sheet（Readings + Seeking Alpha） |
 | 2 | Fireflies | Fireflies API | `200_Work/meetings/DATE-*.md` |
 | 3 | Classroom | Google Classroom API | 僅列出課程（不產檔案） |
 | 4 | project-status | `400_Projects/*/STATUS.md` + git log | `400_Projects/*/STATUS.md`（原地更新） |
@@ -1834,15 +1838,23 @@ tail -40 ~/CLAUDE.md
 | Google Classroom 同步（老師角色） | `./bin/agent classroom-sync` / `/classroom-sync` | 6 |
 | Fireflies.ai 同步（graceful fallback） | `./bin/agent fireflies-sync` / `/fireflies-sync` | 6 |
 | 共用輸入載入器（transcript/notes/google-doc/fireflies） | `scripts/lib/input_loader.py` | 6 |
+| 一鍵每日全流程 | `/daily-all [日期] [--skip-interactive]` | 6+ |
+| Reader → Google Sheet（中文摘要+主題分類） | `./bin/agent reader-to-sheets [--days N] [--no-llm]` | 6+ |
+| Daily digest 讀 Sheet（優先）+ 本地 fallback | `./bin/agent daily-digest` | 6+ |
+| 每日素材池 + 觸發詞捷徑 | `000_Inbox/daily/DATE.md` + `canonical/rules/30-daily-capture.md` | 6+ |
+| 素材即時轉 Threads 草稿 | `/轉譯` | 6+ |
+| 快速每日回顧 | `/回顧` | 6+ |
+| 萃取學習到 Memory | `/記住` | 6+ |
+| 儲存寫文框架 | `/模板` | 6+ |
 
 ### 尚未實作（計畫中）
 
 | 功能 | 計畫 Phase |
 |------|------------|
-| 一鍵每日全流程（/daily-all） | 設計完成，待實作 |
 | 主題 → LinkedIn 貼文 | 待辦 |
+| launchd 排程（reader-to-sheets 每日自動跑） | 待辦 |
+| email source_url 重建（拼 Substack URL） | 待辦 |
 | 產品管理 / 訂閱管理 | Phase 6 P2 |
-| launchd 自動排程 | Phase 7 |
 
 ---
 
