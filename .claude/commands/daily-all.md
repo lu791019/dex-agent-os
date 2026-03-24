@@ -13,7 +13,7 @@
 ```
 自動同步（1-4）→ 日記系統（5-7）→ 閱讀消化（8-9）→ 互動（10-11）→ 收斂+內容產出（12-15）
      │                 │                │                │                  │
- sync-all         L1+Dayflow+L2    digest+insight    learning+review    extract+topic+draft
+ sync-all+sheet   L1+Dayflow+L2    digest+insight    learning+review    extract+topic+draft
 ```
 
 ## 執行步驟
@@ -38,6 +38,18 @@
 ```
 
 **驗證：** 觀察輸出，記錄成功匯入的來源和數量。如果全部 skip（無 token）也算通過。
+
+### Step 1b：Reader → Google Sheet 同步
+
+將 Readwise Reader 的閱讀清單同步到 Google Sheet（不跑 LLM，快速同步）。
+Step 8 的 daily-digest 會從 Sheet 讀取當日文章。
+
+```bash
+./bin/agent reader-to-sheets --days 2 --no-llm
+```
+
+- 無 READWISE_TOKEN 或 GOOGLE_SHEET_ID → 跳過，daily-digest 會 fallback 到本地 readings/
+- 成功 → 記錄新增篇數
 
 ### Step 2：Fireflies 會議逐字稿同步
 
@@ -104,7 +116,7 @@ python3 scripts/generators/daily_digest.py TARGET_DATE --force
 ```
 
 - 輸出：`100_Journal/digest/TARGET_DATE-digest.md`
-- **依賴 Step 1**（sync-all 匯入的閱讀素材）
+- **依賴 Step 1 + 1b**（sync-all 匯入 + Sheet 同步的閱讀素材）
 - 如果無閱讀素材 → 產出空 digest 或跳過，在摘要中註明
 
 **驗證：** 確認 digest 檔案存在
@@ -252,6 +264,7 @@ python3 scripts/generators/topic_to_fb.py <slug> --force
 | 來源 | 狀態 | 筆數 |
 |------|------|------|
 | sync-all（Readwise/RSS/Anybox/Gmail） | ✓ / skipped | N 筆 |
+| reader-to-sheets | ✓ / skipped | N 篇新增 |
 | Fireflies | ✓ / skipped | N 筆 |
 | Classroom | ✓ / skipped | N 門課 |
 | 專案狀態 | ✓ / skipped | N 個專案 |
