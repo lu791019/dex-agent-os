@@ -98,15 +98,31 @@ case "$command" in
     python3 "$ROOT_DIR/scripts/collectors/anybox_to_sheets.py" "$@"
     ;;
   readwise-sync)
+    echo "[DEPRECATED] readwise-sync 已由 reader-to-sheets 取代。請改用："
+    echo "  ./bin/agent reader-to-sheets [--days N] [--no-llm]"
+    echo ""
+    echo "仍可執行舊版（按 Ctrl+C 取消）："
     python3 "$ROOT_DIR/scripts/collectors/readwise_sync.py" "$@"
     ;;
   rss-sync)
+    echo "[DEPRECATED] rss-sync 已由 rss-to-sheets 取代。請改用："
+    echo "  ./bin/agent rss-to-sheets [--no-llm] [--dry-run]"
+    echo ""
+    echo "仍可執行舊版（按 Ctrl+C 取消）："
     python3 "$ROOT_DIR/scripts/collectors/rss_sync.py" "$@"
     ;;
   anybox-sync)
+    echo "[DEPRECATED] anybox-sync 已由 anybox-to-sheets 取代。請改用："
+    echo "  ./bin/agent anybox-to-sheets [--no-llm] [--dry-run]"
+    echo ""
+    echo "仍可執行舊版（按 Ctrl+C 取消）："
     python3 "$ROOT_DIR/scripts/collectors/anybox_sync.py" "$@"
     ;;
   gmail-sync)
+    echo "[DEPRECATED] gmail-sync 已由 gmail-to-sheets 取代。請改用："
+    echo "  ./bin/agent gmail-to-sheets [--days N] [--no-llm]"
+    echo ""
+    echo "仍可執行舊版（按 Ctrl+C 取消）："
     python3 "$ROOT_DIR/scripts/collectors/gmail_sync.py" "$@"
     ;;
   daily-digest)
@@ -143,12 +159,12 @@ case "$command" in
     "$ROOT_DIR/bin/sync" "$@"
     ;;
   sync-all)
-    echo "[sync-all] 開始批次匯入..."
-    python3 "$ROOT_DIR/scripts/collectors/readwise_sync.py" --reader --latest 10 "$@"
-    python3 "$ROOT_DIR/scripts/collectors/rss_sync.py" --latest 10 "$@"
-    python3 "$ROOT_DIR/scripts/collectors/anybox_sync.py" --latest 10 "$@"
-    python3 "$ROOT_DIR/scripts/collectors/gmail_sync.py" --latest 10 "$@"
-    echo "[sync-all] 批次匯入完成"
+    echo "[sync-all] 開始批次同步到 Google Sheet..."
+    python3 "$ROOT_DIR/scripts/collectors/reader_to_sheets.py" --days 2 --no-llm "$@"
+    python3 "$ROOT_DIR/scripts/collectors/rss_to_sheets.py" --days 3 --no-llm "$@"
+    python3 "$ROOT_DIR/scripts/collectors/gmail_to_sheets.py" --days 2 --no-llm "$@"
+    python3 "$ROOT_DIR/scripts/collectors/anybox_to_sheets.py" --no-llm "$@"
+    echo "[sync-all] 批次同步完成"
     ;;
   help|--help|-h)
     cat <<EOF

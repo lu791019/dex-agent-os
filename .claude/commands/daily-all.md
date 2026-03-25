@@ -29,27 +29,18 @@
 
 ## 自動部分（Step 1-9）
 
-### Step 1：同步外部資料源
+### Step 1：同步所有來源到 Google Sheet
 
-批次匯入 Readwise + RSS + Anybox + Gmail。無 token 的服務自動跳過。
+一鍵同步 Reader + RSS + Gmail + Anybox 到 Sheet（不跑 LLM，快速同步）。
+Step 8 的 daily-digest 會從 Sheet 讀取當日文章。
 
 ```bash
 ./bin/agent sync-all
 ```
 
-**驗證：** 觀察輸出，記錄成功匯入的來源和數量。如果全部 skip（無 token）也算通過。
-
-### Step 1b：Reader → Google Sheet 同步
-
-將 Readwise Reader 的閱讀清單同步到 Google Sheet（不跑 LLM，快速同步）。
-Step 8 的 daily-digest 會從 Sheet 讀取當日文章。
-
-```bash
-./bin/agent reader-to-sheets --days 2 --no-llm
-```
-
-- 無 READWISE_TOKEN 或 GOOGLE_SHEET_ID → 跳過，daily-digest 會 fallback 到本地 readings/
-- 成功 → 記錄新增篇數
+- 依序跑 reader-to-sheets → rss-to-sheets → gmail-to-sheets → anybox-to-sheets
+- 無 token 或 API 失敗的服務自動跳過
+- 記錄各來源新增篇數
 
 ### Step 2：Fireflies 會議逐字稿同步
 

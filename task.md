@@ -32,12 +32,12 @@
 - [ ] E3. 去重邏輯（title 比對）
 
 ## Section F：sync-all + daily-all 更新
-- [ ] F1. sync-all 改為 reader-to-sheets + rss-to-sheets + gmail-to-sheets + anybox-to-sheets
-- [ ] F2. daily-all 更新
+- [x] F1. sync-all 改為四管寫 Sheet ✅（測試通過）
+- [x] F2. daily-all 更新（Step 1 整合新版 sync-all）
 
 ## Section G：退役舊 sync
-- [ ] G1. readwise-sync / 舊 rss-sync / 舊 gmail-sync / 舊 anybox-sync 加 deprecation
-- [ ] G2. 本地 readings/ 停止寫入
+- [x] G1. readwise-sync / rss-sync / gmail-sync / anybox-sync 加 deprecation 提示
+- [x] G2. 本地 readings/ 停止寫入（舊 sync 不再被 sync-all 呼叫）
 
 ## Section H：收尾
 - [ ] H1. CLAUDE.md / GUIDE.md / PLAN.md 更新
