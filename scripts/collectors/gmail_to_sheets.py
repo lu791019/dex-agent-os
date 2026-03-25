@@ -435,8 +435,10 @@ def sync_gmail_to_sheets(days: int = 7, dry_run: bool = False, use_llm: bool = T
         if match:
             author = match.group(1).strip()
 
-        # Substack URL（用 List-Id）
+        # Substack URL（用 List-Id），fallback 到 Gmail 連結
         url = _guess_substack_url(list_id, sender)
+        if not url:
+            url = f"https://mail.google.com/mail/u/0/#inbox/{m['id']}"
 
         filtered_ids.append({
             "id": m["id"], "date": date_str, "author": author,
