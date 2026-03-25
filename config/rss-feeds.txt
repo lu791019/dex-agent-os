@@ -16,6 +16,10 @@ https://feeds.feedburner.com/ThePragmaticEngineer
 
 # 技術 — AI / ML
 https://blog.bytebytego.com/feed
+https://netflixtechblog.com/feed
+
+# 技術 — 個人部落格
+https://www.datagibberish.com/feed
 
 # 科技媒體
 https://techcrunch.com/feed/
@@ -28,3 +32,5 @@ https://informalwriting.cc/feed
 
 # 中文
 https://readingoutpost.com/feed/
+https://raymondhouch.com/feed
+https://imoweekly.im/feed
