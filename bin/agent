@@ -160,10 +160,10 @@ case "$command" in
     ;;
   sync-all)
     echo "[sync-all] 開始批次同步到 Google Sheet..."
-    python3 "$ROOT_DIR/scripts/collectors/reader_to_sheets.py" --days 2 "$@"
-    python3 "$ROOT_DIR/scripts/collectors/rss_to_sheets.py" --days 3 "$@"
-    python3 "$ROOT_DIR/scripts/collectors/gmail_to_sheets.py" --days 2 "$@"
-    python3 "$ROOT_DIR/scripts/collectors/anybox_to_sheets.py" "$@"
+    python3 "$ROOT_DIR/scripts/collectors/reader_to_sheets.py" --days 2 --no-llm "$@"
+    python3 "$ROOT_DIR/scripts/collectors/rss_to_sheets.py" --days 3 --no-llm "$@"
+    python3 "$ROOT_DIR/scripts/collectors/gmail_to_sheets.py" --days 2 --no-llm "$@"
+    python3 "$ROOT_DIR/scripts/collectors/anybox_to_sheets.py" --no-llm "$@"
     echo "[sync-all] 批次同步完成"
     ;;
   help|--help|-h)
