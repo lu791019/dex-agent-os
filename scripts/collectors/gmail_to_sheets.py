@@ -77,6 +77,18 @@ EXCLUDE_SENDERS = {
     # 聯盟行銷
     "通路王",
     "ichannels",
+    # 金融 / 銀行
+    "台新銀行",
+    "taishinbank",
+    "cathaybank",
+    "esunbank",
+    # 研討會 / 培訓通知
+    "恆逸",
+    "iiiedu",
+    # SaaS 行銷
+    "simplymeet",
+    "calendly.com",
+    "soler風格",
 }
 
 # 排除的 subject 關鍵字
