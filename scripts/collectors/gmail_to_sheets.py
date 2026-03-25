@@ -129,11 +129,10 @@ def _search_emails(service, query: str, max_results: int = 50) -> list[dict]:
 
 
 def _get_message(service, msg_id: str) -> dict | None:
-    """取得完整 email。"""
+    """取得完整 email（含 body）。"""
     try:
         return service.users().messages().get(
-            userId="me", id=msg_id, format="metadata",
-            metadataHeaders=["Subject", "From", "Date"],
+            userId="me", id=msg_id, format="full",
         ).execute()
     except Exception:
         return None
@@ -145,6 +144,78 @@ def _extract_header(msg: dict, name: str) -> str:
     for h in headers:
         if h["name"].lower() == name.lower():
             return h["value"]
+    return ""
+
+
+def _extract_body(msg: dict, max_chars: int = 2000) -> str:
+    """從 email payload 提取純文字 body，截斷至 max_chars。"""
+    payload = msg.get("payload", {})
+
+    # 嘗試直接取 body
+    body_data = payload.get("body", {}).get("data")
+    if body_data:
+        raw = base64.urlsafe_b64decode(body_data).decode("utf-8", errors="replace")
+        return _strip_html(raw)[:max_chars]
+
+    # multipart：遍歷找 text/html 或 text/plain
+    html_body = ""
+    text_body = ""
+    for part in payload.get("parts", []):
+        mime = part.get("mimeType", "")
+        data = part.get("body", {}).get("data")
+        if not data:
+            for sub in part.get("parts", []):
+                sub_data = sub.get("body", {}).get("data")
+                if sub_data:
+                    decoded = base64.urlsafe_b64decode(sub_data).decode("utf-8", errors="replace")
+                    if "html" in sub.get("mimeType", ""):
+                        html_body = decoded
+                    elif "plain" in sub.get("mimeType", ""):
+                        text_body = decoded
+            continue
+        decoded = base64.urlsafe_b64decode(data).decode("utf-8", errors="replace")
+        if "html" in mime:
+            html_body = decoded
+        elif "plain" in mime:
+            text_body = decoded
+
+    content = html_body if html_body else text_body
+    if content:
+        return _strip_html(content)[:max_chars]
+    return ""
+
+
+def _strip_html(text: str) -> str:
+    """去除 HTML 標籤並壓縮空白。"""
+    text = re.sub(r"<(style|script|noscript)[^>]*>.*?</\1>", "", text, flags=re.DOTALL | re.IGNORECASE)
+    text = re.sub(r"<[^>]+>", " ", text)
+    text = re.sub(r"\s+", " ", text)
+    return text.strip()
+
+
+def _guess_substack_url(author: str, subject: str, sender: str) -> str:
+    """嘗試從 sender email 組裝 Substack 公開 URL。"""
+    # 從 sender 提取 email 地址
+    email_match = re.search(r"<([^>]+)>", sender)
+    email_addr = email_match.group(1) if email_match else sender
+
+    # Substack 的寄件格式通常是 xxx@substack.com 或自訂 domain
+    if "substack.com" not in email_addr.lower():
+        return ""
+
+    # 嘗試從 List-Id 或 email 前綴取 subdomain
+    # 常見格式: newsletter@xxx.substack.com
+    parts = email_addr.split("@")
+    if len(parts) == 2:
+        domain = parts[1].lower()
+        if domain == "substack.com":
+            # 沒有 subdomain 資訊
+            return ""
+        # xxx.substack.com → https://xxx.substack.com/
+        if domain.endswith(".substack.com"):
+            subdomain = domain.replace(".substack.com", "")
+            return f"https://{subdomain}.substack.com/"
+
     return ""
 
 
@@ -256,8 +327,9 @@ def _enrich_rows_with_llm(rows: list[list[str]], batch_size: int = 5) -> list[li
         articles = []
         for j, row in enumerate(batch):
             entry = f"{j+1}. 標題: {row[3]} / 作者: {row[2]}"
-            if row[5]:
-                entry += f" / 原摘要: {row[5][:300]}"
+            if row[5] and row[5] != row[3]:
+                # body 內容（非 subject 重複）
+                entry += f"\n   內容摘錄: {row[5][:500]}"
             articles.append(entry)
 
         prompt = (
@@ -336,7 +408,14 @@ def sync_gmail_to_sheets(days: int = 7, dry_run: bool = False, use_llm: bool = T
         if match:
             author = match.group(1).strip()
 
-        rows.append([date_str, "email", author, subject, "", subject, ""])
+        # 提取 body 做為 LLM 摘要的輸入
+        body = _extract_body(full)
+        summary_input = body if body else subject
+
+        # 嘗試組裝 Substack URL
+        url = _guess_substack_url(author, subject, sender)
+
+        rows.append([date_str, "email", author, subject, url, summary_input, ""])
 
     print(f"\n[gmail-to-sheets] 過濾結果：")
     print(f"  保留：{len(rows)} 封")
