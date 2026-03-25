@@ -126,7 +126,7 @@ def _is_rss_whitelisted(site_name: str) -> bool:
 def _doc_to_row(doc: dict) -> list[str]:
     """將 Reader 文件轉為 Sheet 行。"""
     updated = (doc.get("updated_at", "") or "")[:10]
-    category = doc.get("category", "unknown")
+    category = "reader"
     author = doc.get("author", "") or ""
     title = doc.get("title", "") or "Untitled"
     source_url = doc.get("source_url", "") or ""
@@ -317,9 +317,9 @@ def sync_to_sheets(days: int = 7, since: str | None = None, dry_run: bool = Fals
 
     print(f"[reader-to-sheets] 拉取 {updated_after} 之後的內容...")
 
-    # 拉 email + podcast + rss
+    # 拉 podcast + rss（email 改由 gmail-to-sheets 處理，有 URL + body）
     all_docs = []
-    for cat in ("email", "podcast", "rss"):
+    for cat in ("podcast", "rss"):
         print(f"[reader-to-sheets] 拉取 {cat}...")
         docs = reader_list(category=cat, updated_after=updated_after, fetch_all=True)
         print(f"[reader-to-sheets]   {cat}: {len(docs)} 篇")
