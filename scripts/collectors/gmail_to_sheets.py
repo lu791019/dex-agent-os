@@ -74,6 +74,9 @@ EXCLUDE_SENDERS = {
     # 風水 / 非相關
     "吳明光",
     "求真易學",
+    # 聯盟行銷
+    "通路王",
+    "ichannels",
 }
 
 # 排除的 subject 關鍵字
