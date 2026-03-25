@@ -60,11 +60,12 @@ Dex 是資料工程 / 軟體後端 / AI 應用實作者，也是內容創作者�
 | | `collect-threads [--limit N]` | Threads API → 範例收集 |
 | | `extract-style <channel>` | 範例 → Style DNA |
 | 學習 | `learning-note --url/--file/--readwise/--rss/--anybox` | 多來源 → 學習筆記 |
-| | `readwise-sync [--reader] [--latest N]` | Readwise v2/v3 批次匯入 |
-| | `rss-sync [--feed URL] [--latest N]` | RSS 批次匯入 |
-| | `anybox-sync [--starred] [--latest N]` | Anybox 書籤批次匯入 |
-| | `gmail-sync [--from ADDR] [--latest N]` | Gmail 電子報批次匯入 |
-| | `reader-to-sheets [--days N] [--no-llm]` | Reader → Google Sheet（中文摘要+主題分類） |
+| | `reader-to-sheets [--days N] [--no-llm]` | Reader → Sheet（中文摘要+主題分類） |
+| | `rss-to-sheets [--no-llm] [--dry-run]` | RSS feeds → Sheet（config/rss-feeds.txt） |
+| | `gmail-to-sheets [--days N] [--no-llm]` | Gmail 電子報 → Sheet（過濾促銷） |
+| | `anybox-to-sheets [--no-llm]` | Anybox 書籤 → Sheet（需 app 開啟） |
+| | `sync-all` | 一鍵四管同步到 Sheet |
+| | ~~`readwise-sync`~~ | ~~已退役，改用 reader-to-sheets~~ |
 | | `daily-digest [--today] [--send]` | 每日學習消化報告（Sheet 優先） |
 | | `youtube-add "URL"` | YouTube 字幕 → 學習筆記 |
 | | `podcast-add [模式]` | Podcast → episode 筆記（`--transcript` / `--apple` / `--notion` / `--readwise`） |
