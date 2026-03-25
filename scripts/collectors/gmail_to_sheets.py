@@ -128,8 +128,19 @@ def _search_emails(service, query: str, max_results: int = 50) -> list[dict]:
         return []
 
 
-def _get_message(service, msg_id: str) -> dict | None:
-    """取得完整 email（含 body）。"""
+def _get_message_metadata(service, msg_id: str) -> dict | None:
+    """取得 email metadata（快速，用於過濾）。"""
+    try:
+        return service.users().messages().get(
+            userId="me", id=msg_id, format="metadata",
+            metadataHeaders=["Subject", "From", "Date", "List-Id"],
+        ).execute()
+    except Exception:
+        return None
+
+
+def _get_message_full(service, msg_id: str) -> dict | None:
+    """取得完整 email（含 body，較慢）。"""
     try:
         return service.users().messages().get(
             userId="me", id=msg_id, format="full",
@@ -193,28 +204,28 @@ def _strip_html(text: str) -> str:
     return text.strip()
 
 
-def _guess_substack_url(author: str, subject: str, sender: str) -> str:
-    """嘗試從 sender email 組裝 Substack 公開 URL。"""
-    # 從 sender 提取 email 地址
+def _guess_substack_url(list_id: str, sender: str) -> str:
+    """從 List-Id header 組裝 Substack 公開 URL。
+
+    List-Id 格式: <xxx.substack.com> → https://xxx.substack.com/
+    """
+    # 優先用 List-Id（最準確）
+    if list_id:
+        m = re.search(r"<([^>]+\.substack\.com)>", list_id, re.IGNORECASE)
+        if m:
+            domain = m.group(1)
+            if domain != "www.substack.com":
+                return f"https://{domain}/"
+
+    # Fallback: 從 sender email domain 嘗試
     email_match = re.search(r"<([^>]+)>", sender)
-    email_addr = email_match.group(1) if email_match else sender
-
-    # Substack 的寄件格式通常是 xxx@substack.com 或自訂 domain
-    if "substack.com" not in email_addr.lower():
-        return ""
-
-    # 嘗試從 List-Id 或 email 前綴取 subdomain
-    # 常見格式: newsletter@xxx.substack.com
-    parts = email_addr.split("@")
-    if len(parts) == 2:
-        domain = parts[1].lower()
-        if domain == "substack.com":
-            # 沒有 subdomain 資訊
-            return ""
-        # xxx.substack.com → https://xxx.substack.com/
-        if domain.endswith(".substack.com"):
-            subdomain = domain.replace(".substack.com", "")
-            return f"https://{subdomain}.substack.com/"
+    if email_match:
+        email_addr = email_match.group(1).lower()
+        parts = email_addr.split("@")
+        if len(parts) == 2 and parts[1].endswith(".substack.com"):
+            domain = parts[1]
+            if domain != "substack.com":
+                return f"https://{domain}/"
 
     return ""
 
@@ -386,14 +397,15 @@ def sync_gmail_to_sheets(days: int = 7, dry_run: bool = False, use_llm: bool = T
     skipped_sender = 0
     skipped_subject = 0
 
+    # 第一階段：metadata 過濾（快速）
+    filtered_ids = []
     for m in messages:
-        full = _get_message(gmail, m["id"])
-        if not full:
+        meta = _get_message_metadata(gmail, m["id"])
+        if not meta:
             continue
 
-        subject = _extract_header(full, "Subject") or "Untitled"
-        sender = _extract_header(full, "From") or ""
-        date_str = _format_date(full.get("internalDate", "0"))
+        subject = _extract_header(meta, "Subject") or "Untitled"
+        sender = _extract_header(meta, "From") or ""
 
         if _is_excluded_sender(sender):
             skipped_sender += 1
@@ -402,20 +414,48 @@ def sync_gmail_to_sheets(days: int = 7, dry_run: bool = False, use_llm: bool = T
             skipped_subject += 1
             continue
 
+        list_id = _extract_header(meta, "List-Id") or ""
+        date_str = _format_date(meta.get("internalDate", "0"))
+
         # 從 sender 擷取名稱
         author = sender
         match = re.match(r'"?([^"<]+)"?\s*<', sender)
         if match:
             author = match.group(1).strip()
 
-        # 提取 body 做為 LLM 摘要的輸入
-        body = _extract_body(full)
-        summary_input = body if body else subject
+        # Substack URL（用 List-Id）
+        url = _guess_substack_url(list_id, sender)
 
-        # 嘗試組裝 Substack URL
-        url = _guess_substack_url(author, subject, sender)
+        filtered_ids.append({
+            "id": m["id"], "date": date_str, "author": author,
+            "subject": subject, "url": url, "sender": sender,
+        })
 
-        rows.append([date_str, "email", author, subject, url, summary_input, ""])
+    print(f"\n[gmail-to-sheets] 過濾結果：")
+    print(f"  保留：{len(filtered_ids)} 封")
+    print(f"  排除（寄件者）：{skipped_sender} 封")
+    print(f"  排除（主旨）：{skipped_subject} 封")
+
+    if not filtered_ids:
+        print("[gmail-to-sheets] 無有效電子報")
+        return
+
+    if dry_run:
+        print("\n[gmail-to-sheets] --dry-run 模式，不寫入")
+        for item in filtered_ids[:10]:
+            url_flag = "🔗" if item["url"] else "  "
+            print(f"  [{item['date']}] {url_flag} {item['author'][:20]} — {item['subject'][:50]}")
+        if len(filtered_ids) > 10:
+            print(f"  ... 還有 {len(filtered_ids) - 10} 封")
+        return
+
+    # 第二階段：拉 body（只對通過過濾的）
+    print(f"\n[gmail-to-sheets] 拉取 {len(filtered_ids)} 封 email body...")
+    for item in filtered_ids:
+        full = _get_message_full(gmail, item["id"])
+        body = _extract_body(full) if full else ""
+        summary_input = body if body else item["subject"]
+        rows.append([item["date"], "email", item["author"], item["subject"], item["url"], summary_input, ""])
 
     print(f"\n[gmail-to-sheets] 過濾結果：")
     print(f"  保留：{len(rows)} 封")
