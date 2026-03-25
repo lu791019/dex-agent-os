@@ -1,33 +1,45 @@
-# Reader → Google Sheets Tasks
+# Sync 架構改版 Tasks — Sheet + Notion 雙軌
 
-## Section A：Google Sheets 基礎設施
-- [x] A1. google_api.py 加 Sheets scope + get_sheets_service()
-- [x] A2. config.py 加 GOOGLE_SHEET_ID
-- [x] A3. .env.example 加 GOOGLE_SHEET_ID 說明
-- [x] A4. GCP 啟用 Sheets API + 刪 token 重新授權
+## Section A：rss-to-sheets（RSS 一鍵自動化）
+- [x] A1. 建立 config/rss-feeds.txt（15 個 feed）
+- [x] A2. 新建 scripts/collectors/rss_to_sheets.py
+- [x] A3. 抓 feed → 過濾 → 寫入 Sheet（Notion 待 Section E）
+- [x] A4. LLM 中文摘要 + 主題分類（內建，--no-llm 可跳過）
+- [x] A5. bin/agent 加 rss-to-sheets 子指令
+- [x] A6. dry-run 29 篇 + 真實寫入 27 篇 ✅
 
-## Section B：reader_to_sheets.py
-- [x] B1. 建立 scripts/collectors/reader_to_sheets.py — 主邏輯
-- [x] B2. 排除清單 + RSS 白名單 config
-- [x] B3. 去重邏輯（email 先寫，RSS skip 已存在 title）
-- [x] B4. Seeking Alpha 獨立工作表
-- [x] B5. bin/agent 加 reader-to-sheets 子指令
-- [x] B6. dry-run 測試通過（986 主 + 281 SA + 963 排除 + 68 非白名單 + 34 去重）
-- [x] B7. 真實寫入測試（978 主 + 281 SA 已寫入）
+## Section B：gmail-to-sheets（電子報過濾）
+- [x] B1. 新建 scripts/collectors/gmail_to_sheets.py
+- [x] B2. Gmail 過濾：排除 16 寄件者 + 1 主旨（可微調）
+- [x] B3. 寫入 Sheet（Notion 待 Section E）
+- [x] B4. LLM 中文摘要 + 主題分類（內建，--no-llm 可跳過）
+- [x] B5. bin/agent 加 gmail-to-sheets 子指令
+- [x] B6. dry-run 83 封 + 真實寫入 81 封 ✅
 
-## Section B+：reader_to_sheets 增強
-- [x] B+1. LLM 中文摘要（取代 Reader 的英文 summary）
-- [x] B+2. LLM 主題分類（技術/生產力/職涯/創作/投資/產業/生活/其他）
-- [x] B+3. email 的 source_url 為空（已處理 mailto: 清除）
-- [x] B+4. Sheet 欄位更新：加「主題」欄 + 既有 Sheet 自動 migration
+## Section C：anybox-to-sheets（書籤同步）
+- [x] C1. 新建 scripts/collectors/anybox_to_sheets.py
+- [x] C2. Anybox API → Sheet（Notion 待 Section E）+ graceful skip ✅
+- [x] C3. LLM 中文摘要 + 主題分類（內建）
+- [x] C4. bin/agent 加 anybox-to-sheets 子指令
+- [x] C5. 測試：app 未開 → graceful skip ✅
 
-## Section C：daily-digest.py 改版
-- [x] C1. 新增 _collect_from_sheet() 讀 Sheet 指定日期的行
-- [x] C2. 用 source_url 抓全文（Reader API content 為空，改用 URL 直接抓）
-- [x] C3. _scan_date_files() 改為 Sheet 優先 + 本地 fallback
-- [x] C4. 測試：Sheet 讀取 OK（6 篇），LLM timeout 是 Pro 額度共用問題（非程式碼問題）
+## Section D：reader-to-sheets 加 Notion
+- [ ] D1. 既有 reader-to-sheets 加 Notion 同步寫入
 
-## Section D：收尾
-- [x] D1. 更新 CLAUDE.md CLI 速查表
-- [ ] D2. launchd 排程（每日自動跑 reader-to-sheets）← 留新 session
-- [x] D3. Git commit
+## Section E：共用模組 — Notion 寫入層
+- [ ] E1. 新建 scripts/lib/notion_api.py（write_to_notion）
+- [ ] E2. Notion DB 結構設計 + .env 加 NOTION_DATABASE_ID
+- [ ] E3. 去重邏輯（title 比對）
+
+## Section F：sync-all + daily-all 更新
+- [x] F1. sync-all 改為四管寫 Sheet ✅（測試通過）
+- [x] F2. daily-all 更新（Step 1 整合新版 sync-all）
+
+## Section G：退役舊 sync
+- [x] G1. readwise-sync / rss-sync / gmail-sync / anybox-sync 加 deprecation 提示
+- [x] G2. 本地 readings/ 停止寫入（舊 sync 不再被 sync-all 呼叫）
+
+## Section H：收尾
+- [ ] H1. CLAUDE.md / GUIDE.md / PLAN.md 更新
+- [ ] H2. 測試完整 daily-all
+- [ ] H3. Git commit
