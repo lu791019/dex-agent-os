@@ -88,6 +88,15 @@ case "$command" in
   reader-to-sheets)
     python3 "$ROOT_DIR/scripts/collectors/reader_to_sheets.py" "$@"
     ;;
+  rss-to-sheets)
+    python3 "$ROOT_DIR/scripts/collectors/rss_to_sheets.py" "$@"
+    ;;
+  gmail-to-sheets)
+    python3 "$ROOT_DIR/scripts/collectors/gmail_to_sheets.py" "$@"
+    ;;
+  anybox-to-sheets)
+    python3 "$ROOT_DIR/scripts/collectors/anybox_to_sheets.py" "$@"
+    ;;
   readwise-sync)
     python3 "$ROOT_DIR/scripts/collectors/readwise_sync.py" "$@"
     ;;

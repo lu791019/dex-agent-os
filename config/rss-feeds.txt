@@ -1,0 +1,30 @@
+# RSS Feeds — rss-to-sheets 預設清單
+# 一行一個 URL，# 開頭為註解，空行忽略
+# 隨時增減，不需改程式碼
+
+# 技術 — 資料工程
+https://blog.dataexpert.io/feed
+https://dataengineeringweekly.com/feed
+https://www.uber.com/blog/engineering/rss/
+
+# 技術 — 軟體工程
+https://engineering.fb.com/feed/
+https://github.blog/feed/
+https://systemdesign.one/feed
+https://blog.algomaster.io/feed
+https://feeds.feedburner.com/ThePragmaticEngineer
+
+# 技術 — AI / ML
+https://blog.bytebytego.com/feed
+
+# 科技媒體
+https://techcrunch.com/feed/
+https://www.theverge.com/rss/index.xml
+
+# 創作者 / 生產力
+https://www.notboring.co/feed
+https://stratechery.com/feed/
+https://informalwriting.cc/feed
+
+# 中文
+https://readingoutpost.com/feed/
