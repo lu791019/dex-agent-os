@@ -28,20 +28,9 @@ from lib.config import GOOGLE_SHEET_ID
 
 # 排除的寄件者（from 地址包含這些字串就排除）
 EXCLUDE_SENDERS = {
+    # 平台通知
     "uber.com",
     "ubereats.com",
-    "noreply@",
-    "no-reply@",
-    "marketing@",
-    "promo@",
-    "deals@",
-    "support@google.com",
-    "notifications@",
-    "donotreply@",
-    "billing@",
-    "receipt@",
-    "order@",
-    "shipping@",
     "linkedin.com",
     "facebook.com",
     "twitter.com",
@@ -51,6 +40,40 @@ EXCLUDE_SENDERS = {
     "amazon.com",
     "netflix.com",
     "spotify.com",
+    "google.com",
+    # 系統類
+    "noreply@",
+    "no-reply@",
+    "marketing@",
+    "promo@",
+    "deals@",
+    "notifications@",
+    "donotreply@",
+    "billing@",
+    "receipt@",
+    "order@",
+    "shipping@",
+    "alert@",
+    "info@",
+    # 台灣本地促銷 / 非電子報
+    "fubon.com",
+    "富邦",
+    "eslite.com",
+    "誠品",
+    "edom.com",
+    "shopee.com",
+    "momo.com",
+    "pchome.com",
+    "klook.com",
+    "agoda.com",
+    "booking.com",
+    # 課程平台通知（非內容）
+    "shifu.team",
+    "hahow.in",
+    "udemy.com",
+    # 風水 / 非相關
+    "吳明光",
+    "求真易學",
 }
 
 # 排除的 subject 關鍵字
@@ -59,6 +82,10 @@ EXCLUDE_SUBJECTS = {
     "expires", "expiring", "unsubscribe", "verify your",
     "receipt", "invoice", "order confirmation", "shipping",
     "password reset", "security alert",
+    "成交回報", "對帳單", "繳費", "帳單",
+    "免運", "滿額", "限時", "搶購", "特價",
+    "enroll now", "last chance", "don't miss",
+    "activate your", "confirm your", "welcome to",
 }
 
 HEADER_ROW = ["日期", "分類", "作者", "標題", "來源URL", "摘要", "主題"]
