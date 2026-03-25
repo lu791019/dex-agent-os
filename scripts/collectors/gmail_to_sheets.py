@@ -69,22 +69,41 @@ EXCLUDE_SENDERS = {
     "booking.com",
     # 課程平台通知（非內容）
     "shifu.team",
+    "shifu｜",
     "hahow.in",
     "udemy.com",
+    "codecademy",
+    "lim 先鋒",
     # 風水 / 非相關
     "吳明光",
     "求真易學",
+    "terriah",
     # 聯盟行銷
     "通路王",
     "ichannels",
-    # 金融 / 銀行
+    # 金融 / 銀行 / 投資平台
     "台新銀行",
     "taishinbank",
     "cathaybank",
     "esunbank",
+    "鉅亨",
+    "cnyes.com",
+    "haru",
+    "gamma",
+    # 求職 / 人力
+    "my104",
+    "104.com",
     # 研討會 / 培訓通知
     "恆逸",
     "iiiedu",
+    # 電子書 / 出版平台通知
+    "readmoo",
+    "方格子",
+    "vocus.cc",
+    # 郵政
+    "網路郵局",
+    "行動郵局",
+    "post.gov",
     # SaaS 行銷
     "simplymeet",
     "calendly.com",
