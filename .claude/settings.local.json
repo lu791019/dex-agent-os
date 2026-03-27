@@ -48,7 +48,14 @@
       "Bash(git -C /Users/dex/dex-agent-os status .claude/commands/daily-learning.md)",
       "Bash(git -C /Users/dex/dex-agent-os diff .claude/commands/daily-learning.md)",
       "Bash(git -C /Users/dex/dex-agent-os show --stat HEAD)",
-      "Bash(git -C /Users/dex/dex-agent-os log --oneline --after=\"2026-02-20\" --before=\"2026-02-22\")"
+      "Bash(git -C /Users/dex/dex-agent-os log --oneline --after=\"2026-02-20\" --before=\"2026-02-22\")",
+      "Bash(source:*)",
+      "mcp__Readwise-MCP__search_readwise_highlights",
+      "Bash(READWISE_TOKEN=SFzq3gbaV0CSBreeE6FgLAAJyqGPHVl0eAlR4zT5CeLqxdA6Ov python3:*)",
+      "Bash(git -C /Users/dex/dex-agent-os push -u origin feature/daily-material-pool)",
+      "Skill(discord:access)",
+      "mcp__plugin_discord_discord__reply",
+      "mcp__plugin_discord_discord__fetch_messages"
     ]
   },
   "enableAllProjectMcpServers": true,

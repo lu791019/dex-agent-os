@@ -8,17 +8,22 @@ Usage:
 """
 
 import argparse
+import subprocess
 import sys
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 
 # ── 路徑設定 ──────────────────────────────────────────
 
 ROOT_DIR = Path(__file__).resolve().parent.parent.parent
-MEETINGS_DIR = ROOT_DIR / "200_Work" / "meetings"
-CONSULTATIONS_DIR = ROOT_DIR / "200_Work" / "consultations"
-PROJECTS_SOFTWARE_DIR = ROOT_DIR / "400_Projects" / "software"
-PROJECTS_PRODUCTS_DIR = ROOT_DIR / "400_Projects" / "products"
+sys.path.insert(0, str(ROOT_DIR))
+from scripts.lib.config import (  # noqa: E402
+    MEETINGS_DIR,
+    CONSULTATIONS_DIR,
+    PROJECTS_SOFTWARE_DIR,
+    PROJECTS_PRODUCTS_DIR,
+    WORK_REPOS,
+)
 
 
 # ── 工具函式 ──────────────────────────────────────────
@@ -114,12 +119,41 @@ def _scan_project_status(target_date: str) -> list[dict]:
     return results
 
 
-def _format_output(meetings: list, consultations: list, projects: list) -> str:
+def _scan_git_logs(target_date: str) -> list[dict]:
+    """掃描 WORK_REPOS 中每個 repo 的 git log。"""
+    results = []
+    next_date = (datetime.strptime(target_date, "%Y-%m-%d") + timedelta(days=1)).strftime("%Y-%m-%d")
+
+    for repo_path in WORK_REPOS:
+        if not repo_path.exists() or not (repo_path / ".git").exists():
+            continue
+        try:
+            result = subprocess.run(
+                ["git", "log", "--oneline", "--all",
+                 f"--since={target_date}T00:00:00",
+                 f"--until={next_date}T00:00:00"],
+                capture_output=True, text=True, timeout=10,
+                cwd=str(repo_path),
+            )
+            if result.returncode == 0 and result.stdout.strip():
+                commits = result.stdout.strip().splitlines()
+                results.append({
+                    "repo": repo_path.name,
+                    "path": str(repo_path),
+                    "commits": commits,
+                })
+        except (subprocess.TimeoutExpired, OSError):
+            continue
+    return results
+
+
+def _format_output(meetings: list, consultations: list, projects: list, git_logs: list = None) -> str:
     """將掃描結果格式化為 Markdown。"""
+    git_logs = git_logs or []
     lines = ["# 當日工作紀錄產出\n"]
 
-    if not meetings and not consultations and not projects:
-        lines.append("該日無會議筆記、諮詢紀錄或專案狀態更新。\n")
+    if not meetings and not consultations and not projects and not git_logs:
+        lines.append("該日無會議筆記、諮詢紀錄、專案狀態更新或 git commit。\n")
         return "\n".join(lines)
 
     if meetings:
@@ -147,6 +181,14 @@ def _format_output(meetings: list, consultations: list, projects: list) -> str:
             lines.append(f"| {p['project']} | {p['type']} | `{p['path']}` |")
         lines.append("")
 
+    if git_logs:
+        lines.append("## Git Commit 紀錄")
+        for repo in git_logs:
+            lines.append(f"### {repo['repo']} (`{repo['path']}`)")
+            for commit in repo["commits"]:
+                lines.append(f"- {commit}")
+            lines.append("")
+
     return "\n".join(lines)
 
 
@@ -166,8 +208,9 @@ def main():
     meetings = _scan_meetings(args.date)
     consultations = _scan_consultations(args.date)
     projects = _scan_project_status(args.date)
+    git_logs = _scan_git_logs(args.date)
 
-    output = _format_output(meetings, consultations, projects)
+    output = _format_output(meetings, consultations, projects, git_logs)
     print(output)
 
 
