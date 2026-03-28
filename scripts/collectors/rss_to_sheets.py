@@ -29,6 +29,20 @@ FEEDS_FILE = ROOT_DIR / "config" / "rss-feeds.txt"
 HEADER_ROW = ["日期", "分類", "作者", "標題", "來源URL", "摘要", "主題"]
 TOPIC_CATEGORIES = ["技術", "生產力", "職涯", "創作", "投資", "產業", "生活", "其他"]
 
+# 排除的 feed title / author（模糊匹配）
+EXCLUDE_SOURCES = {
+    "ikea",
+    "宜家家居",
+    "cake team",
+    "吴明光",
+    "求真易学",
+    "unroll.me",
+    "生涯設計師",
+    "凱茜女孩",
+    "cathy girl",
+    "南山人壽",
+}
+
 
 # ── 工具函式 ──────────────────────────────────────────
 
@@ -153,14 +167,40 @@ def _get_existing_titles(service, spreadsheet_id: str, sheet_name: str) -> set[s
 
 
 def _append_rows(service, spreadsheet_id: str, sheet_name: str, rows: list[list[str]]):
-    """批次 append 行到工作表。"""
+    """批次插入行到工作表（header 之後，最新在最上面）。"""
     if not rows:
         return
-    service.spreadsheets().values().append(
+    # 取得 sheet ID
+    meta = service.spreadsheets().get(spreadsheetId=spreadsheet_id).execute()
+    sheet_id = None
+    for s in meta.get("sheets", []):
+        if s["properties"]["title"] == sheet_name:
+            sheet_id = s["properties"]["sheetId"]
+            break
+    if sheet_id is None:
+        return
+
+    # 在第 2 行（index=1，header 下方）插入空行
+    service.spreadsheets().batchUpdate(
         spreadsheetId=spreadsheet_id,
-        range=f"'{sheet_name}'!A1",
+        body={"requests": [{
+            "insertDimension": {
+                "range": {
+                    "sheetId": sheet_id,
+                    "dimension": "ROWS",
+                    "startIndex": 1,
+                    "endIndex": 1 + len(rows),
+                },
+                "inheritFromBefore": False,
+            }
+        }]},
+    ).execute()
+
+    # 寫入資料到新插入的行
+    service.spreadsheets().values().update(
+        spreadsheetId=spreadsheet_id,
+        range=f"'{sheet_name}'!A2",
         valueInputOption="RAW",
-        insertDataOption="INSERT_ROWS",
         body={"values": rows},
     ).execute()
 
@@ -276,6 +316,21 @@ def sync_rss_to_sheets(latest: int = 10, days: int = 7, dry_run: bool = False, u
                 print(f"[rss-to-sheets]   {entries[0]['feed_title']}: {len(entries)} 篇")
         except Exception as e:
             print(f"[rss-to-sheets]   FAIL {feed_url[:50]}: {e}")
+
+    # 過濾排除來源
+    def _is_excluded(row: list[str]) -> bool:
+        author_lower = (row[2] or "").lower()
+        title_lower = (row[3] or "").lower()
+        return any(exc in author_lower or exc in title_lower for exc in EXCLUDE_SOURCES)
+
+    before_filter = len(all_rows)
+    all_rows = [r for r in all_rows if not _is_excluded(r)]
+    skipped = before_filter - len(all_rows)
+    if skipped:
+        print(f"[rss-to-sheets] 排除（黑名單）：{skipped} 篇")
+
+    # 按日期倒序排列（最新的在前）
+    all_rows.sort(key=lambda r: r[0], reverse=True)
 
     print(f"\n[rss-to-sheets] 共抓到 {len(all_rows)} 篇")
 

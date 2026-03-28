@@ -34,3 +34,54 @@ https://informalwriting.cc/feed
 https://readingoutpost.com/feed/
 https://raymondhouch.com/feed
 https://imoweekly.im/feed
+
+# Substack — 從 Reader email 整理（2026-03-29）
+# AI / ML
+https://swyx.substack.com/feed
+https://louisbouchard.substack.com/feed
+https://artificialintelligencemadesimple.substack.com/feed
+https://theneuralmaze.substack.com/feed
+https://decodingaimagazine.substack.com/feed
+https://theaicorner1.substack.com/feed
+
+# 軟體工程 / 資料
+https://seattledataguy.substack.com/feed
+https://pragmaticengineer.substack.com/feed
+https://tidyfirst.substack.com/feed
+https://makemeacto.substack.com/feed
+https://vutr.substack.com/feed
+https://datascienceweekly.substack.com/feed
+https://learnanalyticsengineering.substack.com/feed
+https://packtdatapro1.substack.com/feed
+
+# 創業 / 商業 / VC
+https://thefoundercorner.substack.com/feed
+https://first1000.substack.com/feed
+https://solopreneurcode.substack.com/feed
+https://doomberg.substack.com/feed
+https://thevccorner.substack.com/feed
+https://chamath.substack.com/feed
+https://nextplayso.substack.com/feed
+https://speedrun.substack.com/feed
+https://techeconomics.substack.com/feed
+
+# 寫作 / 創作 / 行銷
+https://writewithai.substack.com/feed
+https://howiwrite.substack.com/feed
+https://writebuildscale.substack.com/feed
+https://marketingideas.substack.com/feed
+
+# 策略 / 生產力
+https://unchartedterritories.substack.com/feed
+https://decision.substack.com/feed
+https://makebetterstrategy.substack.com/feed
+https://glasp.substack.com/feed
+https://karozieminski.substack.com/feed
+
+# 中文 Substack
+https://dhkdao.substack.com/feed
+https://wanchunghuang.substack.com/feed
+
+# 其他
+https://ashleevance.substack.com/feed
+https://aimeetsgirlboss.substack.com/feed

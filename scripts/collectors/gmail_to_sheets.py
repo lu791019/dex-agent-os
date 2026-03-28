@@ -107,6 +107,15 @@ EXCLUDE_SENDERS = {
     # SaaS 行銷
     "simplymeet",
     "calendly.com",
+    # 品牌 / 保險 / 雜項
+    "ikea",
+    "宜家家居",
+    "cake team",
+    "unroll.me",
+    "生涯設計師",
+    "凱茜女孩",
+    "cathy girl",
+    "南山人壽",
     "soler風格",
 }
 
