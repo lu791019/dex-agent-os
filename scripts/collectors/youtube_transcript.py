@@ -241,6 +241,21 @@ def main():
     except Exception as e:
         print(f"[youtube] Sheet 寫入失敗（不影響本地筆記）: {e}", file=sys.stderr)
 
+    # 10. 寫入 Notion 學習 DB（全文筆記）
+    try:
+        from lib.notion_sync import sync_learning_to_notion
+        sync_learning_to_notion(
+            title=title,
+            full_text=result.strip(),
+            date_str=date_str,
+            source_type="YouTube",
+            url=video_url,
+            summary=result.strip()[:200],
+        )
+        print(f"[youtube] Notion 已寫入")
+    except Exception as e:
+        print(f"[youtube] Notion 寫入失敗: {e}", file=sys.stderr)
+
 
 if __name__ == "__main__":
     main()

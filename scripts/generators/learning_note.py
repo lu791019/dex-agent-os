@@ -152,6 +152,22 @@ def generate_note(title: str, content: str, date_str: str, source: str, note_typ
     except Exception as e:
         print(f"[learning-note] Sheet 寫入失敗（不影響本地筆記）: {e}", file=sys.stderr)
 
+    # 寫入 Notion 學習 DB（全文）
+    try:
+        from lib.notion_sync import sync_learning_to_notion
+        sync_learning_to_notion(
+            title=title,
+            full_text=result.strip(),
+            date_str=date_str,
+            source_type="learning-note",
+            url=source,
+            summary=result.strip()[:200],
+            topic=note_type,
+        )
+        print(f"[learning-note] Notion 已寫入")
+    except Exception as e:
+        print(f"[learning-note] Notion 寫入失敗: {e}", file=sys.stderr)
+
     return output_path
 
 

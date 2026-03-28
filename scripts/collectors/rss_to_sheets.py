@@ -13,6 +13,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 import re
 import sys
 import time
@@ -119,6 +120,7 @@ def _fetch_feed(feed_url: str, latest: int, days: int) -> list[dict]:
             "url": link,
             "summary": summary,
             "feed_title": feed_title,
+            "full_text": _strip_html(content_list[0].get("value", "")) if content_list else "",
         })
 
     return entries
@@ -306,12 +308,14 @@ def sync_rss_to_sheets(latest: int = 10, days: int = 7, dry_run: bool = False, u
     feeds = _load_feeds()
     print(f"[rss-to-sheets] 載入 {len(feeds)} 個 feed，抓取過去 {days} 天...")
 
+    all_entries = []  # 保留 dict（含 full_text）
     all_rows = []
     for feed_url in feeds:
         try:
             entries = _fetch_feed(feed_url, latest, days)
             if entries:
                 rows = [_entry_to_row(e) for e in entries]
+                all_entries.extend(entries)
                 all_rows.extend(rows)
                 print(f"[rss-to-sheets]   {entries[0]['feed_title']}: {len(entries)} 篇")
         except Exception as e:
@@ -366,7 +370,55 @@ def sync_rss_to_sheets(latest: int = 10, days: int = 7, dry_run: bool = False, u
         new_rows = _enrich_rows_with_llm(new_rows)
 
     _append_rows(service, sheet_id, "Readings", new_rows)
-    print(f"\n[rss-to-sheets] 完成！寫入 {len(new_rows)} 篇")
+    print(f"\n[rss-to-sheets] Sheet 寫入 {len(new_rows)} 篇")
+
+    # Notion 學習 DB 寫入（全文）
+    notion_db = os.environ.get("NOTION_LEARNING_DB", "")
+    if notion_db:
+        try:
+            from lib.notion_api import add_page, prop_title, prop_rich_text, prop_select, prop_date, prop_url, prop_checkbox, block_paragraph
+
+            # 建 title → entry 的查找表
+            entry_by_title = {e["title"].strip().lower(): e for e in all_entries}
+
+            notion_count = 0
+            for row in new_rows:
+                title_key = row[3].strip().lower()
+                entry = entry_by_title.get(title_key, {})
+                full_text = entry.get("full_text", "")
+
+                props = {
+                    "標題": prop_title(row[3]),
+                    "日期": prop_date(row[0]) if row[0] else prop_date("2026-01-01"),
+                    "來源類型": prop_select("文章"),
+                    "作者": prop_rich_text(row[2]),
+                    "URL": prop_url(row[4]) if row[4] else prop_url(""),
+                    "摘要": prop_rich_text(row[5][:2000]),
+                    "⭐": prop_checkbox(False),
+                }
+                if row[6]:
+                    props["主題"] = prop_select(row[6])
+
+                # 全文放在 page body（children blocks）
+                children = []
+                if full_text:
+                    # Notion 每個 block 上限 2000 字，拆分
+                    for i in range(0, min(len(full_text), 20000), 2000):
+                        children.append(block_paragraph(full_text[i:i+2000]))
+
+                try:
+                    add_page(notion_db, properties=props, children=children if children else None)
+                    notion_count += 1
+                except Exception as e:
+                    print(f"[rss-to-sheets] Notion 寫入失敗: {row[3][:30]}... — {e}", file=sys.stderr)
+
+            print(f"[rss-to-sheets] Notion 寫入 {notion_count} 篇")
+        except ImportError:
+            print("[rss-to-sheets] notion_api 模組不可用，跳過 Notion 寫入")
+        except Exception as e:
+            print(f"[rss-to-sheets] Notion 寫入失敗: {e}", file=sys.stderr)
+
+    print(f"[rss-to-sheets] 完成！")
 
 
 # ── CLI ───────────────────────────────────────────────

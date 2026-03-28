@@ -147,9 +147,23 @@ tags: [會議筆記]
 {result.strip()}
 """
 
-    # 6. 寫入
+    # 6. 寫入本地
     write_text(notes_path, draft_content)
     print(f"[meeting-notes] Done: {notes_path.relative_to(ROOT_DIR)}")
+
+    # 7. 寫入 Notion 會議記錄 DB
+    try:
+        from lib.notion_sync import sync_meeting_to_notion
+        sync_meeting_to_notion(
+            title=args.title,
+            content=result.strip(),
+            date_str=date,
+            source=source_type,
+            summary=result.strip()[:200],
+        )
+        print(f"[meeting-notes] Notion 已寫入")
+    except Exception as e:
+        print(f"[meeting-notes] Notion 寫入失敗: {e}", file=sys.stderr)
 
 
 if __name__ == "__main__":

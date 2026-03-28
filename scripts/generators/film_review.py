@@ -138,9 +138,23 @@ tags: [影評]
 {result.strip()}
 """
 
-    # 5. 寫入
+    # 5. 寫入本地
     write_text(review_path, draft_content)
     print(f"[film-review] Done: {review_path.relative_to(ROOT_DIR)}")
+
+    # 6. 寫入 Notion 內容 DB
+    try:
+        from lib.notion_sync import sync_insight_to_notion
+        sync_insight_to_notion(
+            title=f"影評：{args.title}",
+            content=result.strip(),
+            date_str=date,
+            tags=["影評"],
+            status="drafting",
+        )
+        print(f"[film-review] Notion 已寫入")
+    except Exception as e:
+        print(f"[film-review] Notion 寫入失敗: {e}", file=sys.stderr)
 
 
 if __name__ == "__main__":

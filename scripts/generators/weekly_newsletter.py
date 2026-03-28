@@ -410,10 +410,25 @@ created: {today_str()}
 {result.strip()}
 """
 
-    # 9. 寫入
+    # 9. 寫入本地
     ensure_dir(NEWSLETTER_DIR)
     write_text(output_path, draft_content)
     print(f"[weekly-newsletter] Done: {output_path.relative_to(ROOT_DIR)}")
+
+    # 10. 寫入 Notion 週報 DB
+    try:
+        from lib.notion_sync import sync_weekly_to_notion
+        sync_weekly_to_notion(
+            title=f"W{iso_week:02d} {TYPE_LABELS[nl_type]}",
+            content=result.strip(),
+            week_str=f"W{iso_week:02d}",
+            nl_type="newsletter",
+            date_range=week_range,
+            date_str=today_str(),
+        )
+        print(f"[weekly-newsletter] Notion 已寫入")
+    except Exception as e:
+        print(f"[weekly-newsletter] Notion 寫入失敗: {e}", file=sys.stderr)
 
 
 if __name__ == "__main__":

@@ -160,10 +160,26 @@ def main():
         if heading_pos != -1:
             result = result[heading_pos:]
 
-    # 7. 寫入
+    # 7. 寫入本地
     ensure_dir(WEEKLY_DIR)
     write_text(output_path, result.strip() + "\n")
     print(f"[weekly-review] Done: {output_path.relative_to(ROOT_DIR)}")
+
+    # 8. 寫入 Notion 週報 DB
+    try:
+        from lib.notion_sync import sync_weekly_to_notion
+        from lib.file_utils import today_str as _today
+        sync_weekly_to_notion(
+            title=f"W{iso_week:02d} 週回顧",
+            content=result.strip(),
+            week_str=f"W{iso_week:02d}",
+            nl_type="weekly-review",
+            date_range=week_range,
+            date_str=_today(),
+        )
+        print(f"[weekly-review] Notion 已寫入")
+    except Exception as e:
+        print(f"[weekly-review] Notion 寫入失敗: {e}", file=sys.stderr)
 
 
 if __name__ == "__main__":

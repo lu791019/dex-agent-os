@@ -163,9 +163,29 @@ tags: [諮詢筆記]
 {result.strip()}
 """
 
-    # 6. 寫入
+    # 6. 寫入本地
     write_text(notes_path, draft_content)
     print(f"[consultation-notes] Done: {notes_path.relative_to(ROOT_DIR)}")
+
+    # 7. 寫入 Notion 諮詢紀錄 DB
+    try:
+        import os as _os
+        db_id = _os.environ.get("NOTION_CONSULT_DB", "")
+        if db_id:
+            from lib.notion_api import add_page, prop_title, prop_rich_text, prop_select, prop_date, block_paragraph
+
+            props = {
+                "標題": prop_title(args.title),
+                "日期": prop_date(date),
+                "對象": prop_rich_text(args.person),
+                "來源": prop_select(source_type),
+                "摘要": prop_rich_text(result.strip()[:2000]),
+            }
+            children = [block_paragraph(result.strip()[i:i+2000]) for i in range(0, min(len(result.strip()), 20000), 2000)]
+            add_page(db_id, properties=props, children=children)
+            print(f"[consultation-notes] Notion 已寫入")
+    except Exception as e:
+        print(f"[consultation-notes] Notion 寫入失敗: {e}", file=sys.stderr)
 
 
 if __name__ == "__main__":
