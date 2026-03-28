@@ -153,17 +153,18 @@ case "$command" in
     python3 "$ROOT_DIR/scripts/collectors/classroom_sync.py" "$@"
     ;;
   fireflies-sync)
-    python3 "$ROOT_DIR/scripts/collectors/fireflies_sync.py" "$@"
+    echo "[DEPRECATED] fireflies-sync 已移除。會議記錄改用 tl;dv → Notion 流程。"
+    exit 0
     ;;
   sync)
     "$ROOT_DIR/bin/sync" "$@"
     ;;
   sync-all)
     echo "[sync-all] 開始批次同步到 Google Sheet..."
-    python3 "$ROOT_DIR/scripts/collectors/reader_to_sheets.py" --days 2 --no-llm "$@"
-    python3 "$ROOT_DIR/scripts/collectors/rss_to_sheets.py" --days 3 --no-llm "$@"
-    python3 "$ROOT_DIR/scripts/collectors/gmail_to_sheets.py" --days 2 --no-llm "$@"
-    python3 "$ROOT_DIR/scripts/collectors/anybox_to_sheets.py" --no-llm "$@"
+    python3 "$ROOT_DIR/scripts/collectors/reader_to_sheets.py" --days 2 "$@"
+    python3 "$ROOT_DIR/scripts/collectors/rss_to_sheets.py" --days 3 "$@"
+    python3 "$ROOT_DIR/scripts/collectors/gmail_to_sheets.py" --days 2 "$@"
+    python3 "$ROOT_DIR/scripts/collectors/anybox_to_sheets.py" "$@"
     echo "[sync-all] 批次同步完成"
     ;;
   help|--help|-h)
