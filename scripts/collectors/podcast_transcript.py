@@ -503,6 +503,42 @@ def generate_episode_note(
 
     ensure_dir(PODCAST_EPISODES_DIR)
     write_text(output_path, result.strip() + "\n")
+
+    # 寫入 Google Sheet「Podcasts」工作表
+    try:
+        from lib.config import GOOGLE_SHEET_ID
+        from lib.google_api import get_sheets_service
+
+        if GOOGLE_SHEET_ID:
+            service = get_sheets_service()
+            if service:
+                # 取一句話摘要
+                summary_line = ""
+                for line in result.split("\n"):
+                    line = line.strip()
+                    if line and not line.startswith(("#", "---", "```", "title", "podcast", "source", "date", "tags", "episode", "duration")):
+                        summary_line = line[:200]
+                        break
+
+                # 取節目名（從 frontmatter）
+                show_name = ""
+                for line in result.split("\n"):
+                    if line.strip().startswith("podcast:"):
+                        show_name = line.split(":", 1)[1].strip().strip('"')
+                        break
+
+                row = [date_str, show_name, title, source, summary_line, "", ""]
+                service.spreadsheets().values().append(
+                    spreadsheetId=GOOGLE_SHEET_ID,
+                    range="Podcasts!A1",
+                    valueInputOption="RAW",
+                    insertDataOption="INSERT_ROWS",
+                    body={"values": [row]},
+                ).execute()
+                print(f"[podcast] Sheet「Podcasts」已寫入")
+    except Exception as e:
+        print(f"[podcast] Sheet 寫入失敗（不影響本地筆記）: {e}", file=sys.stderr)
+
     return output_path
 
 

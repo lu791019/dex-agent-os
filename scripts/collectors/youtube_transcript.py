@@ -201,10 +201,45 @@ def main():
                 result = result[pos:]
                 break
 
-    # 8. 寫入
+    # 8. 寫入本地
     ensure_dir(YOUTUBE_DIR)
     write_text(output_path, result.strip() + "\n")
     print(f"[youtube] Done: {output_path.relative_to(ROOT_DIR)}")
+
+    # 9. 寫入 Google Sheet「YouTube」工作表
+    try:
+        from lib.config import GOOGLE_SHEET_ID
+        from lib.google_api import get_sheets_service
+
+        if GOOGLE_SHEET_ID:
+            service = get_sheets_service()
+            if service:
+                # 取一句話摘要（從 LLM 結果的前幾行抽取）
+                summary_line = ""
+                for line in result.split("\n"):
+                    line = line.strip()
+                    if line and not line.startswith(("#", "---", "```", "title", "channel", "source", "date", "tags", "duration")):
+                        summary_line = line[:200]
+                        break
+
+                # 取頻道名（從 result 的 frontmatter）
+                channel = ""
+                for line in result.split("\n"):
+                    if line.strip().startswith("channel:"):
+                        channel = line.split(":", 1)[1].strip().strip('"')
+                        break
+
+                row = [date_str, channel, title, video_url, summary_line, "", ""]
+                service.spreadsheets().values().append(
+                    spreadsheetId=GOOGLE_SHEET_ID,
+                    range="YouTube!A1",
+                    valueInputOption="RAW",
+                    insertDataOption="INSERT_ROWS",
+                    body={"values": [row]},
+                ).execute()
+                print(f"[youtube] Sheet「YouTube」已寫入")
+    except Exception as e:
+        print(f"[youtube] Sheet 寫入失敗（不影響本地筆記）: {e}", file=sys.stderr)
 
 
 if __name__ == "__main__":
