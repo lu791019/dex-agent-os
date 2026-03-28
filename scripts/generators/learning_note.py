@@ -123,6 +123,35 @@ def generate_note(title: str, content: str, date_str: str, source: str, note_typ
 
     ensure_dir(output_dir)
     write_text(output_path, result.strip() + "\n")
+
+    # 寫入 Google Sheet「Readings」（摘要一行）
+    try:
+        from lib.config import GOOGLE_SHEET_ID
+        from lib.google_api import get_sheets_service
+
+        if GOOGLE_SHEET_ID:
+            service = get_sheets_service()
+            if service:
+                # 取一句話摘要
+                summary_line = ""
+                for line in result.split("\n"):
+                    line = line.strip()
+                    if line and not line.startswith(("#", "---", "```", "title", "source", "date", "tags", "type")):
+                        summary_line = line[:200]
+                        break
+
+                row = [date_str, "learning-note", "", title, source, summary_line, note_type, ""]
+                service.spreadsheets().values().append(
+                    spreadsheetId=GOOGLE_SHEET_ID,
+                    range="Readings!A1",
+                    valueInputOption="RAW",
+                    insertDataOption="INSERT_ROWS",
+                    body={"values": [row]},
+                ).execute()
+                print(f"[learning-note] Sheet「Readings」已寫入")
+    except Exception as e:
+        print(f"[learning-note] Sheet 寫入失敗（不影響本地筆記）: {e}", file=sys.stderr)
+
     return output_path
 
 

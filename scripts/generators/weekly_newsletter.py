@@ -109,6 +109,49 @@ def collect_insights(start_date: str, end_date: str) -> list[tuple[str, str]]:
     return results
 
 
+def collect_starred_readings(start_date: str, end_date: str) -> list[tuple[str, str]]:
+    """從 Google Sheet 讀取 ⭐ 標記的文章/YT/Podcast。"""
+    import os
+
+    results = []
+    sheet_id = os.environ.get("GOOGLE_SHEET_ID", "")
+    if not sheet_id:
+        return results
+
+    try:
+        from lib.google_api import get_sheets_service
+        service = get_sheets_service()
+        if not service:
+            return results
+
+        for sheet_name in ("Readings", "YouTube", "Podcasts"):
+            try:
+                result = service.spreadsheets().values().get(
+                    spreadsheetId=sheet_id,
+                    range=f"'{sheet_name}'!A:H",
+                ).execute()
+                rows = result.get("values", [])
+                for row in rows[1:]:
+                    if len(row) < 8:
+                        continue
+                    date_val = row[0]
+                    star = row[7].strip() if len(row) > 7 else ""
+                    if star and start_date <= date_val <= end_date:
+                        title = row[3] if len(row) > 3 else ""
+                        url = row[4] if len(row) > 4 else ""
+                        summary = row[5] if len(row) > 5 else ""
+                        topic = row[6] if len(row) > 6 else ""
+                        source_type = sheet_name
+                        entry = f"[{source_type}] {title}\n  URL: {url}\n  摘要: {summary}\n  主題: {topic}"
+                        results.append((date_val, entry))
+            except Exception:
+                continue
+    except Exception as e:
+        print(f"[weekly-newsletter] Sheet ⭐ 讀取失敗: {e}", file=sys.stderr)
+
+    return results
+
+
 def collect_monthly_reviews(year: int, month: int) -> list[tuple[str, str]]:
     """收集整個月的週回顧。"""
     results = []
@@ -147,6 +190,7 @@ def build_prompt(
     week_range: str,
     monthly_journals: list[tuple[str, str]] | None = None,
     monthly_reviews: list[tuple[str, str]] | None = None,
+    starred_readings: list[tuple[str, str]] | None = None,
 ) -> str:
     """根據類型組裝不同的 prompt。"""
 
@@ -226,6 +270,17 @@ def build_prompt(
 {insight_section if insight_section else "（本週無 insight）"}
 """
 
+    # ⭐ 推薦閱讀（Dex confirm 過的）
+    if starred_readings:
+        starred_section = ""
+        for date_str, content in starred_readings:
+            starred_section += f"\n### {date_str}\n{content}\n"
+        prompt += f"""
+## 本週推薦閱讀（⭐ Dex 看過並推薦的）
+以下是 Dex 本週看過且標記推薦的文章/影片/Podcast，請在電子報中自然引用作為觀點佐證或推薦資源：
+{starred_section}
+"""
+
     # monthly-reflection 額外加整月資料
     if nl_type == "monthly-reflection" and monthly_journals:
         monthly_j_section = ""
@@ -293,14 +348,15 @@ def main():
     journals = collect_journals(start, end)
     topics = collect_topics(start, end)
     insights = collect_insights(start, end)
+    starred = collect_starred_readings(start, end)
 
-    if not journals and not topics and not insights:
+    if not journals and not topics and not insights and not starred:
         print(f"[weekly-newsletter] 找不到 {week_range} 的任何素材", file=sys.stderr)
         sys.exit(1)
 
     print(f"[weekly-newsletter] {year} W{iso_week:02d}（{week_range}）")
     print(f"[weekly-newsletter] 類型：{nl_type}（{TYPE_LABELS[nl_type]}）")
-    print(f"[weekly-newsletter] 素材：{len(journals)} 篇日記 + {len(topics)} 個 topic + {len(insights)} 個 insight")
+    print(f"[weekly-newsletter] 素材：{len(journals)} 篇日記 + {len(topics)} 個 topic + {len(insights)} 個 insight + {len(starred)} 篇 ⭐ 推薦")
 
     # 4. monthly-reflection 收集整月資料
     monthly_journals = None
@@ -335,6 +391,7 @@ def main():
         week_range=week_range,
         monthly_journals=monthly_journals,
         monthly_reviews=monthly_reviews,
+        starred_readings=starred,
     )
     result = ask_claude(user_prompt=prompt, system_prompt=SYSTEM_PROMPT)
 
