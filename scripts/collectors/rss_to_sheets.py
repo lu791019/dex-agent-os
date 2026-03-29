@@ -402,9 +402,8 @@ def sync_rss_to_sheets(latest: int = 10, days: int = 7, dry_run: bool = False, u
                 # 全文放在 page body（children blocks）
                 children = []
                 if full_text:
-                    # Notion 每個 block 上限 2000 字，拆分
-                    for i in range(0, min(len(full_text), 20000), 2000):
-                        children.append(block_paragraph(full_text[i:i+2000]))
+                    for i in range(0, min(len(full_text), 20000), 1900):
+                        children.append(block_paragraph(full_text[i:i+1900]))
 
                 try:
                     add_page(notion_db, properties=props, children=children if children else None)

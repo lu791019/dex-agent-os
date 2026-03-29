@@ -117,6 +117,22 @@ EXCLUDE_SENDERS = {
     "cathy girl",
     "南山人壽",
     "soler風格",
+    # 軟體 / 工具通知
+    "adobe",
+    "tactiq",
+    "read assistant",
+    "scribbl",
+    "trello",
+    "feedspot",
+    "playstation",
+    # 政府 / 發票
+    "einvoice",
+    "伊莉",
+    # 環境 / 非核心
+    "環境資訊中心",
+    "eden",
+    "吴明光",
+    "求真易学",
 }
 
 # 排除的 subject 關鍵字
@@ -535,7 +551,49 @@ def sync_gmail_to_sheets(days: int = 7, dry_run: bool = False, use_llm: bool = T
         new_rows = _enrich_rows_with_llm(new_rows)
 
     _append_rows(sheets, sheet_id, "Readings", new_rows)
-    print(f"\n[gmail-to-sheets] 完成！寫入 {len(new_rows)} 封")
+    print(f"\n[gmail-to-sheets] Sheet 寫入 {len(new_rows)} 封")
+
+    # Notion 學習 DB 寫入
+    import os as _os
+    notion_db = _os.environ.get("NOTION_LEARNING_DB", "")
+    if notion_db:
+        try:
+            from lib.notion_api import add_page, prop_title, prop_rich_text, prop_select, prop_date, prop_url, prop_checkbox, block_paragraph
+
+            notion_count = 0
+            for row in new_rows:
+                props = {
+                    "標題": prop_title(row[3]),
+                    "日期": prop_date(row[0]) if row[0] else prop_date("2026-01-01"),
+                    "來源類型": prop_select("電子報"),
+                    "作者": prop_rich_text(row[2]),
+                    "URL": prop_url(row[4]) if row[4] else prop_url(""),
+                    "摘要": prop_rich_text(row[5][:2000]),
+                    "⭐": prop_checkbox(False),
+                }
+                if row[6]:
+                    props["主題"] = prop_select(row[6])
+
+                # body 放在 page body（children blocks）
+                children = []
+                body_text = row[5] if row[5] else ""
+                if body_text:
+                    for i in range(0, min(len(body_text), 20000), 1900):
+                        children.append(block_paragraph(body_text[i:i+1900]))
+
+                try:
+                    add_page(notion_db, properties=props, children=children if children else None)
+                    notion_count += 1
+                except Exception as e:
+                    print(f"[gmail-to-sheets] Notion 寫入失敗: {row[3][:30]}... — {e}", file=sys.stderr)
+
+            print(f"[gmail-to-sheets] Notion 寫入 {notion_count} 封")
+        except ImportError:
+            print("[gmail-to-sheets] notion_api 模組不可用，跳過 Notion 寫入")
+        except Exception as e:
+            print(f"[gmail-to-sheets] Notion 寫入失敗: {e}", file=sys.stderr)
+
+    print(f"\n[gmail-to-sheets] 完成！")
 
 
 # ── CLI ───────────────────────────────────────────────

@@ -54,8 +54,8 @@ def sync_insight_to_notion(
     # 全文放 body
     children = []
     if content:
-        for i in range(0, min(len(content), 20000), 2000):
-            children.append(block_paragraph(content[i:i+2000]))
+        for i in range(0, min(len(content), 20000), 1900):
+            children.append(block_paragraph(content[i:i+1900]))
 
     page_id = add_page(db_id, properties=props, children=children if children else None)
     print(f"[notion-sync] Insight → Notion: {title[:40]}...")
@@ -96,8 +96,8 @@ def sync_learning_to_notion(
 
     children = []
     if full_text:
-        for i in range(0, min(len(full_text), 20000), 2000):
-            children.append(block_paragraph(full_text[i:i+2000]))
+        for i in range(0, min(len(full_text), 20000), 1900):
+            children.append(block_paragraph(full_text[i:i+1900]))
 
     page_id = add_page(db_id, properties=props, children=children if children else None)
     return page_id
@@ -131,8 +131,8 @@ def sync_meeting_to_notion(
 
     children = []
     if content:
-        for i in range(0, min(len(content), 40000), 2000):
-            children.append(block_paragraph(content[i:i+2000]))
+        for i in range(0, min(len(content), 40000), 1900):
+            children.append(block_paragraph(content[i:i+1900]))
 
     return add_page(db_id, properties=props, children=children if children else None)
 
@@ -166,7 +166,7 @@ def sync_weekly_to_notion(
 
     children = []
     if content:
-        for i in range(0, min(len(content), 40000), 2000):
-            children.append(block_paragraph(content[i:i+2000]))
+        for i in range(0, min(len(content), 40000), 1900):
+            children.append(block_paragraph(content[i:i+1900]))
 
     return add_page(db_id, properties=props, children=children if children else None)

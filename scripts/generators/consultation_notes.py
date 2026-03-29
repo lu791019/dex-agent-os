@@ -181,7 +181,7 @@ tags: [諮詢筆記]
                 "來源": prop_select(source_type),
                 "摘要": prop_rich_text(result.strip()[:2000]),
             }
-            children = [block_paragraph(result.strip()[i:i+2000]) for i in range(0, min(len(result.strip()), 20000), 2000)]
+            children = [block_paragraph(result.strip()[i:i+1900]) for i in range(0, min(len(result.strip()), 20000), 1900)]
             add_page(db_id, properties=props, children=children)
             print(f"[consultation-notes] Notion 已寫入")
     except Exception as e:

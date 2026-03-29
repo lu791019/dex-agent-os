@@ -132,11 +132,29 @@ def prop_title(text: str) -> dict:
     return {"title": [{"text": {"content": text}}]}
 
 
+def _truncate_notion(text: str, limit: int = 2000) -> list[str]:
+    """按 Notion 的 UTF-16 code unit 計數切分文字。"""
+    chunks = []
+    current = []
+    current_len = 0
+    for ch in text:
+        # 計算 UTF-16 code units：BMP 字元 = 1，supplementary（emoji 等）= 2
+        cu = 2 if ord(ch) > 0xFFFF else 1
+        if current_len + cu > limit:
+            chunks.append("".join(current))
+            current = [ch]
+            current_len = cu
+        else:
+            current.append(ch)
+            current_len += cu
+    if current:
+        chunks.append("".join(current))
+    return chunks if chunks else [""]
+
+
 def prop_rich_text(text: str) -> dict:
-    # Notion rich_text 每個 block 上限 2000 字
-    blocks = []
-    for i in range(0, len(text), 2000):
-        blocks.append({"text": {"content": text[i:i+2000]}})
+    # Notion rich_text 每個 block 上限 2000 UTF-16 code units
+    blocks = [{"text": {"content": chunk}} for chunk in _truncate_notion(text, 2000)]
     return {"rich_text": blocks}
 
 
@@ -164,10 +182,8 @@ def prop_checkbox(checked: bool) -> dict:
 
 
 def block_paragraph(text: str) -> dict:
-    # 每個 block 上限 2000 字
-    blocks = []
-    for i in range(0, len(text), 2000):
-        blocks.append({"type": "text", "text": {"content": text[i:i+2000]}})
+    # 每個 block 上限 2000 UTF-16 code units
+    blocks = [{"type": "text", "text": {"content": chunk}} for chunk in _truncate_notion(text, 2000)]
     return {
         "object": "block",
         "type": "paragraph",
