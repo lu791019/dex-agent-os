@@ -170,6 +170,13 @@ created: {date}
     _update_topic_checklist(topic_file)
     print(f"[topic-to-thread] Updated TOPIC.md checklist")
 
+    # 8. 寫入 Notion（打勾 Threads + 追加草稿）
+    try:
+        from lib.notion_sync import sync_draft_to_notion
+        sync_draft_to_notion(title=slug, channel="threads", draft_content=draft_content)
+    except Exception as e:
+        print(f"[topic-to-thread] Notion 寫入失敗: {e}", file=sys.stderr)
+
 
 if __name__ == "__main__":
     main()

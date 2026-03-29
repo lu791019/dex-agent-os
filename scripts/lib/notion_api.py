@@ -191,6 +191,22 @@ def block_paragraph(text: str) -> dict:
     }
 
 
+def update_page(
+    page_id: str,
+    properties: dict,
+) -> dict:
+    """更新 page properties。"""
+    return notion_request("PATCH", f"pages/{page_id}", data={"properties": properties})
+
+
+def append_blocks(
+    page_id: str,
+    children: list[dict],
+) -> dict:
+    """在 page body 追加 blocks。"""
+    return notion_request("PATCH", f"blocks/{page_id}/children", data={"children": children})
+
+
 def block_heading(text: str, level: int = 2) -> dict:
     h_type = f"heading_{level}"
     return {

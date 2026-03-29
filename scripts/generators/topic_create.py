@@ -153,10 +153,21 @@ def main():
         if fm_start != -1:
             result = result[fm_start:]
 
-    # 5. 寫入
+    # 5. 寫入本地
     ensure_dir(topic_dir)
     write_text(topic_file, result)
     print(f"[topic-create] Done: {topic_file.relative_to(ROOT_DIR)}")
+
+    # 6. 寫入 Notion 內容 DB
+    try:
+        from lib.notion_sync import sync_topic_to_notion
+        sync_topic_to_notion(
+            title=slug,
+            content=result,
+            date_str=date,
+        )
+    except Exception as e:
+        print(f"[topic-create] Notion 寫入失敗: {e}", file=sys.stderr)
 
 
 if __name__ == "__main__":

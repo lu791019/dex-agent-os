@@ -1,7 +1,9 @@
 """Notion 同步工具 — 提供各管道寫入 Notion 的函式
 
 供 workflow / Python 腳本呼叫：
-  sync_insight_to_notion()  — Insight → 內容 DB
+  sync_insight_to_notion()  — Insight → 內容 DB (seed)
+  sync_topic_to_notion()    — Topic → 內容 DB (developing)
+  sync_draft_to_notion()    — 草稿 → 內容 DB (打勾 + 追加草稿)
   sync_learning_to_notion() — 學習筆記 → 學習 DB
   sync_meeting_to_notion()  — 會議紀錄 → 會議記錄 DB
   sync_weekly_to_notion()   — 週報/電子報 → 週報 DB
@@ -59,6 +61,121 @@ def sync_insight_to_notion(
 
     page_id = add_page(db_id, properties=props, children=children if children else None)
     print(f"[notion-sync] Insight → Notion: {title[:40]}...")
+    return page_id
+
+
+def _find_content_page(db_id: str, title: str) -> str | None:
+    """在 CONTENT_DB 中找標題匹配的頁面，回傳 page_id 或 None。"""
+    from lib.notion_api import query_database
+
+    results = query_database(db_id, filter_obj={
+        "property": "標題",
+        "title": {"equals": title},
+    }, page_size=1)
+    if results:
+        return results[0].get("id")
+    return None
+
+
+def sync_topic_to_notion(
+    title: str,
+    content: str,
+    date_str: str,
+    tags: list[str] | None = None,
+) -> str:
+    """Topic → Notion 內容 DB。找到同名 seed 就更新，否則建新頁面。"""
+    db_id = os.environ.get("NOTION_CONTENT_DB", "")
+    if not db_id:
+        return ""
+
+    from lib.notion_api import (
+        add_page, update_page, append_blocks, prop_title, prop_rich_text,
+        prop_select, prop_multi_select, prop_date, prop_checkbox,
+        block_heading, block_paragraph,
+    )
+
+    existing_id = _find_content_page(db_id, title)
+
+    if existing_id:
+        # 更新現有 seed → developing
+        update_page(existing_id, {
+            "狀態": prop_select("developing"),
+            "核心觀點": prop_rich_text(content[:2000]),
+        })
+        # 追加 Topic 內容
+        blocks = [block_heading("Topic 企劃", level=2)]
+        for i in range(0, min(len(content), 20000), 1900):
+            blocks.append(block_paragraph(content[i:i+1900]))
+        append_blocks(existing_id, blocks)
+        print(f"[notion-sync] Topic 更新: {title[:40]}...")
+        return existing_id
+    else:
+        # 建新頁面
+        props = {
+            "標題": prop_title(title),
+            "狀態": prop_select("developing"),
+            "核心觀點": prop_rich_text(content[:2000]),
+            "建立日期": prop_date(date_str),
+            "Threads": prop_checkbox(False),
+            "Facebook": prop_checkbox(False),
+            "Blog": prop_checkbox(False),
+            "短影音": prop_checkbox(False),
+            "電子報": prop_checkbox(False),
+        }
+        if tags:
+            props["標籤"] = prop_multi_select(tags)
+
+        children = [block_heading("Topic 企劃", level=2)]
+        for i in range(0, min(len(content), 20000), 1900):
+            children.append(block_paragraph(content[i:i+1900]))
+
+        page_id = add_page(db_id, properties=props, children=children)
+        print(f"[notion-sync] Topic 新建: {title[:40]}...")
+        return page_id
+
+
+def sync_draft_to_notion(
+    title: str,
+    channel: str,
+    draft_content: str,
+) -> str:
+    """草稿 → Notion 內容 DB。找到同名頁面，打勾 + 追加草稿。"""
+    db_id = os.environ.get("NOTION_CONTENT_DB", "")
+    if not db_id:
+        return ""
+
+    from lib.notion_api import (
+        update_page, append_blocks, prop_select, prop_checkbox,
+        block_heading, block_paragraph,
+    )
+
+    page_id = _find_content_page(db_id, title)
+    if not page_id:
+        print(f"[notion-sync] 找不到 Content 頁面: {title[:40]}", file=sys.stderr)
+        return ""
+
+    # 打勾對應頻道 + 更新狀態
+    channel_map = {
+        "threads": "Threads",
+        "facebook": "Facebook",
+        "blog": "Blog",
+        "short-video": "短影音",
+        "newsletter": "電子報",
+    }
+    prop_name = channel_map.get(channel, channel)
+    props = {
+        prop_name: prop_checkbox(True),
+        "狀態": prop_select("drafting"),
+    }
+    update_page(page_id, props)
+
+    # 追加草稿內容
+    blocks = [block_heading(f"{prop_name} 草稿", level=2)]
+    for i in range(0, min(len(draft_content), 20000), 1900):
+        blocks.append(block_paragraph(draft_content[i:i+1900]))
+    append_blocks(page_id, blocks)
+
+    print(f"[notion-sync] {prop_name} 草稿追加: {title[:40]}...")
     return page_id
 
 
