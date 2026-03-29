@@ -1,0 +1,14 @@
+---
+date: 2026-03-29
+source: 100_Journal/daily/2026-03-29.md
+classification: content
+channel_tags: ["Threads", "Blog"]
+status: raw
+---
+
+# 你的字串長度不是你以為的長度
+
+UTF-8 / UTF-16 / grapheme cluster 三種計算方式，在不同 API 會咬你一口。這是每個串接第三方 API 的工程師都會踩的坑。
+
+## 潛在切入角度
+可寫成技術踩坑文，用 emoji 或多語言字元當範例展示三種長度的差異；Blog 版可加上各語言標準庫的處理方式比較表
