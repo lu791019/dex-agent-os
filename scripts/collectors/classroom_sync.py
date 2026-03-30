@@ -203,6 +203,20 @@ updated: {updated}
         print(f"  OK: {dir_name}")
         count += 1
 
+        # Notion 會議記錄 DB 寫入
+        try:
+            from lib.notion_sync import sync_meeting_to_notion
+            sync_meeting_to_notion(
+                title=f"Classroom 公告 — {title_preview}",
+                content=text + (attachments_md or ""),
+                date_str=date_str,
+                source="classroom",
+                speakers=course_name,
+                summary=text[:500],
+            )
+        except Exception as e:
+            print(f"  [notion] 寫入失敗: {e}", file=sys.stderr)
+
     print(f"\n[classroom-sync] 完成：匯入 {count} 則公告")
 
 
@@ -311,6 +325,27 @@ updated: {updated}
         write_text(output_path, content)
         print(f"  OK: {dir_name}")
         count += 1
+
+        # Notion 諮詢紀錄 DB 寫入
+        try:
+            import os as _os
+            db_id = _os.environ.get("NOTION_CONSULT_DB", "")
+            if db_id:
+                from lib.notion_api import add_page, prop_title, prop_rich_text, prop_select, prop_date, block_paragraph
+                props = {
+                    "標題": prop_title(title),
+                    "日期": prop_date(date_str),
+                    "對象": prop_rich_text(course_name),
+                    "來源": prop_select("classroom"),
+                    "摘要": prop_rich_text(description[:2000]),
+                }
+                children = []
+                full = description + "\n\n" + submissions_md
+                for i in range(0, min(len(full), 20000), 1900):
+                    children.append(block_paragraph(full[i:i+1900]))
+                add_page(db_id, properties=props, children=children if children else None)
+        except Exception as e:
+            print(f"  [notion] 寫入失敗: {e}", file=sys.stderr)
 
     print(f"\n[classroom-sync] 完成：匯入 {count} 份作業")
 
