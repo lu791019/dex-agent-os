@@ -20,8 +20,10 @@
 from __future__ import annotations
 
 import argparse
+import json
 import re
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT_DIR = Path(__file__).resolve().parent.parent.parent
@@ -391,6 +393,113 @@ def _get_course_name(service, course_id: str) -> str:
         return course_id
 
 
+# ── 增量同步 ────────────────────────────────────────
+
+SYNC_STATE_FILE = ROOT_DIR / "config" / ".classroom-last-sync"
+
+
+def _load_last_sync() -> str:
+    """讀取上次同步時間，回傳 ISO 格式字串。預設 7 天前。"""
+    if SYNC_STATE_FILE.exists():
+        try:
+            data = json.loads(SYNC_STATE_FILE.read_text())
+            return data.get("last_sync", "")
+        except Exception:
+            pass
+    # 預設 7 天前
+    from datetime import timedelta
+    return (datetime.now(timezone.utc) - timedelta(days=7)).isoformat()
+
+
+def _save_last_sync():
+    """儲存當前時間為上次同步時間。"""
+    SYNC_STATE_FILE.parent.mkdir(parents=True, exist_ok=True)
+    SYNC_STATE_FILE.write_text(json.dumps({
+        "last_sync": datetime.now(timezone.utc).isoformat(),
+    }))
+
+
+def sync_updated(service):
+    """掃所有 active 課程，只抓上次同步後有更新的作業繳交。"""
+    last_sync = _load_last_sync()
+    print(f"[classroom-sync] 增量同步：上次 {last_sync[:19]}")
+
+    # 取所有 active 課程
+    try:
+        results = service.courses().list(pageSize=100).execute()
+        courses = [c for c in results.get("courses", []) if c.get("courseState") == "ACTIVE"]
+    except Exception as e:
+        print(f"[classroom-sync] 取得課程失敗：{e}", file=sys.stderr)
+        return
+
+    print(f"[classroom-sync] 掃描 {len(courses)} 門 active 課程...")
+
+    total_new = 0
+    for course in courses:
+        course_id = course.get("id", "")
+        course_name = course.get("name", "")
+
+        # 取最近更新的作業
+        try:
+            cw_results = service.courses().courseWork().list(
+                courseId=course_id, pageSize=20, orderBy="updateTime desc"
+            ).execute()
+            coursework_list = cw_results.get("courseWork", [])
+        except Exception:
+            continue
+
+        # 只處理上次同步後有更新的
+        for cw in coursework_list:
+            updated = cw.get("updateTime", "")
+            if updated and updated <= last_sync:
+                continue  # 比上次同步早，跳過
+
+            title = cw.get("title", "Untitled")
+            description = cw.get("description", "")
+            created = cw.get("creationTime", "")
+            cw_id = cw.get("id", "unknown")
+            date_str = created[:10] if created else today_str()
+            slug = _slugify(title) or f"cw-{cw_id}"
+
+            # 檢查本地是否已存在
+            dir_name = f"{date_str}-classroom-coursework-{slug}"
+            output_dir = CONSULTATIONS_DIR / dir_name
+            output_path = output_dir / "notes.md"
+            if output_path.exists():
+                continue
+
+            # 取繳交狀態
+            submissions_md = _fetch_submissions(service, course_id, cw_id)
+
+            ensure_dir(output_dir)
+            content = f"# {title}\n\n> 課程：{course_name}\n> 更新：{updated}\n\n## 說明\n\n{description}\n\n## 學生繳交\n\n{submissions_md}\n"
+            write_text(output_path, content)
+            print(f"  NEW: {course_name} / {title}")
+            total_new += 1
+
+            # Notion 諮詢紀錄 DB
+            try:
+                import os as _os
+                db_id = _os.environ.get("NOTION_CONSULT_DB", "")
+                if db_id:
+                    from lib.notion_api import add_page, prop_title, prop_rich_text, prop_select, prop_date, block_paragraph
+                    props = {
+                        "標題": prop_title(title),
+                        "日期": prop_date(date_str),
+                        "對象": prop_rich_text(course_name),
+                        "來源": prop_select("classroom"),
+                        "摘要": prop_rich_text(description[:2000]),
+                    }
+                    full = description + "\n\n" + submissions_md
+                    children = [block_paragraph(full[i:i+1900]) for i in range(0, min(len(full), 20000), 1900)]
+                    add_page(db_id, properties=props, children=children if children else None)
+            except Exception as e:
+                print(f"  [notion] 寫入失敗: {e}", file=sys.stderr)
+
+    _save_last_sync()
+    print(f"\n[classroom-sync] 增量同步完成：{total_new} 筆新更新")
+
+
 # ── 輔助：附件 ───────────────────────────────────────
 
 def _format_materials(materials: list) -> str:
@@ -438,6 +547,8 @@ def main():
                         help="匯入指定課程的公告（需搭配 --course-id）")
     parser.add_argument("--coursework", action="store_true",
                         help="匯入指定課程的作業 + 學生繳交狀態（需搭配 --course-id）")
+    parser.add_argument("--sync", action="store_true",
+                        help="增量同步：掃所有 active 課程，只抓上次同步後有更新的作業")
 
     # 篩選
     parser.add_argument("--course-id", type=str, default=None,
@@ -458,11 +569,12 @@ def main():
             print("  先用 --courses 查看課程清單取得 ID")
             sys.exit(1)
 
-    if not args.courses and not args.announcements and not args.coursework:
+    if not args.courses and not args.announcements and not args.coursework and not args.sync:
         print("[classroom-sync] 請指定操作模式：")
         print("  --courses                          列出課程")
         print("  --course-id ID --announcements     匯入公告")
         print("  --course-id ID --coursework        匯入作業")
+        print("  --sync                             增量同步（只抓有更新的）")
         sys.exit(1)
 
     # 建立 service
@@ -477,6 +589,8 @@ def main():
         fetch_announcements(service, args.course_id, latest=args.latest)
     if args.coursework:
         fetch_coursework(service, args.course_id, latest=args.latest)
+    if args.sync:
+        sync_updated(service)
 
 
 if __name__ == "__main__":
