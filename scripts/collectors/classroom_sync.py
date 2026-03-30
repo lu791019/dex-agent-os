@@ -459,40 +459,38 @@ def sync_updated(service):
             created = cw.get("creationTime", "")
             cw_id = cw.get("id", "unknown")
             date_str = created[:10] if created else today_str()
-            slug = _slugify(title) or f"cw-{cw_id}"
 
-            # 檢查本地是否已存在
-            dir_name = f"{date_str}-classroom-coursework-{slug}"
-            output_dir = CONSULTATIONS_DIR / dir_name
-            output_path = output_dir / "notes.md"
-            if output_path.exists():
+            # Notion 去重：查是否已存在同標題
+            import os as _os
+            db_id = _os.environ.get("NOTION_CONSULT_DB", "")
+            if not db_id:
+                continue
+
+            from lib.notion_api import query_database, add_page, prop_title, prop_rich_text, prop_select, prop_date, block_paragraph
+            existing = query_database(db_id, filter_obj={
+                "property": "標題",
+                "title": {"equals": title},
+            }, page_size=1)
+            if existing:
                 continue
 
             # 取繳交狀態
             submissions_md = _fetch_submissions(service, course_id, cw_id)
 
-            ensure_dir(output_dir)
-            content = f"# {title}\n\n> 課程：{course_name}\n> 更新：{updated}\n\n## 說明\n\n{description}\n\n## 學生繳交\n\n{submissions_md}\n"
-            write_text(output_path, content)
-            print(f"  NEW: {course_name} / {title}")
-            total_new += 1
-
-            # Notion 諮詢紀錄 DB
+            # 只寫 Notion，不存本地
             try:
-                import os as _os
-                db_id = _os.environ.get("NOTION_CONSULT_DB", "")
-                if db_id:
-                    from lib.notion_api import add_page, prop_title, prop_rich_text, prop_select, prop_date, block_paragraph
-                    props = {
-                        "標題": prop_title(title),
-                        "日期": prop_date(date_str),
-                        "對象": prop_rich_text(course_name),
-                        "來源": prop_select("classroom"),
-                        "摘要": prop_rich_text(description[:2000]),
-                    }
-                    full = description + "\n\n" + submissions_md
-                    children = [block_paragraph(full[i:i+1900]) for i in range(0, min(len(full), 20000), 1900)]
-                    add_page(db_id, properties=props, children=children if children else None)
+                props = {
+                    "標題": prop_title(title),
+                    "日期": prop_date(date_str),
+                    "對象": prop_rich_text(course_name),
+                    "來源": prop_select("classroom"),
+                    "摘要": prop_rich_text(description[:2000]),
+                }
+                full = description + "\n\n" + submissions_md
+                children = [block_paragraph(full[i:i+1900]) for i in range(0, min(len(full), 20000), 1900)]
+                add_page(db_id, properties=props, children=children if children else None)
+                print(f"  NEW: {course_name} / {title}")
+                total_new += 1
             except Exception as e:
                 print(f"  [notion] 寫入失敗: {e}", file=sys.stderr)
 
