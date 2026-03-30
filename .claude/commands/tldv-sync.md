@@ -89,6 +89,29 @@ if (transcriptDiv) {
 - **日期**：從 Step 2 的日期文字解析為 YYYY-MM-DD（「2026年3月29日 上午10:00」→「2026-03-29」）
 - **學員名稱**（諮詢用）：從標題 `Dex_姓名_專一討論_N` 解析出姓名
 
+### Step 4.5：去重檢查（寫入前必做）
+
+對每場會議，寫入前先查目標 Notion DB 是否已有同標題的紀錄：
+
+```python
+from lib.notion_api import query_database
+import os
+
+# 根據分類決定查哪個 DB
+db_id = os.environ['NOTION_CONSULT_DB']  # 或 NOTION_MEETING_DB / NOTION_LEARNING_DB
+
+existing = query_database(db_id, filter_obj={
+    "property": "標題",
+    "title": {"equals": title},
+}, page_size=1)
+
+if existing:
+    print(f"  SKIP: {title}（Notion 已存在）")
+    continue  # 跳過此場
+```
+
+**每場都要查，確保不重複寫入。**
+
 ### Step 5：寫入 Notion
 
 根據分類規則寫入對應 DB：
