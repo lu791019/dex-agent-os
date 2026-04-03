@@ -29,6 +29,14 @@
 
 ## 自動部分（Step 1-9）
 
+> **執行順序規則：**
+> - **Wave A（可並行）：** Step 1 + Step 2 + Step 3 + Step 4 同時啟動
+> - **Wave B（等 Wave A 全部完成後）：** Step 5 → Step 6 → Step 7（依序）
+> - **Wave C（等 Wave B 完成後）：** Step 8（**必須等 Step 1 sync-all 完成**，否則 Sheet 無資料）
+> - **Wave D：** Step 9（等 Step 8 完成後）
+>
+> **禁止：** 不可在 Step 1 仍在執行時啟動 Step 8。
+
 ### Step 1：同步所有來源到 Google Sheet
 
 一鍵同步 Reader + RSS + Gmail + Anybox 到 Sheet（不跑 LLM，快速同步）。
@@ -41,6 +49,7 @@ Step 8 的 daily-digest 會從 Sheet 讀取當日文章。
 - 依序跑 reader-to-sheets → rss-to-sheets → gmail-to-sheets → anybox-to-sheets
 - 無 token 或 API 失敗的服務自動跳過
 - 記錄各來源新增篇數
+- ⚠️ **此步驟耗時最長（5-10 分鐘），但 Step 8 強依賴它，必須確認完成**
 
 ### Step 2：Fireflies 會議逐字稿同步
 
@@ -102,12 +111,15 @@ python3 scripts/generators/daily_journal.py TARGET_DATE --force
 
 ### Step 8：每日學習消化報告
 
+> ⛔ **前置條件：必須確認 Step 1 (sync-all) 已完全結束才能執行此步驟。**
+> 若 sync-all 仍在背景執行，digest 會因 Sheet 無資料而回傳 0 篇。
+
 ```bash
-python3 scripts/generators/daily_digest.py TARGET_DATE --force
+./bin/agent daily-digest TARGET_DATE --force
 ```
 
 - 輸出：`100_Journal/digest/TARGET_DATE-digest.md`
-- **依賴 Step 1 + 1b**（sync-all 匯入 + Sheet 同步的閱讀素材）
+- **強依賴 Step 1**（sync-all 寫入 Sheet 的閱讀素材）
 - 如果無閱讀素材 → 產出空 digest 或跳過，在摘要中註明
 
 **驗證：** 確認 digest 檔案存在

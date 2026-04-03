@@ -41,7 +41,7 @@ def ask_claude(
         input=user_prompt,
         capture_output=True,
         text=True,
-        timeout=600,  # 10 分鐘超時
+        timeout=900,  # 15 分鐘超時（digest 29+ 篇文章需要更長時間）
     )
 
     if result.returncode != 0:

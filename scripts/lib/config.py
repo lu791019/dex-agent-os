@@ -6,6 +6,18 @@ from pathlib import Path
 # 專案根目錄
 ROOT_DIR = Path(__file__).resolve().parent.parent.parent
 
+# 自動載入 .env（確保直接 python3 執行時也有環境變數）
+_env_path = ROOT_DIR / ".env"
+if _env_path.exists():
+    with open(_env_path) as _f:
+        for _line in _f:
+            _line = _line.strip()
+            if _line and not _line.startswith("#") and "=" in _line:
+                _key, _, _val = _line.partition("=")
+                _key, _val = _key.strip(), _val.strip().strip("'\"")
+                if _key and not os.environ.get(_key):
+                    os.environ[_key] = _val
+
 # 工作日誌（L0/L1 輸出位置，保持在 ~/work-logs/）
 WORK_LOGS_DIR = Path.home() / "work-logs"
 

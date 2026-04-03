@@ -104,12 +104,13 @@ def _collect_from_sheet(date_str: str) -> list[dict]:
             summary = row[5] if len(row) > 5 else ""
             topic = row[6] if len(row) > 6 else ""
 
-            # 嘗試抓全文
-            content = ""
-            if url and url.startswith("http"):
+            # 優先使用 Sheet 已有的 LLM 摘要（rss-to-sheets / gmail-to-sheets 已處理）
+            # 只在摘要為空時才嘗試抓全文，避免 74+ 篇逐一抓取導致 timeout
+            content = summary or ""
+            if not content and url and url.startswith("http"):
                 content = _fetch_url_content(url)
             if not content:
-                content = summary or title
+                content = title
 
             items.append({
                 "path": Path(f"sheet:{sheet_name}"),
@@ -357,6 +358,17 @@ def main():
     print(f"[daily-digest] 找到 {len(items)} 個檔案，去重後 {len(deduped)} 篇：")
     for cat, cat_items in groups.items():
         print(f"  {cat}：{len(cat_items)} 篇")
+
+    # 超過 30 篇時，每個分類按比例取樣，避免 LLM timeout
+    MAX_ARTICLES = 30
+    if len(deduped) > MAX_ARTICLES:
+        sampled = []
+        total = len(deduped)
+        for cat, cat_items in groups.items():
+            quota = max(1, round(len(cat_items) / total * MAX_ARTICLES))
+            sampled.extend(cat_items[:quota])
+        deduped = sampled[:MAX_ARTICLES]
+        print(f"[daily-digest] 文章過多，取樣 {len(deduped)}/{total} 篇送入 LLM")
 
     # 讀取模板
     template_path = TEMPLATES_DIR / "daily-digest-template.md"
