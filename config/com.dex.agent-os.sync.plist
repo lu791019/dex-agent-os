@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.dex.agent-os.sync</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>/Users/dex/dex-agent-os/scripts/tools/scheduled_sync.sh</string>
+    </array>
+
+    <!-- 每天早上 8:00 執行（可自行修改 Hour/Minute） -->
+    <!-- 電腦睡眠錯過排程 → 醒來後自動補跑 -->
+    <key>StartCalendarInterval</key>
+    <dict>
+        <key>Hour</key>
+        <integer>8</integer>
+        <key>Minute</key>
+        <integer>0</integer>
+    </dict>
+
+    <key>StandardOutPath</key>
+    <string>/Users/dex/dex-agent-os/logs/launchd-sync-stdout.log</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/dex/dex-agent-os/logs/launchd-sync-stderr.log</string>
+
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/usr/local/bin:/usr/bin:/bin:/opt/homebrew/bin</string>
+    </dict>
+</dict>
+</plist>

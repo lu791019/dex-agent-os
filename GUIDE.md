@@ -168,6 +168,41 @@ echo "THREADS_ACCESS_TOKEN=你的token" >> .env
 | `./bin/agent sync` 或 `./bin/sync` | CLI | 將 `canonical/` 規則同步到 `.agent/` `.cursor/` `.claude/` 三個 IDE |
 | `./bin/agent sync-all` | CLI | 一鍵批次匯入所有來源（Readwise Reader + RSS + Anybox + Gmail） |
 | `./bin/agent help` | CLI | 顯示 CLI 使用說明與範例 |
+| `python3 scripts/tools/notion_cleanup.py` | CLI | 清理 Notion 測試資料（`--execute` 實際 archive） |
+
+##### launchd 排程（每日自動同步）
+
+讓 `sync-all --no-llm` 每天自動跑，不需手動觸發。腳本有網路檢查，離線時自動跳過。
+
+**安裝：**
+```bash
+# 1. 修改執行時間（預設每天 08:00）
+#    編輯 config/com.dex.agent-os.sync.plist 中的 Hour / Minute
+
+# 2. 複製 plist 到 LaunchAgents
+cp config/com.dex.agent-os.sync.plist ~/Library/LaunchAgents/
+
+# 3. 載入排程
+launchctl load ~/Library/LaunchAgents/com.dex.agent-os.sync.plist
+```
+
+**移除：**
+```bash
+launchctl unload ~/Library/LaunchAgents/com.dex.agent-os.sync.plist
+rm ~/Library/LaunchAgents/com.dex.agent-os.sync.plist
+```
+
+**手動測試：**
+```bash
+bash scripts/tools/scheduled_sync.sh
+```
+
+**日誌位置：** `logs/scheduled-sync.log`
+
+**注意事項：**
+- 電腦睡眠錯過排程 → 醒來後自動補跑
+- 無網路連線時自動跳過，不會報錯
+- 只跑 `--no-llm`（快速同步），LLM 摘要留給 daily-digest 處理
 
 #### G. 規格驅動開發（OpenSpec / OPSX）
 
@@ -1846,14 +1881,15 @@ tail -40 ~/CLAUDE.md
 | 快速每日回顧 | `/回顧` | 6+ |
 | 萃取學習到 Memory | `/記住` | 6+ |
 | 儲存寫文框架 | `/模板` | 6+ |
+| launchd 排程（sync-all 每日自動同步） | `launchctl load` + `config/com.dex.agent-os.sync.plist` | 6+ |
+| email source_url 重建（mailto: → Substack/Google） | 內建於 `reader-to-sheets` | 6+ |
+| Notion 測試資料清理工具 | `python3 scripts/tools/notion_cleanup.py` | 6+ |
 
 ### 尚未實作（計畫中）
 
 | 功能 | 計畫 Phase |
 |------|------------|
 | 主題 → LinkedIn 貼文 | 待辦 |
-| launchd 排程（reader-to-sheets 每日自動跑） | 待辦 |
-| email source_url 重建（拼 Substack URL） | 待辦 |
 | 產品管理 / 訂閱管理 | Phase 6 P2 |
 
 ---

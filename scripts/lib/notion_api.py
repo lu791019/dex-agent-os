@@ -191,6 +191,11 @@ def block_paragraph(text: str) -> dict:
     }
 
 
+def archive_page(page_id: str) -> dict:
+    """Archive（軟刪除）一個 page。"""
+    return notion_request("PATCH", f"pages/{page_id}", data={"archived": True})
+
+
 def update_page(
     page_id: str,
     properties: dict,

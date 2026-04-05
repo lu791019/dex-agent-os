@@ -123,6 +123,41 @@ def _is_rss_whitelisted(site_name: str) -> bool:
     return any(w in lower for w in RSS_WHITELIST)
 
 
+def _rebuild_email_url(source_url: str, author: str, title: str) -> str:
+    """從 mailto: URL 重建可讀的來源連結。
+
+    優先用 email domain（Substack/Beehiiv 等有辨識度的 domain），
+    fallback 到用 author+title 組 Google 搜尋連結。
+    """
+    if not source_url.startswith("mailto:"):
+        return source_url
+
+    email_addr = source_url.replace("mailto:", "").strip().lower()
+    # 嘗試從 email 取 domain
+    parts = email_addr.split("@")
+    if len(parts) == 2:
+        domain = parts[1]
+        # Substack: xxx@yyy.substack.com → https://yyy.substack.com/
+        if domain.endswith(".substack.com") and domain != "substack.com":
+            return f"https://{domain}/"
+        # Beehiiv: xxx@mail.beehiiv.com → 無法得知 slug，用搜尋
+        # 其他有自訂 domain 的電子報（非通用信箱 domain）
+        generic_domains = {
+            "gmail.com", "yahoo.com", "outlook.com", "hotmail.com",
+            "mail.beehiiv.com", "email.mg.substack.com",
+        }
+        if domain not in generic_domains and "." in domain:
+            return f"https://{domain}/"
+
+    # fallback：用 author + title 組 Google 搜尋（至少能手動找到原文）
+    query = f"{author} {title}".strip()
+    if query:
+        import urllib.parse
+        return f"https://www.google.com/search?q={urllib.parse.quote_plus(query)}"
+
+    return ""
+
+
 def _doc_to_row(doc: dict) -> list[str]:
     """將 Reader 文件轉為 Sheet 行。"""
     updated = (doc.get("updated_at", "") or "")[:10]
@@ -131,7 +166,7 @@ def _doc_to_row(doc: dict) -> list[str]:
     title = doc.get("title", "") or "Untitled"
     source_url = doc.get("source_url", "") or ""
     if source_url.startswith("mailto:"):
-        source_url = ""
+        source_url = _rebuild_email_url(source_url, author, title)
     summary = (doc.get("summary", "") or "").replace("\n", " ").strip()
     if len(summary) > 500:
         summary = summary[:497] + "..."
