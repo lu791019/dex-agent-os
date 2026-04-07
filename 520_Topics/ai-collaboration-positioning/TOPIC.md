@@ -1,7 +1,7 @@
 ---
 title: "AI 協作的正確位置：加速執行，不取代判斷"
 status: drafting
-source: 510_Insights/2026-03-15-ai-collaboration-positioning.md
+source: "[[2026-03-15-ai-collaboration-positioning]]"
 tags: [AI, 工程師成長, 判斷力, Amazon, 工作方法]
 created: 2026-03-15
 ---

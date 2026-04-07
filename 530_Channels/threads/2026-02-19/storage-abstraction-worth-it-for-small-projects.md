@@ -1,4 +1,5 @@
 ---
+source: "[[storage-abstraction-worth-it-for-small-projects/TOPIC]]"
 topic: storage-abstraction-worth-it-for-small-projects
 channel: threads
 status: draft

@@ -279,7 +279,12 @@ def _build_llm_prompt(items: list[dict], date_str: str, template: str) -> str:
         parts.append(f"標題：{item['title']}")
         if item["url"]:
             parts.append(f"連結：{item['url']}")
-        parts.append(f"檔案：{item['path'].name}")
+        # 本地檔案用 wikilink 格式，方便 Obsidian 追蹤
+        fname = item["path"].stem
+        if item["source_dir"] != "sheet":
+            parts.append(f"檔案：[[{fname}|{item['title']}]]")
+        else:
+            parts.append(f"檔案：{item['path'].name}")
 
         # 內容截斷（每篇最多 3000 字，避免 token 爆量）
         content = item["content"]
@@ -436,6 +441,7 @@ title: "Daily Digest — {date}"
 date: {date}
 type: digest
 count: {count}
+source: "[[{date}]]"
 ---
 # Daily Digest — {date}
 

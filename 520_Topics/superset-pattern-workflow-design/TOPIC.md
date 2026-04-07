@@ -4,7 +4,7 @@
 ---
 title: 「超集模式」的工作流設計
 status: drafting
-source: 510_Insights/2026-02-21-superset-pattern-workflow-design.md
+source: "[[2026-02-21-superset-pattern-workflow-design]]"
 tags: [系統設計, 工作流, 向下相容, 個人效率, 軟體思維]
 created: 2026-02-22
 ---

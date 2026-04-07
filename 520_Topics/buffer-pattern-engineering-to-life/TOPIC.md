@@ -4,7 +4,7 @@
 ---
 title: 安全邊距模式——追求精確的人最容易爆掉
 status: drafting
-source: 510_Insights/2026-03-29-buffer-pattern-engineering-to-life.md
+source: "[[2026-03-29-buffer-pattern-engineering-to-life]]"
 tags: [工程思維, 時間管理, 專案估時, 安全邊距, 跨界類比]
 created: 2026-03-29
 ---

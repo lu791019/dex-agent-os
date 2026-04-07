@@ -1,4 +1,5 @@
 ---
+source: "[[design-doc-before-code-accelerates-implementation/TOPIC]]"
 topic: design-doc-before-code-accelerates-implementation
 channel: threads
 status: draft

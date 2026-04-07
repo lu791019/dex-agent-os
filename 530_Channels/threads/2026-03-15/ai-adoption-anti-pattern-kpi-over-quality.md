@@ -1,4 +1,5 @@
 ---
+source: "[[ai-adoption-anti-pattern-kpi-over-quality/TOPIC]]"
 topic: ai-adoption-anti-pattern-kpi-over-quality
 channel: threads
 status: draft

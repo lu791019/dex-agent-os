@@ -4,7 +4,7 @@
 ---
 title: 你的字串長度不是你以為的長度
 status: drafting
-source: 510_Insights/2026-03-29-string-length-utf8-utf16-grapheme.md
+source: "[[2026-03-29-string-length-utf8-utf16-grapheme]]"
 tags: [Python, API, Unicode, 工程踩坑, 字串處理]
 created: 2026-03-29
 ---

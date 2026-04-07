@@ -4,7 +4,7 @@
 ---
 title: 工程師的深度工作排程術：為什麼我把整合測試排在週六
 status: drafting
-source: 510_Insights/2026-03-29-saturday-integration-testing-hidden-benefit.md
+source: "[[2026-03-29-saturday-integration-testing-hidden-benefit]]"
 tags: [深度工作, 整合測試, 時間管理, 工程師生產力, Deep Work]
 created: 2026-03-29
 ---

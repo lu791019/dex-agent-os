@@ -4,7 +4,7 @@
 ---
 title: 巢狀 Skill 呼叫不是 Bug，是 Agent 架構的設計取捨
 status: drafting
-source: 510_Insights/2026-02-21-nested-skill-invocation-limitation.md
+source: "[[2026-02-21-nested-skill-invocation-limitation]]"
 tags: [AI Agent, Agent Architecture, Composability, IDE Skill, 開發經驗]
 created: 2026-02-22
 ---

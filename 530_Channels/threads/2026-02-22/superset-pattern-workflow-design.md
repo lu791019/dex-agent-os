@@ -1,4 +1,5 @@
 ---
+source: "[[superset-pattern-workflow-design/TOPIC]]"
 topic: superset-pattern-workflow-design
 channel: threads
 status: draft

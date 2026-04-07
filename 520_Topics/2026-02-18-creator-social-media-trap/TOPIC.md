@@ -1,7 +1,7 @@
 ---
 title: 社交媒體的創作者陷阱
 status: drafting
-source: 510_Insights/2026-02-18-creator-social-media-trap.md
+source: "[[2026-02-18-creator-social-media-trap]]"
 tags: [個人品牌, 社交媒體, 創作者心態, 焦慮]
 created: 2026-02-18
 ---

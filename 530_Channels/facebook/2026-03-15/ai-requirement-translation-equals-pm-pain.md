@@ -1,4 +1,5 @@
 ---
+source: "[[ai-requirement-translation-equals-pm-pain/TOPIC]]"
 topic: ai-requirement-translation-equals-pm-pain
 channel: facebook
 status: draft

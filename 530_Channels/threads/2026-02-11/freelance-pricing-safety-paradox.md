@@ -1,4 +1,5 @@
 ---
+source: "[[freelance-pricing-safety-paradox/TOPIC]]"
 topic: freelance-pricing-safety-paradox
 channel: threads
 status: draft

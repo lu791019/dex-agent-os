@@ -1,6 +1,6 @@
 ---
 date: 2026-02-07
-source: 100_Journal/daily/2026-02-07.md
+source: "[[2026-02-07]]"
 classification: content
 channel_tags: ["Threads", "Newsletter"]
 status: raw

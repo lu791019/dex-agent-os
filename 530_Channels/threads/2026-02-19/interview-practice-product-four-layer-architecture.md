@@ -1,4 +1,5 @@
 ---
+source: "[[interview-practice-product-four-layer-architecture/TOPIC]]"
 topic: interview-practice-product-four-layer-architecture
 channel: threads
 status: draft

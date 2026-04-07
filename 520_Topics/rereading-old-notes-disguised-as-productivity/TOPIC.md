@@ -4,7 +4,7 @@
 ---
 title: 重讀舊文不是覆盤，是滑手機的高級版
 status: drafting
-source: 510_Insights/2026-03-15-rereading-old-notes-disguised-as-productivity.md
+source: "[[2026-03-15-rereading-old-notes-disguised-as-productivity]]"
 tags: [生產力, 覆盤, 自我覺察, Dayflow, 效率系統]
 created: 2026-03-15
 ---

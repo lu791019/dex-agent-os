@@ -1,4 +1,5 @@
 ---
+source: "[[sell-before-build-risk-and-reward/TOPIC]]"
 topic: sell-before-build-risk-and-reward
 channel: threads
 status: draft

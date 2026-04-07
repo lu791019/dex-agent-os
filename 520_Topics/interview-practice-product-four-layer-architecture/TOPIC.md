@@ -4,7 +4,7 @@
 ---
 title: 把模糊需求拆成四層架構：面試練習功能的產品設計實戰
 status: drafting
-source: 510_Insights/2026-02-19-interview-practice-product-four-layer-architecture.md
+source: "[[2026-02-19-interview-practice-product-four-layer-architecture]]"
 tags: [產品設計, 架構拆解, MVP策略, 面試練習, AI產品]
 created: 2026-02-19
 ---

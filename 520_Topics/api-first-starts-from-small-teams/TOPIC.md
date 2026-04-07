@@ -4,7 +4,7 @@
 ---
 title: API-First 經濟會從小團隊先發生，不是大企業
 status: drafting
-source: 510_Insights/2026-02-21-api-first-starts-from-small-teams.md
+source: "[[2026-02-21-api-first-starts-from-small-teams]]"
 tags: [API-First, AI Agent, 獨立開發者, 小團隊, 產品策略]
 created: 2026-02-22
 ---

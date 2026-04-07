@@ -4,7 +4,7 @@
 ---
 title: AI 編排能力是 2026 年的新核心競爭力
 status: drafting
-source: 510_Insights/2026-03-15-ai-orchestration-as-new-competency.md
+source: "[[2026-03-15-ai-orchestration-as-new-competency]]"
 tags: [AI, agent orchestration, 競爭力, 工作流程, 自動化]
 created: 2026-03-15
 ---

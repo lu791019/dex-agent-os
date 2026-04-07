@@ -1,4 +1,5 @@
 ---
+source: "[[data-engineer-ecosystem-thinking/TOPIC]]"
 topic: data-engineer-ecosystem-thinking
 channel: facebook
 status: draft

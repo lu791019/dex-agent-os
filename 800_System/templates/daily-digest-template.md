@@ -3,6 +3,7 @@ title: "Daily Digest — {date}"
 date: {date}
 type: digest
 count: {count}
+source: "[[{date}]]"
 ---
 # Daily Digest — {date}
 
@@ -12,7 +13,7 @@ count: {count}
 
 （對每篇文章寫 5-8 句摘要 + 1-2 個 takeaway。格式：）
 
-### 📄 [文章標題](連結)
+### 📄 [[檔名|文章標題]]
 **摘要：** 5-8 句精練摘要，保留重要細節、數據與論點。
 
 **Takeaway：**

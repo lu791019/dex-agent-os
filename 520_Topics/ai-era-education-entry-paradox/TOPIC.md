@@ -4,7 +4,7 @@
 ---
 title: AI 時代教育入門悖論
 status: drafting
-source: 510_Insights/2026-02-21-ai-era-education-entry-paradox.md
+source: "[[2026-02-21-ai-era-education-entry-paradox]]"
 tags: [AI, 教育, 職涯, coding, 期望管理]
 created: 2026-02-22
 ---

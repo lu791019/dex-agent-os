@@ -4,7 +4,7 @@
 ---
 title: AI 時代技術教育的入門悖論：門開更大，房間變小
 status: drafting
-source: 510_Insights/2026-02-21-ai-era-education-paradox-lower-barrier-fewer-jobs.md
+source: "[[2026-02-21-ai-era-education-paradox-lower-barrier-fewer-jobs]]"
 tags: [AI, 技術教育, 職涯, 期望管理, 教學設計]
 created: 2026-02-22
 ---

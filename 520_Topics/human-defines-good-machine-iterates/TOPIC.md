@@ -4,7 +4,7 @@
 ---
 title: 「人類定義好，機器跑迭代」是通用模式
 status: drafting
-source: 510_Insights/2026-03-29-human-defines-good-machine-iterates.md
+source: "[[2026-03-29-human-defines-good-machine-iterates]]"
 tags: [AI工作流, 自動迭代, Autoresearch, prompt工程, 人機協作]
 created: 2026-03-29
 ---

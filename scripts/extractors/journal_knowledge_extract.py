@@ -400,7 +400,7 @@ def _write_insight_file(item: dict) -> None:
     content = f"""\
 ---
 date: {date}
-source: 100_Journal/daily/{date}.md
+source: "[[{date}]]"
 classification: {classification}
 channel_tags: {tags_str}
 status: raw

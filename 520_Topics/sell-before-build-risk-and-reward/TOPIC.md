@@ -4,7 +4,7 @@
 ---
 title: 先賣再做——自由工作者該不該把未完成的產品寫進報價？
 status: drafting
-source: 510_Insights/2026-02-12-sell-before-build-risk-and-reward.md
+source: "[[2026-02-12-sell-before-build-risk-and-reward]]"
 tags: [自由工作, 產品化, MVP, 定價策略, 風險管理]
 created: 2026-02-19
 ---

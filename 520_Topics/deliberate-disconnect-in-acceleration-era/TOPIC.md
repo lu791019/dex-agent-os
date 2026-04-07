@@ -4,7 +4,7 @@
 ---
 title: 在加速的世界裡刻意斷線，本身就是高級判斷力
 status: drafting
-source: 510_Insights/2026-02-21-deliberate-disconnect-in-acceleration-era.md
+source: "[[2026-02-21-deliberate-disconnect-in-acceleration-era]]"
 tags: [生產力, AI焦慮, 刻意休息, 節奏管理, 技術職涯]
 created: 2026-02-22
 ---

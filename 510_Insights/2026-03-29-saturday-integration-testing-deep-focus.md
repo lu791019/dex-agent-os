@@ -1,6 +1,6 @@
 ---
 date: 2026-03-29
-source: 100_Journal/daily/2026-03-29.md
+source: "[[2026-03-29]]"
 classification: content
 channel_tags: ["Newsletter"]
 status: raw

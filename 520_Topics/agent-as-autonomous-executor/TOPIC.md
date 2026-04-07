@@ -4,7 +4,7 @@
 ---
 title: AI Agent 從對話工具演化為自主執行系統
 status: drafting
-source: 510_Insights/2026-03-29-agent-as-autonomous-executor.md
+source: "[[2026-03-29-agent-as-autonomous-executor]]"
 tags: [AI Agent, Autoresearch, 自動化迭代, 人機協作, 工作流程]
 created: 2026-03-29
 ---

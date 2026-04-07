@@ -4,7 +4,7 @@
 ---
 title: AI Agent 經濟正在成形：API-First 可發現性是下一波 B2B 基礎建設
 status: drafting
-source: 510_Insights/2026-02-21-ai-agent-economy-api-first-discovery.md
+source: "[[2026-02-21-ai-agent-economy-api-first-discovery]]"
 tags: [AI Agent, API-First, B2B, 服務發現, MCP, 基礎建設]
 created: 2026-02-22
 ---

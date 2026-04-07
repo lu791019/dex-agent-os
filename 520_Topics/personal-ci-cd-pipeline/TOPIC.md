@@ -4,7 +4,7 @@
 ---
 title: 你的每一天都該有 CI/CD——用軟體工程思維打造個人知識產線
 status: drafting
-source: 510_Insights/2026-02-21-personal-ci-cd-pipeline.md
+source: "[[2026-02-21-personal-ci-cd-pipeline]]"
 tags: [個人系統, CI/CD, 知識管理, 內容創作, 效率系統, 軟體工程類比]
 created: 2026-02-22
 ---

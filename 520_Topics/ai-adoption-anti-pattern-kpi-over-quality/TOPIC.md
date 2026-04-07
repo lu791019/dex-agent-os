@@ -4,7 +4,7 @@
 ---
 title: 企業 AI 導入的反面教材：追蹤使用率而非產出品質
 status: drafting
-source: 510_Insights/2026-03-15-ai-adoption-anti-pattern-kpi-over-quality.md
+source: "[[2026-03-15-ai-adoption-anti-pattern-kpi-over-quality]]"
 tags: [AI導入, 企業管理, Amazon, KPI, 產出品質, AI策略]
 created: 2026-03-15
 ---

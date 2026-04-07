@@ -1,4 +1,5 @@
 ---
+source: "[[string-length-is-not-what-you-think/TOPIC]]"
 topic: string-length-is-not-what-you-think
 channel: threads
 status: draft

@@ -4,7 +4,7 @@
 ---
 title: 靜態 eval vs 動態 eval：AI 迭代的兩種層次
 status: drafting
-source: 510_Insights/2026-03-29-static-vs-dynamic-eval-in-ai-iteration.md
+source: "[[2026-03-29-static-vs-dynamic-eval-in-ai-iteration]]"
 tags: [AI, eval, prompt-engineering, 內容品質, 自動化迭代]
 created: 2026-03-29
 ---

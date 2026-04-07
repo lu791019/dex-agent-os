@@ -4,7 +4,7 @@
 ---
 title: 先寫設計文件再寫 code 是加速器不是減速器
 status: drafting
-source: 510_Insights/2026-02-19-design-doc-before-code-accelerates-implementation.md
+source: "[[2026-02-19-design-doc-before-code-accelerates-implementation]]"
 tags: [軟體開發, 設計文件, 開發效率, 工程習慣]
 created: 2026-02-19
 ---

@@ -1,4 +1,5 @@
 ---
+source: "[[agent-as-autonomous-executor/TOPIC]]"
 topic: agent-as-autonomous-executor
 channel: facebook
 status: draft

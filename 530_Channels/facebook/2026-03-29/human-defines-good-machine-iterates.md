@@ -1,4 +1,5 @@
 ---
+source: "[[human-defines-good-machine-iterates/TOPIC]]"
 topic: human-defines-good-machine-iterates
 channel: facebook
 status: draft

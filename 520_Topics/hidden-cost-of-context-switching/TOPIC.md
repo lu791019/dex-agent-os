@@ -4,7 +4,7 @@
 ---
 title: 視窗切換的隱形成本
 status: drafting
-source: 510_Insights/2026-03-15-hidden-cost-of-context-switching.md
+source: "[[2026-03-15-hidden-cost-of-context-switching]]"
 tags: [專注力, 環境設計, 生產力, 工作流, Dayflow]
 created: 2026-03-15
 ---

@@ -1,4 +1,5 @@
 ---
+source: "[[ai-persistent-consciousness-three-mechanisms/TOPIC]]"
 topic: ai-persistent-consciousness-three-mechanisms
 channel: threads
 status: draft

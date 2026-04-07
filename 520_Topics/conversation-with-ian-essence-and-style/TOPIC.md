@@ -4,7 +4,7 @@
 ---
 title: 認識自己最快的方法：問別人你是什麼
 status: drafting
-source: 510_Insights/2026-02-21-conversation-with-ian-essence-and-style.md
+source: "[[2026-02-21-conversation-with-ian-essence-and-style]]"
 tags: [自我認知, 個人成長, 工具哲學, 對話]
 created: 2026-02-22
 ---

@@ -1,4 +1,5 @@
 ---
+source: "[[ai-era-education-paradox-lower-barrier-fewer-jobs/TOPIC]]"
 topic: ai-era-education-paradox-lower-barrier-fewer-jobs
 channel: threads
 status: draft

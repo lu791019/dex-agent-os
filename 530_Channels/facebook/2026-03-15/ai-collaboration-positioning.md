@@ -1,4 +1,5 @@
 ---
+source: "[[ai-collaboration-positioning/TOPIC]]"
 topic: ai-collaboration-positioning
 channel: facebook
 status: draft

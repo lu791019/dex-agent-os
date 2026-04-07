@@ -1,4 +1,5 @@
 ---
+source: "[[multi-ide-sync-best-practice/TOPIC]]"
 topic: multi-ide-sync-best-practice
 channel: threads
 status: draft

@@ -4,7 +4,7 @@
 ---
 title: 50 行換來的自由度：為什麼小專案也該寫 Storage 抽象層
 status: drafting
-source: 510_Insights/2026-02-19-storage-abstraction-worth-it-for-small-projects.md
+source: "[[2026-02-19-storage-abstraction-worth-it-for-small-projects]]"
 tags: [Python, 軟體架構, 測試, 抽象層, 小專案]
 created: 2026-02-19
 ---

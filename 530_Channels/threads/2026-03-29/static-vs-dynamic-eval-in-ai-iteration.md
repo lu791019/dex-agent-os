@@ -1,4 +1,5 @@
 ---
+source: "[[static-vs-dynamic-eval-in-ai-iteration/TOPIC]]"
 topic: static-vs-dynamic-eval-in-ai-iteration
 channel: threads
 status: draft

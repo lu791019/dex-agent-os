@@ -1,4 +1,5 @@
 ---
+source: "[[personal-ci-cd-pipeline/TOPIC]]"
 topic: personal-ci-cd-pipeline
 channel: threads
 status: draft

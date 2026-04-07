@@ -1,7 +1,7 @@
 ---
 title: 多 AI IDE 協作的最佳實踐：canonical 單一真實來源
 status: drafting
-source: 510_Insights/2026-02-07-multi-ide-sync-best-practice.md
+source: "[[2026-02-07-multi-ide-sync-best-practice]]"
 tags: [AI IDE, Developer Workflow, Claude Code, Cursor, Windsurf, Best Practice]
 created: 2026-02-09
 ---

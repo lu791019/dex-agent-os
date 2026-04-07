@@ -1,4 +1,5 @@
 ---
+source: "[[ai-era-education-entry-paradox/TOPIC]]"
 topic: ai-era-education-entry-paradox
 channel: threads
 status: draft

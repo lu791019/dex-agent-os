@@ -4,7 +4,7 @@
 ---
 title: 多專案同步推進的錯覺
 status: drafting
-source: 510_Insights/2026-03-15-illusion-of-multi-project-progress.md
+source: "[[2026-03-15-illusion-of-multi-project-progress]]"
 tags: [生產力, 專案管理, 自我覺察, 個人操作系統, CLAUDE.md]
 created: 2026-03-15
 ---

@@ -1,4 +1,5 @@
 ---
+source: "[[make-it-absurdly-digestible-tech-education/TOPIC]]"
 topic: make-it-absurdly-digestible-tech-education
 channel: facebook
 status: draft

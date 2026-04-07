@@ -1,4 +1,5 @@
 ---
+source: "[[deliberate-disconnect-in-acceleration-era/TOPIC]]"
 topic: deliberate-disconnect-in-acceleration-era
 channel: facebook
 status: draft

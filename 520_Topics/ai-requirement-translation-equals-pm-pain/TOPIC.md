@@ -4,7 +4,7 @@
 ---
 title: 用了 AI 才知道 PM 有多累——需求描述力才是 AI 時代的核心肌肉
 status: drafting
-source: 510_Insights/2026-03-15-ai-requirement-translation-equals-pm-pain.md
+source: "[[2026-03-15-ai-requirement-translation-equals-pm-pain]]"
 tags: [AI協作, PM, 需求描述, 軟技能, 工程師成長]
 created: 2026-03-15
 ---

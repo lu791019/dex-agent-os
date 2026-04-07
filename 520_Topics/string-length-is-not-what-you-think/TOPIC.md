@@ -4,7 +4,7 @@
 ---
 title: 你的字串長度不是你以為的長度
 status: drafting
-source: 510_Insights/2026-03-29-string-length-is-not-what-you-think.md
+source: "[[2026-03-29-string-length-is-not-what-you-think]]"
 tags: [Python, Unicode, UTF-8, API整合, 踩坑經驗]
 created: 2026-03-29
 ---

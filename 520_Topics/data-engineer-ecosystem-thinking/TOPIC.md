@@ -4,7 +4,7 @@
 ---
 title: 資料工程師什麼時候該停止學新工具？
 status: drafting
-source: 510_Insights/2026-03-15-data-engineer-ecosystem-thinking.md
+source: "[[2026-03-15-data-engineer-ecosystem-thinking]]"
 tags: [資料工程, 職涯成長, 生態系思維, 技術策略, 遠端工作]
 created: 2026-03-15
 ---

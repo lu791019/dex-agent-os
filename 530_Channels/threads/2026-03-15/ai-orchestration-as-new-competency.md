@@ -1,4 +1,5 @@
 ---
+source: "[[ai-orchestration-as-new-competency/TOPIC]]"
 topic: ai-orchestration-as-new-competency
 channel: threads
 status: draft

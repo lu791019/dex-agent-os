@@ -4,7 +4,7 @@
 ---
 title: 工程師的時間策略：把最難的工作放在沒人找你的時候
 status: drafting
-source: 510_Insights/2026-03-29-saturday-integration-testing-deep-focus.md
+source: "[[2026-03-29-saturday-integration-testing-deep-focus]]"
 tags: [深度工作, 時間管理, 工程師生產力, 整合測試, 工作策略]
 created: 2026-03-29
 ---

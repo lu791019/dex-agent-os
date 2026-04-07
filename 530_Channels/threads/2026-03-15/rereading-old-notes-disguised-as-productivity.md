@@ -1,4 +1,5 @@
 ---
+source: "[[rereading-old-notes-disguised-as-productivity/TOPIC]]"
 topic: rereading-old-notes-disguised-as-productivity
 channel: threads
 status: draft
