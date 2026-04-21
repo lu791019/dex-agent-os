@@ -178,6 +178,43 @@ def prop_checkbox(checked: bool) -> dict:
     return {"checkbox": checked}
 
 
+def prop_relation(page_ids: list[str]) -> dict:
+    """Relation value（寫入頁面時使用）：關聯到其他 DB 的 page IDs。"""
+    return {"relation": [{"id": pid} for pid in page_ids]}
+
+
+def prop_number(value: float | int) -> dict:
+    return {"number": value}
+
+
+def schema_relation(database_id: str, dual: bool = True) -> dict:
+    """建 DB schema 時的 relation 欄位定義。
+
+    dual=True 會在目標 DB 自動建立反向欄位（雙向關聯）；
+    dual=False 為單向關聯。
+    """
+    if dual:
+        return {
+            "relation": {
+                "database_id": database_id,
+                "type": "dual_property",
+                "dual_property": {},
+            }
+        }
+    return {
+        "relation": {
+            "database_id": database_id,
+            "type": "single_property",
+            "single_property": {},
+        }
+    }
+
+
+def update_database(database_id: str, properties: dict) -> dict:
+    """更新 database schema（加/改 properties）。"""
+    return notion_request("PATCH", f"databases/{database_id}", data={"properties": properties})
+
+
 # ── Helper: content blocks ──────────────────────────
 
 

@@ -1,12 +1,16 @@
 """Notion 同步工具 — 提供各管道寫入 Notion 的函式
 
 供 workflow / Python 腳本呼叫：
-  sync_insight_to_notion()  — Insight → 內容 DB (seed)
-  sync_topic_to_notion()    — Topic → 內容 DB (developing)
-  sync_draft_to_notion()    — 草稿 → 內容 DB (打勾 + 追加草稿)
+  sync_insight_to_notion()  — [v1] Insight → 內容 DB (seed) — 舊流程
+  sync_topic_to_notion()    — [v1] Topic → 內容 DB (developing) — 舊流程
+  sync_draft_to_notion()    — [v1] 草稿 → 內容 DB (打勾 + 追加草稿) — 舊流程
   sync_learning_to_notion() — 學習筆記 → 學習 DB
   sync_meeting_to_notion()  — 會議紀錄 → 會議記錄 DB
   sync_weekly_to_notion()   — 週報/電子報 → 週報 DB
+
+  sync_insight_v2()         — [v2] Insight DB（新）
+  sync_topic_v2()            — [v2] Topic DB（新，含 relations）
+  sync_draft_v2()            — [v2] Content DB（新結構：每頻道一筆 + Channel + Related Topic）
 """
 
 from __future__ import annotations
@@ -287,3 +291,141 @@ def sync_weekly_to_notion(
             children.append(block_paragraph(content[i:i+1900]))
 
     return add_page(db_id, properties=props, children=children if children else None)
+
+
+# ══════════════════════════════════════════════════════════
+# v2: Content Pipeline v3 (Insight DB / Topic DB / Content DB 新結構)
+# ══════════════════════════════════════════════════════════
+
+
+def sync_insight_v2(
+    title: str,
+    angle: str,
+    date_str: str,
+    source: str = "",
+    tags: list[str] | None = None,
+    status: str = "raw",
+    knowledge_ids: list[str] | None = None,
+) -> str:
+    """Insight → 新 Insight DB。回傳 page ID。
+
+    status: raw / curated / topicized / archived
+    """
+    db_id = os.environ.get("NOTION_INSIGHT_DB", "")
+    if not db_id:
+        print("[notion-sync] NOTION_INSIGHT_DB 未設定", file=sys.stderr)
+        return ""
+
+    from lib.notion_api import (
+        add_page, prop_title, prop_rich_text, prop_select,
+        prop_multi_select, prop_date, prop_relation,
+    )
+
+    props: dict = {
+        "Title": prop_title(title),
+        "Angle": prop_rich_text(angle),
+        "Status": prop_select(status),
+        "Source": prop_rich_text(source),
+        "Source Date": prop_date(date_str),
+    }
+    if tags:
+        props["Tags"] = prop_multi_select(tags)
+    if knowledge_ids:
+        props["Related Knowledge"] = prop_relation(knowledge_ids)
+
+    page_id = add_page(db_id, properties=props)
+    print(f"[notion-sync] Insight v2: {title[:40]}...")
+    return page_id
+
+
+def sync_topic_v2(
+    title: str,
+    core_message: str,
+    date_str: str,
+    status: str = "draft",
+    outline: str = "",
+    insight_ids: list[str] | None = None,
+    template_id: str | None = None,
+) -> str:
+    """Topic → 新 Topic DB。回傳 page ID。
+
+    status: draft / writing / published / dropped
+    """
+    db_id = os.environ.get("NOTION_TOPIC_DB", "")
+    if not db_id:
+        print("[notion-sync] NOTION_TOPIC_DB 未設定", file=sys.stderr)
+        return ""
+
+    from lib.notion_api import (
+        add_page, prop_title, prop_rich_text, prop_select,
+        prop_date, prop_relation,
+    )
+
+    props: dict = {
+        "Title": prop_title(title),
+        "Core Message": prop_rich_text(core_message),
+        "Status": prop_select(status),
+        "Created Date": prop_date(date_str),
+    }
+    if outline:
+        props["Outline"] = prop_rich_text(outline)
+    if insight_ids:
+        props["Related Insights"] = prop_relation(insight_ids)
+    if template_id:
+        props["Template"] = prop_relation([template_id])
+
+    page_id = add_page(db_id, properties=props)
+    print(f"[notion-sync] Topic v2: {title[:40]}...")
+    return page_id
+
+
+def sync_draft_v2(
+    title: str,
+    channel: str,
+    draft_content: str,
+    date_str: str,
+    topic_id: str | None = None,
+    core_message: str = "",
+    tags: list[str] | None = None,
+) -> str:
+    """草稿 → Content DB（新結構：每頻道一筆 + Channel 欄位 + Related Topic）。
+
+    channel: threads / facebook / blog / newsletter / shortvideo
+    """
+    db_id = os.environ.get("NOTION_CONTENT_DB", "")
+    if not db_id:
+        print("[notion-sync] NOTION_CONTENT_DB 未設定", file=sys.stderr)
+        return ""
+
+    from lib.notion_api import (
+        add_page, prop_title, prop_rich_text, prop_select,
+        prop_multi_select, prop_date, prop_relation, block_heading, block_paragraph,
+    )
+
+    valid_channels = {"threads", "facebook", "blog", "newsletter", "shortvideo"}
+    if channel not in valid_channels:
+        print(f"[notion-sync] 無效的 channel: {channel}（應為 {valid_channels}）", file=sys.stderr)
+        return ""
+
+    props: dict = {
+        "標題": prop_title(title),
+        "狀態": prop_select("drafting"),
+        "建立日期": prop_date(date_str),
+        "Channel": prop_select(channel),
+    }
+    if core_message:
+        props["核心觀點"] = prop_rich_text(core_message)
+    if tags:
+        props["標籤"] = prop_multi_select(tags)
+    if topic_id:
+        props["Related Topic"] = prop_relation([topic_id])
+
+    # Body: 草稿內容
+    children = [block_heading(f"{channel} 草稿", level=2)]
+    if draft_content:
+        for i in range(0, min(len(draft_content), 20000), 1900):
+            children.append(block_paragraph(draft_content[i:i+1900]))
+
+    page_id = add_page(db_id, properties=props, children=children)
+    print(f"[notion-sync] Draft v2 [{channel}]: {title[:40]}...")
+    return page_id
