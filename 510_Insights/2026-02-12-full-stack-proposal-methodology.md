@@ -4,8 +4,8 @@ source: "[[2026-02-12]]"
 classification: content
 channel_tags: ["Newsletter", "Blog"]
 status: raw
+notion_id: 36552f3f-eb91-811e-8eec-ee6342bfed72
 ---
-
 # 「全棧提案」工作法
 
 把合作案當產品設計——有 KPI、有交付物清單、有差異化綁定（AI 工具）、有品牌敘事。這套方法論可以教給其他自由工作者。

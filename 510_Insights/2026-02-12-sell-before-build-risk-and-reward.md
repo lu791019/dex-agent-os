@@ -4,8 +4,8 @@ source: "[[2026-02-12]]"
 classification: content
 channel_tags: ["Threads"]
 status: raw
+notion_id: 36552f3f-eb91-81b1-a852-e92c7b1083ca
 ---
-
 # 把未完成產品包進提案的風險與機會
 
 HireReady/JobFit 還在開發中就寫進報價，既展示能力又增加感知價值，但有交付風險。「先賣再做」策略值得討論。

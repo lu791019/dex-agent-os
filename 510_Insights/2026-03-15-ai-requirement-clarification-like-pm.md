@@ -4,8 +4,8 @@ source: "[[2026-03-15]]"
 classification: content
 channel_tags: ["Threads"]
 status: raw
+notion_id: 36552f3f-eb91-81d6-8f11-dc9bf8a19ca6
 ---
-
 # 跟 AI 來回確認需求 ≈ PM 跟工程師來回確認
 
 精確轉譯需求是最燒腦的事，無論對象是 AI 還是人。這讓我更理解 PM 和老闆的累。

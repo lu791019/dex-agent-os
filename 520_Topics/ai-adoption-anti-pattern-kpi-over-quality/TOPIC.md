@@ -1,6 +1,6 @@
 ---
-
 ```markdown
+notion_id: 36552f3f-eb91-81b7-bd6b-ce21a81cd36e
 ---
 title: 企業 AI 導入的反面教材：追蹤使用率而非產出品質
 status: drafting

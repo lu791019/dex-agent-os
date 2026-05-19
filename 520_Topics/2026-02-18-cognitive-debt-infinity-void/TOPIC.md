@@ -4,8 +4,8 @@ status: drafting
 source: "[[2026-02-18-cognitive-debt-infinity-void]]"
 tags: [AI, 認知債務, 開發者生產力, 咒術迴戰]
 created: 2026-02-18
+notion_id: 36552f3f-eb91-81c0-bd9f-c40d0eeea9a1
 ---
-
 # 認知債務是 AI 時代的無量空處
 
 ## 核心論點

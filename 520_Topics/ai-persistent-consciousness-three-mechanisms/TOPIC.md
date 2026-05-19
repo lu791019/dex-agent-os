@@ -1,6 +1,6 @@
 ---
-
 ```yaml
+notion_id: 36552f3f-eb91-8106-8caf-eff75f2c6947
 ---
 title: AI 持續性意識：三個關鍵缺失機制
 status: drafting

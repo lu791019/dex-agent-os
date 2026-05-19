@@ -1,6 +1,6 @@
 ---
-
 ```
+notion_id: 36552f3f-eb91-816e-b27c-f1cba2f87123
 ---
 title: 「人類定義好，機器跑迭代」是通用模式
 status: drafting

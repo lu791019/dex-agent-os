@@ -4,8 +4,8 @@ source: 100_Journal/digest/2026-03-15-digest.md
 classification: content
 channel_tags: ["Threads", "Facebook"]
 status: raw
+notion_id: 36552f3f-eb91-8149-a58e-c429dd76a84b
 ---
-
 # 企業 AI 導入的反面教材：追蹤使用率而非產出品質
 
 Amazon 要求 80% 工程師每週使用 AI 編碼工具 Kiro，三個月內發生 AI agent 刪除生產環境、630 萬筆訂單消失等事故。超過千名員工簽署請願書反對「激進推行」。

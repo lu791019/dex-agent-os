@@ -4,8 +4,8 @@ source: "[[2026-02-19]]"
 classification: content
 channel_tags: ["Blog"]
 status: raw
+notion_id: 36552f3f-eb91-813b-b24b-e79b1b46cfd3
 ---
-
 # Storage backend 抽象層：小專案也值得的 50 行投資
 
 Storage backend 抽象層是小專案也值得做的投資：interface 不到 50 行，但讓測試和未來擴展都變簡單。定義清楚的 interface 讓你可以用 in-memory 跑測試、用 local file 開發、用 S3 上線，切換成本趨近於零。

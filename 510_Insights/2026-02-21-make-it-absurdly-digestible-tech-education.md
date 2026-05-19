@@ -4,8 +4,8 @@ source: 100_Journal/digest/2026-02-21-digest.md
 classification: content
 channel_tags: ["Threads"]
 status: raw
+notion_id: 36552f3f-eb91-8121-a4e0-e5e52e18f57c
 ---
-
 # 好的技術教育要「近乎荒謬地好消化」—— Joe Reis 的教育哲學
 
 Joe Reis 基於 1,100+ 位資料從業者的調查揭示：data modeling 領域的最大障礙不是技術難度，而是社群中的 gatekeeping 心態。資深從業者用「你連這都不懂？」的態度對待新手，死守過時方法論，完全忽視實務中的約束。

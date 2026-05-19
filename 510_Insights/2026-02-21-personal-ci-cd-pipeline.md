@@ -4,8 +4,8 @@ source: "[[2026-02-21]]"
 classification: content
 channel_tags: ["Newsletter", "Blog"]
 status: raw
+notion_id: 36552f3f-eb91-8109-9c03-e91b0b2ff70f
 ---
-
 # 15 步全流程是「個人 CI/CD」
 
 sync → 日誌 → 消化 → 反思 → 萃取 → 內容產出，這跟軟體的 CI/CD pipeline 思路完全一樣——每個 stage 的輸出是下一個 stage 的輸入。

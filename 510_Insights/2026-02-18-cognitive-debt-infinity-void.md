@@ -4,8 +4,8 @@ source: 100_Journal/digest/2026-02-18-digest.md
 classification: content
 channel_tags: ["Threads", "Blog", "Newsletter"]
 status: raw
+notion_id: 36552f3f-eb91-818a-a763-c6b61e2dc517
 ---
-
 # 認知債務是 AI 時代的無量空處
 
 AI 輔助開發像是五條悟的無量空處——一口氣把知識灌進腦中，你「有了」答案但沒有「懂了」。人類理解事物需要漸進式迴圈：碰到問題 → 形成假設 → 驗證 → 修正。AI 直接給你答案，跳過了這個迴圈，留下的就是認知債務——你寫得出來但說不清楚為什麼這樣設計。

@@ -4,8 +4,8 @@ source: "[[2026-02-10]]"
 classification: content
 channel_tags: ["Blog"]
 status: raw
+notion_id: 36552f3f-eb91-81fc-bf51-fa6d8a6a8184
 ---
-
 # AI 工具整合的現實摩擦力——NotebookLM 認證排查紀錄
 
 NotebookLM 認證失敗三次的排查過程，是「AI 工具整合的現實摩擦力」的好案例。理想中的一鍵整合，現實中是反覆除錯。

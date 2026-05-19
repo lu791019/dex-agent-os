@@ -1,6 +1,6 @@
 ---
-
 ```markdown
+notion_id: 36552f3f-eb91-817b-a4bf-d035cbff53dd
 ---
 title: AI 編排能力是 2026 年的新核心競爭力
 status: drafting

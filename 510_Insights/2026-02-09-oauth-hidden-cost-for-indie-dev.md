@@ -4,8 +4,8 @@ source: "[[2026-02-09]]"
 classification: content
 channel_tags: ["Threads"]
 status: raw
+notion_id: 36552f3f-eb91-81f6-921b-ef6234272690
 ---
-
 # OAuth 是獨立開發者的隱形成本
 
 大廠 OAuth 流程設計假設你有公開 domain，對 localhost 開發極不友善，這是一個普遍痛點。

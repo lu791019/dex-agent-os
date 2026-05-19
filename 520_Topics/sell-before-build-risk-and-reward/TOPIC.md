@@ -1,6 +1,6 @@
 ---
-
 ```markdown
+notion_id: 36552f3f-eb91-8152-83d8-c8c90bb05990
 ---
 title: 先賣再做——自由工作者該不該把未完成的產品寫進報價？
 status: drafting

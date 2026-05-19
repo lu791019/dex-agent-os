@@ -4,8 +4,8 @@ source: 300_Learning/input/articles/2026-03-29-the-ultimate-autoresearch-guide.m
 classification: content
 channel_tags: ["Threads", "Newsletter"]
 status: raw
+notion_id: 36552f3f-eb91-812d-a4c4-efe169a03636
 ---
-
 # 「人類定義好，機器跑迭代」是通用模式
 
 Autoresearch 的本質不是 ML 優化工具，而是一個通用框架：只要你能把「好」定義成 yes/no 問題，AI 就能幫你跑 50 輪你永遠不會手動做的迭代。廣告文案、email、Skill 檔案、影片腳本都適用。

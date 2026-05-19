@@ -4,8 +4,8 @@ source: "[[2026-02-11]]"
 classification: content
 channel_tags: ["Threads"]
 status: raw
+notion_id: 36552f3f-eb91-81d3-b43d-fddab2fd26f9
 ---
-
 # 課程定價的隱形成本拆解法
 
 用 AI 做報價拆項分析，把「感覺值多少」變成「可量化的工時 × 單價」，自由工作者必備思維。

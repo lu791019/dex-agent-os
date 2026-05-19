@@ -4,8 +4,8 @@ source: 100_Journal/digest/2026-02-21-digest.md
 classification: content
 channel_tags: ["Threads"]
 status: raw
+notion_id: 36552f3f-eb91-8161-8c37-d934c550945f
 ---
-
 # AI 時代技術教育的入門悖論：門開更大，房間變小
 
 AI 讓技術學習的入門門檻大幅降低——任何人都能問 ChatGPT 學寫程式。但同時，企業管理者也懂得用 AI 取代資淺工程師和新鮮人，導致職缺縮減。等於門開得更大，但房間變小了。

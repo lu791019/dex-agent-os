@@ -4,8 +4,8 @@ source: 100_Journal/digest/2026-03-31-digest.md
 classification: content
 channel_tags: ["Threads", "Blog"]
 status: raw
+notion_id: 36552f3f-eb91-8147-8004-dcfd67dd5da2
 ---
-
 # 系統層決定 Agent 品質，不是模型
 
 TerminalBench 2.0 基準測試顯示：同一個 AI 模型搭配不同的 harness（工具呼叫、context 管理、錯誤處理），排名可以從第 30 名躍升前 5。金融 AI 新創拆掉 LlamaIndex 和 MCP，換成純 Python + 自製 ReAct 引擎後才達到生產等級。

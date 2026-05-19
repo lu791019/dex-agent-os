@@ -4,8 +4,8 @@ source: "[[2026-02-21]]"
 classification: content
 channel_tags: ["Threads"]
 status: raw
+notion_id: 36552f3f-eb91-81d9-8430-c2abb0ed4534
 ---
-
 # AI 時代教育入門悖論
 
 門檻降低但職缺縮減，教學者的責任是期望管理而非畫大餅。

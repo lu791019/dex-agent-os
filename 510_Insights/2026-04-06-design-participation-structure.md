@@ -4,8 +4,8 @@ source: 100_Journal/digest/2026-04-06-digest.md
 classification: content
 channel_tags: ["Threads"]
 status: raw
+notion_id: 36552f3f-eb91-8118-b767-d8409127592c
 ---
-
 # 設計參與結構比增加曝光更有效
 
 KitKat 巧克力失竊事件引爆全網跟風，不是因為「展現脆弱」，而是因為提供了一個易於複製的格式模板——「給觀眾一份工作」。Cohort 課程的截止日機制也不是飢餓行銷，而是行為設計——製造「不行動的成本」來幫助用戶克服拖延。

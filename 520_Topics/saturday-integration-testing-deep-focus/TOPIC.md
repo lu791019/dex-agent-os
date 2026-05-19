@@ -1,6 +1,6 @@
 ---
-
 ```markdown
+notion_id: 36552f3f-eb91-8138-9099-d8fa029f2568
 ---
 title: 工程師的時間策略：把最難的工作放在沒人找你的時候
 status: drafting

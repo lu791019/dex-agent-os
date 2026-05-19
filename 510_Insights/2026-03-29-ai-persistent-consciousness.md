@@ -4,8 +4,8 @@ source: daily-all 互動學習
 classification: content
 channel_tags: ["Threads", "Blog", "電子報"]
 status: raw
+notion_id: 36552f3f-eb91-81e8-9493-c048fa0267a6
 ---
-
 # AI 持續性意識：從被動記憶到主動問責
 
 大多數人做 AI 分身是「複製語氣」，Dex 要的是「懂我、共學、問責的 AI 夥伴」。

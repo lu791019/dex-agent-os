@@ -4,8 +4,8 @@ source: "[[2026-03-31]]"
 classification: content
 channel_tags: ["Newsletter", "Blog"]
 status: raw
+notion_id: 36552f3f-eb91-81b1-bcd8-f9e56c8c44c4
 ---
-
 # 感受向量配對：體驗型社交的新框架
 
 社交產品的核心不該是「你看了什麼」而是「你感受到什麼」。感受向量配對 vs 片單配對是兩種完全不同的設計哲學，前者可推廣到所有體驗型社交——旅行、音樂、展覽、餐廳。

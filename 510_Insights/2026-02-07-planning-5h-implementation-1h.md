@@ -4,8 +4,8 @@ source: "[[2026-02-07]]"
 classification: content
 channel_tags: ["Threads"]
 status: raw
+notion_id: 36552f3f-eb91-8143-9fd1-da1ebb133a6e
 ---
-
 # 充分規劃後實作速度極快的反直覺現象
 
 「規劃佔了 5.5 小時，實作只花 1 小時」——充分規劃後實作速度極快，這是 AI 輔助開發的反直覺現象

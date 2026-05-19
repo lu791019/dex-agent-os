@@ -1,6 +1,6 @@
 ---
-
 ```
+notion_id: 36552f3f-eb91-814d-8dfe-e963a79cf93a
 ---
 title: 「懂你」的 eval 會跟著你一起演化——AI 夥伴跟自動化的本質差異
 status: drafting

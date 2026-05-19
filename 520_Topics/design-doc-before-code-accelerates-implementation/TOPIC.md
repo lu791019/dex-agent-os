@@ -1,6 +1,6 @@
 ---
-
 ```yaml
+notion_id: 36552f3f-eb91-815e-a33f-fd8629e81201
 ---
 title: 先寫設計文件再寫 code 是加速器不是減速器
 status: drafting

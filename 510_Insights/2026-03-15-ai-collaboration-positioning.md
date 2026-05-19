@@ -4,8 +4,8 @@ source: daily-all step 10 互動學習
 classification: content
 channel_tags: ["Threads", "Facebook"]
 status: raw
+notion_id: 36552f3f-eb91-81c0-aa25-f67f613180bb
 ---
-
 # AI 協作的正確位置：加速執行，不取代判斷
 
 Amazon 強制 80% 工程師使用 AI 工具，三個月內災難連連。但個人層面也有對稱的陷阱：自然而然地依賴 AI 到「沒有 AI 背書就不敢決策」。

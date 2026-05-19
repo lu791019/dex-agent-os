@@ -4,8 +4,8 @@ source: 100_Journal/digest/2026-02-21-digest.md
 classification: content
 channel_tags: ["Threads"]
 status: raw
+notion_id: 36552f3f-eb91-818e-aad1-cd08e0fa891a
 ---
-
 # API-First 經濟會從小團隊先發生，不是大企業
 
 直覺上會以為大企業最先擁抱 AI Agent 經濟，但實際上相反。大企業有採購流程、合規需求、非技術的決策者需要看介面和畫面。反而小團隊的人更技術導向，直接串 API 最快、最有效率。

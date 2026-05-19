@@ -1,6 +1,6 @@
 ---
-
 ```
+notion_id: 36552f3f-eb91-8116-a455-fabe81db3abd
 ---
 title: 重讀舊文不是覆盤，是滑手機的高級版
 status: drafting

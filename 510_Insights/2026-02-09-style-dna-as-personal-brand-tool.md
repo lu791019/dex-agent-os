@@ -4,8 +4,8 @@ source: "[[2026-02-09]]"
 classification: content
 channel_tags: ["Newsletter", "Blog"]
 status: raw
+notion_id: 36552f3f-eb91-8130-afdb-e1e9de38e9ad
 ---
-
 # Style DNA 作為個人品牌工具
 
 用 LLM 分析自己的歷史內容來萃取風格指紋，再用這個指紋生成新內容——形成「分析→萃取→生成→再分析」的正向循環，這個 loop 很有教學價值。

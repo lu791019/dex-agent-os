@@ -4,8 +4,8 @@ source: "[[2026-02-21]]"
 classification: content
 channel_tags: ["Threads"]
 status: raw
+notion_id: 36552f3f-eb91-8100-a31b-f8b2a4372c68
 ---
-
 # 巢狀 skill 呼叫的限制
 
 IDE skill 不能像函式一樣自由巢狀，這是 agent 架構的根本限制，不是 bug。

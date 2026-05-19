@@ -4,8 +4,8 @@ source: "[[2026-02-10]]"
 classification: content
 channel_tags: ["Threads"]
 status: raw
+notion_id: 36552f3f-eb91-8111-a92a-cbaf911a82e9
 ---
-
 # Skill 不是工具，是知識管理的改革
 
 多數人把 Skill 當 function call，但真正的價值在於將隱性知識結構化為可觸發的協議。這句話重新定義了 AI agent 的設計思維。

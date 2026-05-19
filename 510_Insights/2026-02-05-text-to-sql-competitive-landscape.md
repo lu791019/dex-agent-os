@@ -4,8 +4,8 @@ source: "[[2026-02-05]]"
 classification: content
 channel_tags: ["Newsletter"]
 status: raw
+notion_id: 36552f3f-eb91-8169-b298-c4d56c826e8a
 ---
-
 # Text-to-SQL 競品地圖分析
 
 現有 Text-to-SQL 工具（AI2sql、Vanna 等）的競品地圖整理，可以變成一篇有價值的分析文

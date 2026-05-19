@@ -4,8 +4,8 @@ source: "[[2026-02-05]]"
 classification: content
 channel_tags: ["Blog"]
 status: raw
+notion_id: 36552f3f-eb91-813b-b32a-d1fb126c9765
 ---
-
 # 資料工程 AI 工具不該只做 Text-to-SQL
 
 資料工程領域的 AI 工具不該只做 Text-to-SQL，而是要覆蓋整個 data pipeline lifecycle——從 schema discovery 到 DAG 生成到 data quality 監控

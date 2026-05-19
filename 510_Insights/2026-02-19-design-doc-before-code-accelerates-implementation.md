@@ -4,8 +4,8 @@ source: "[[2026-02-19]]"
 classification: content
 channel_tags: ["Threads"]
 status: raw
+notion_id: 36552f3f-eb91-816d-befd-c2df48fad390
 ---
-
 # 先寫設計文件再寫 code 是加速器不是減速器
 
 「先寫設計文件再寫 code」不是浪費時間，是壓縮實作時間的加速器——今天 21 分鐘 5 個 commit 就是證據。當你把思考前置，實作階段就變成純粹的執行，不再邊寫邊猶豫架構決策。

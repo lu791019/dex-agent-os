@@ -4,8 +4,8 @@ source: 100_Journal/digest/2026-04-06-digest.md
 classification: content
 channel_tags: ["Threads", "Facebook"]
 status: raw
+notion_id: 36552f3f-eb91-81ed-9a09-d62a68caba83
 ---
-
 # 截止日是服務不是懲罰
 
 Cohort 課程設硬截止日，不是飢餓行銷，而是行為經濟學的「承諾機制」——人在理性狀態下預先設下限制，幫未來那個會拖延的自己做正確的事。作者每次最後機會信後收到 50+ 封求通融，一律拒絕，因為一破例機制就失效。

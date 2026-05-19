@@ -1,6 +1,6 @@
 ---
-
 ```
+notion_id: 36552f3f-eb91-81eb-b32f-d79dc95fc31b
 ---
 title: 資料工程師什麼時候該停止學新工具？
 status: drafting

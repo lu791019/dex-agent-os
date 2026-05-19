@@ -1,6 +1,6 @@
 ---
-
 ```markdown
+notion_id: 36552f3f-eb91-8194-8487-f93f10966149
 ---
 title: 在加速的世界裡刻意斷線，本身就是高級判斷力
 status: drafting

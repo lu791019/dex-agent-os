@@ -4,8 +4,8 @@ source: "[[2026-03-29]]"
 classification: content
 channel_tags: ["Threads"]
 status: raw
+notion_id: 36552f3f-eb91-81d0-8071-d593279e0654
 ---
-
 # 安全邊距模式：預留 5-10% 餘量的工程思維
 
 與其追求精確卡在邊界，不如預留 5-10% 餘量。從工程延伸到時間管理、專案估時都適用。

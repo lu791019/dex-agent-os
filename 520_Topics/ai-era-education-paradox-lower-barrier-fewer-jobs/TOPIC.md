@@ -1,6 +1,6 @@
 ---
-
 ```markdown
+notion_id: 36552f3f-eb91-81ac-9366-fd633e923e05
 ---
 title: AI 時代技術教育的入門悖論：門開更大，房間變小
 status: drafting

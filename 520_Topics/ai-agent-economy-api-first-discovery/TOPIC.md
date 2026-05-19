@@ -1,6 +1,6 @@
 ---
-
 ```markdown
+notion_id: 36552f3f-eb91-818c-b495-e1660b7b7117
 ---
 title: AI Agent 經濟正在成形：API-First 可發現性是下一波 B2B 基礎建設
 status: drafting

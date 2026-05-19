@@ -4,8 +4,8 @@ source: "[[2026-03-29]]"
 classification: content
 channel_tags: ["Threads", "Blog"]
 status: raw
+notion_id: 36552f3f-eb91-81e5-88bd-fdf5fe8f459b
 ---
-
 # 你的字串長度不是你以為的長度
 
 UTF-8 / UTF-16 / grapheme cluster 三種計算方式，在不同 API 會咬你一口。這是每個串接第三方 API 的工程師都會踩的坑。

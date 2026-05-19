@@ -1,6 +1,6 @@
 ---
-
 ```
+notion_id: 36552f3f-eb91-8151-87fd-f6e5a6ede36f
 ---
 title: 安全邊距模式——追求精確的人最容易爆掉
 status: drafting

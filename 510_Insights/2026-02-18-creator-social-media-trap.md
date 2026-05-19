@@ -4,8 +4,8 @@ source: 100_Journal/digest/2026-02-18-digest.md
 classification: content
 channel_tags: ["Threads", "Blog"]
 status: raw
+notion_id: 36552f3f-eb91-816e-bc2c-d5a62fe81fde
 ---
-
 # 社交媒體的創作者陷阱
 
 為了經營個人品牌而使用社交媒體，卻因為看到前沿內容而焦慮和沮喪於自己的產出——這是一個自我強化的迴圈：為了做品牌而看 → 看了之後比較焦慮 → 焦慮消耗創作能量 → 產出更少 → 更焦慮。

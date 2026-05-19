@@ -1,6 +1,6 @@
 ---
-
 ```markdown
+notion_id: 36552f3f-eb91-812c-a1b7-eb32aa57262a
 ---
 title: 「超集模式」的工作流設計
 status: drafting

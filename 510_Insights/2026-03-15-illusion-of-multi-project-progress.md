@@ -4,8 +4,8 @@ source: "[[2026-03-15]]"
 classification: content
 channel_tags: ["Blog"]
 status: raw
+notion_id: 36552f3f-eb91-81ed-8933-ec18d47f83cf
 ---
-
 # 多專案同步推進的錯覺
 
 碰了 4 個專案，真正有深度產出的只有 social-scraper 的 LINE Bot。自己寫在 CLAUDE.md 的「每天最多 2 專案」原則，自己先違反了。

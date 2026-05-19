@@ -4,8 +4,8 @@ source: "[[2026-02-10]]"
 classification: content
 channel_tags: ["Threads", "Newsletter"]
 status: raw
+notion_id: 36552f3f-eb91-81b5-9f99-e4236e591964
 ---
-
 # Skill 設計光譜：功能導向 vs 個別導向 vs 原則導向
 
 功能導向、個別導向、原則導向三種 Skill 設計取向，各有適用場景。用具體案例說明三者差異。

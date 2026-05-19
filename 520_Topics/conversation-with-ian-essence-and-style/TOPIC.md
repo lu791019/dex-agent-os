@@ -1,6 +1,6 @@
 ---
-
 ```markdown
+notion_id: 36552f3f-eb91-814e-83a0-c1bffb3b6d17
 ---
 title: 認識自己最快的方法：問別人你是什麼
 status: drafting

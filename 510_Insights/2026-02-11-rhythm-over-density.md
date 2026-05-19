@@ -4,8 +4,8 @@ source: "[[2026-02-11]]"
 classification: content
 channel_tags: ["Threads"]
 status: raw
+notion_id: 36552f3f-eb91-81c1-bbb5-eaad8e518efb
 ---
-
 # 節奏感比密度重要——刻意留白不是偷懶
 
 上午下午各學習一件事 + 各輸出一件事就夠了。刻意留白不是偷懶，是讓深度工作有空間發生。

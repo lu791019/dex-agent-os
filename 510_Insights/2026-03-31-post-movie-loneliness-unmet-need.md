@@ -4,8 +4,8 @@ source: "[[2026-03-31]]"
 classification: content
 channel_tags: ["Threads", "Blog"]
 status: raw
+notion_id: 36552f3f-eb91-81f0-a4bd-caa5bf314fba
 ---
-
 # 觀後孤獨感：被忽略的情緒需求
 
 現有影視產品全押在「選片」階段——推薦演算法、片單策展、評分系統。但看完電影後那股無處安放的孤獨感，沒有任何產品在接住。感受 > 評分，這是一個被低估的情緒缺口。

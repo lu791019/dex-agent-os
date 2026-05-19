@@ -4,8 +4,8 @@ status: drafting
 source: "[[2026-02-18-creator-social-media-trap]]"
 tags: [個人品牌, 社交媒體, 創作者心態, 焦慮]
 created: 2026-02-18
+notion_id: 36552f3f-eb91-816e-8cf6-ef90cd941b16
 ---
-
 # 社交媒體的創作者陷阱
 
 ## 核心論點

@@ -4,8 +4,8 @@ source: 100_Journal/digest/2026-03-15-digest.md
 classification: content
 channel_tags: ["Threads"]
 status: raw
+notion_id: 36552f3f-eb91-8143-8325-c49de242412f
 ---
-
 # 資料工程師的進階路徑：從執行到生態系思維
 
 資料工程師的成長路徑正從純技術走向「生態系思維」——理解資料如何在組織中流動、創造價值，比掌握單一工具更重要。

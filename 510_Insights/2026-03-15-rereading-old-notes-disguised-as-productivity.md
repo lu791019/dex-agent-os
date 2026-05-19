@@ -4,8 +4,8 @@ source: "[[2026-03-15]]"
 classification: content
 channel_tags: ["Threads"]
 status: raw
+notion_id: 36552f3f-eb91-81cc-8745-d466e46aea38
 ---
-
 # 「重讀舊文」偽裝成生產力
 
 Dayflow 顯示在 Notion 里程碑和職涯反思文上反覆滾動 8+ 次卻沒有產出新筆記。回顧如果沒有明確輸出目標，就只是安慰劑。

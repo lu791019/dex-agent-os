@@ -1,6 +1,6 @@
 ---
-
 ```markdown
+notion_id: 36552f3f-eb91-81dd-ab85-d85ba0c88439
 ---
 title: 用了 AI 才知道 PM 有多累——需求描述力才是 AI 時代的核心肌肉
 status: drafting

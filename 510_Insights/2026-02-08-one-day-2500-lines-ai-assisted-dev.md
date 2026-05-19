@@ -4,8 +4,8 @@ source: "[[2026-02-08]]"
 classification: content
 channel_tags: ["Newsletter"]
 status: raw
+notion_id: 36552f3f-eb91-817b-ab5f-f262e067ec02
 ---
-
 # AI-assisted 開發的一天：2,500 行 + 完整文件
 
 一天寫 2,500 行 + 完整文件的工作節奏，可以拆解成「AI-assisted 開發的一天」內容

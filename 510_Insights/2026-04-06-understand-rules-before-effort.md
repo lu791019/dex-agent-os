@@ -4,8 +4,8 @@ source: 100_Journal/digest/2026-04-06-digest.md
 classification: content
 channel_tags: ["Threads", "Facebook"]
 status: raw
+notion_id: 36552f3f-eb91-8179-b71b-c4e4f68a7470
 ---
-
 # 理解系統規則比埋頭苦幹更重要
 
 升遷不是「做好本職就自動晉升」，而是「先展示下一層級能力，再被承認」。高績效者的元技能不是更努力，而是看懂組織的激勵結構——顯性 KPI + 隱性升遷邏輯。產品賣不動的解法也不是加大廣告預算，而是回頭做用戶研究。

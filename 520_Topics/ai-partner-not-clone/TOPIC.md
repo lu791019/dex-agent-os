@@ -1,6 +1,6 @@
 ---
-
 ```
+notion_id: 36552f3f-eb91-81cb-95d9-de35ec343d89
 ---
 title: AI 分身不是複製語氣，而是懂你、共學、問責的夥伴
 status: drafting

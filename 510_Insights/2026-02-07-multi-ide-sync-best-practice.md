@@ -4,8 +4,8 @@ source: "[[2026-02-07]]"
 classification: content
 channel_tags: ["Threads", "Blog"]
 status: raw
+notion_id: 36552f3f-eb91-8132-99a8-e77b18fe06de
 ---
-
 # 多 AI IDE 協作的最佳實踐：canonical 單一真實來源
 
 「canonical 單一真實來源 + sync 腳本」這個模式可以推廣為「多 AI IDE 協作的最佳實踐」——大多數人還在每個工具各寫一份規則

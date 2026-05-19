@@ -4,8 +4,8 @@ source: "[[2026-02-07]]"
 classification: content
 channel_tags: ["Newsletter", "Blog"]
 status: raw
+notion_id: 36552f3f-eb91-81a1-9402-d21372fa2b3e
 ---
-
 # 從 PARA 到 AI Agent 時代的人生作業系統
 
 用 000-800 編號目錄管理「人生作業系統」，本質上是把 PARA 方法論延伸到 AI Agent 時代，值得寫一篇方法論比較

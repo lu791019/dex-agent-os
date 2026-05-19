@@ -4,8 +4,8 @@ source: "[[2026-02-09]]"
 classification: content
 channel_tags: ["Threads"]
 status: raw
+notion_id: 36552f3f-eb91-817b-a3f8-d3b85311c1b0
 ---
-
 # 為什麼 AI 輔助開發更需要先設計
 
 Phase 3 從 plan mode 確認到端到端測試通過只花一個下午，對比過去邊做邊改的經驗差異巨大——「先規劃再動手」有了量化證據。

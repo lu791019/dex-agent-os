@@ -4,8 +4,8 @@ source: 100_Journal/digest/2026-04-06-digest.md
 classification: content
 channel_tags: ["Threads"]
 status: raw
+notion_id: 36552f3f-eb91-81e2-998a-fd7b7f918d95
 ---
-
 # AI 正從工具演進為認知基礎設施
 
 Karpathy 選擇自建 Wiki 而非套用現成工具、「電馭大腦」概念將 PKM + AI 定義為主動智慧系統、long-context agent 撞上記憶體瓶頸——這三個看似獨立的訊號指向同一個趨勢：AI 不再只是你呼叫的工具，而是你思考的地基。

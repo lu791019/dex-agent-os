@@ -4,8 +4,8 @@ source: "[[2026-03-31]]"
 classification: content
 channel_tags: ["Threads"]
 status: raw
+notion_id: 36552f3f-eb91-8131-95d4-d553c7a81088
 ---
-
 # Movier 的死亡啟示：定位搖擺是產品最常見的死法
 
 做影評還是做交友？Movier 的失敗不是功能不夠，而是定位搖擺。這是產品最常見的死法之一——什麼都想做，結果什麼都做不好。

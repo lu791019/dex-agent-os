@@ -4,8 +4,8 @@ source: "[[2026-02-21]]"
 classification: content
 channel_tags: ["Threads", "Blog"]
 status: raw
+notion_id: 36552f3f-eb91-81e8-aafc-d45033bb041e
 ---
-
 # 與 Ian 的對話 — 探索本質與風格
 
 大家都在做類似的事（Ian 用 Heptabase），但最終回歸自己的本質。下次互相問「在對方眼中是什麼樣的存在」來認識自己。

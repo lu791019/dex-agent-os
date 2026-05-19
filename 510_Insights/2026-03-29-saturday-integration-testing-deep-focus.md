@@ -4,8 +4,8 @@ source: "[[2026-03-29]]"
 classification: content
 channel_tags: ["Newsletter"]
 status: raw
+notion_id: 36552f3f-eb91-811b-8220-c794223b99b0
 ---
-
 # 週六做整合測試的隱藏好處
 
 沒有訊息干擾，適合需要深度專注的端對端驗證工作。

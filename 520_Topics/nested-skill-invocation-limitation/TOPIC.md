@@ -1,6 +1,6 @@
 ---
-
 ```markdown
+notion_id: 36552f3f-eb91-8128-83a4-fbbf5ce4a40c
 ---
 title: 巢狀 Skill 呼叫不是 Bug，是 Agent 架構的設計取捨
 status: drafting

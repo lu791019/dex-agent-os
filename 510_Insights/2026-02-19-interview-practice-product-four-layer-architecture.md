@@ -4,8 +4,8 @@ source: "[[2026-02-19]]"
 classification: content
 channel_tags: ["Newsletter"]
 status: raw
+notion_id: 36552f3f-eb91-81ad-9a0a-fd5b6a9cfbb0
 ---
-
 # 面試練習功能的四層產品架構設計
 
 面試練習功能的產品設計思路：question bank → session → recording → feedback 的四層架構。每一層各自獨立但串連成完整的練習循環——題庫管理、練習場次、錄音紀錄、AI 回饋，逐層拆解讓功能可以分階段上線。

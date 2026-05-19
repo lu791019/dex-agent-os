@@ -4,8 +4,8 @@ source: 100_Journal/digest/2026-04-06-digest.md
 classification: content
 channel_tags: ["Threads"]
 status: raw
+notion_id: 36552f3f-eb91-81c5-a940-fd4db2b01d4f
 ---
-
 # 精準輸入勝過大量輸入
 
 AI 放大的是你的記錄習慣品質，不是你的資訊攝取量。每天消化 21 篇文章但只有 20% 真正進了腦袋，不如 5 篇深讀產出更好。Karpathy 選擇自建 Wiki 而非套用現成工具，本質上就是在設計「精準輸入」的架構。

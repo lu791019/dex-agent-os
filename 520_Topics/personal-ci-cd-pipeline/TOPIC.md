@@ -1,6 +1,6 @@
 ---
-
 ```markdown
+notion_id: 36552f3f-eb91-8111-b606-e7b68abf6d6f
 ---
 title: 你的每一天都該有 CI/CD——用軟體工程思維打造個人知識產線
 status: drafting

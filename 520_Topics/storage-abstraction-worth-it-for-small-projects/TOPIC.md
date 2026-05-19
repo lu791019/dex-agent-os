@@ -1,6 +1,6 @@
 ---
-
 ```markdown
+notion_id: 36552f3f-eb91-81ed-9964-c72778857fd3
 ---
 title: 50 行換來的自由度：為什麼小專案也該寫 Storage 抽象層
 status: drafting

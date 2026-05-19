@@ -4,8 +4,8 @@ source: daily-all step 11 每日回顧
 classification: content
 channel_tags: ["Threads"]
 status: raw
+notion_id: 36552f3f-eb91-81d0-ba85-efd04dfa5c7d
 ---
-
 # 跟 AI 來回確認需求 ≈ PM 跟工程師來回確認
 
 和 AI 一起開發，在不同專案來回，最累的不是寫 code，而是「確認自己的需求是否精確地被接受和轉譯」。

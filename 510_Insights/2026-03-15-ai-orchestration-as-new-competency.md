@@ -4,8 +4,8 @@ source: 100_Journal/digest/2026-03-15-digest.md
 classification: content
 channel_tags: ["Threads", "Facebook"]
 status: raw
+notion_id: 36552f3f-eb91-81ac-a9bf-ea359080da89
 ---
-
 # AI 編排能力是 2026 年的新核心競爭力
 
 Azeem Azhar 指出 AI 正從「一組工具」變成「一支勞動力」。優勢不再屬於「會用 AI」的人，而是「能把 AI agent 編排成穩定可靠產出流程」的人和組織。

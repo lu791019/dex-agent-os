@@ -4,8 +4,8 @@ source: "[[2026-03-15]]"
 classification: content
 channel_tags: ["Threads", "Facebook"]
 status: raw
+notion_id: 36552f3f-eb91-8129-b66a-f8ba3e69069d
 ---
-
 # AI 協作的正確位置
 
 執行層用 AI 加速，判斷層先有自己觀點再用 AI 驗證。架構決策是主任工程師要長出來的肌肉，不能外包。

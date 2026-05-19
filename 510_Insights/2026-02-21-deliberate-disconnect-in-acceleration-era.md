@@ -4,8 +4,8 @@ source: 100_Journal/digest/2026-02-21-digest.md
 classification: content
 channel_tags: ["Threads"]
 status: raw
+notion_id: 36552f3f-eb91-816e-803e-c83c8c1d1ebb
 ---
-
 # 在加速的世界裡刻意斷線，本身就是高級判斷力
 
 在 AI 急速推進的環境下，技術人最容易掉入「隨時都該學新東西」的焦慮陷阱。但吉米連續假期刻意不碰 AI Coding 的選擇提醒我們：「選擇不做」本身就是一種能力。

@@ -1,6 +1,6 @@
 ---
-
 ```markdown
+notion_id: 36552f3f-eb91-81df-a710-c4a9989b98ed
 ---
 title: 視窗切換的隱形成本
 status: drafting

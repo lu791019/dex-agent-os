@@ -4,8 +4,8 @@ source: "[[2026-02-05]]"
 classification: content
 channel_tags: ["Threads"]
 status: raw
+notion_id: 36552f3f-eb91-81d6-a2e9-d1e0632a90b0
 ---
-
 # Dry-run 優先原則：AI 生成程式碼的信任 UX
 
 Dry-run 優先原則：AI 生成的程式碼永遠先預覽再執行，這是建立使用者信任的關鍵 UX 設計

@@ -1,6 +1,6 @@
 ---
-
 ```markdown
+notion_id: 36552f3f-eb91-811a-9706-eee46b074b22
 ---
 title: API-First 經濟會從小團隊先發生，不是大企業
 status: drafting

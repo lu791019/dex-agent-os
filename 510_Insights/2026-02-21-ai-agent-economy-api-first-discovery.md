@@ -4,8 +4,8 @@ source: 100_Journal/digest/2026-02-21-digest.md
 classification: content
 channel_tags: ["Threads"]
 status: raw
+notion_id: 36552f3f-eb91-81e8-ae2b-e6e1df852ae8
 ---
-
 # AI Agent 經濟正在成形：API-First 可發現性是下一波 B2B 基礎建設
 
 AI Agent 不只是工具，而是正在成為經濟體系中的獨立行動者。當 AI agent 自動化了服務發現、評估與採購流程，成功關鍵在於提供快速、可靠、程式化可發現的服務。傳統行銷頁面和 sales funnel 將失去效用——API-first、機器可讀的服務描述才是新的競爭壁壘。

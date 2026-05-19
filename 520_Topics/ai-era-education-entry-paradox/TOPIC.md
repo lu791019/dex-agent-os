@@ -1,6 +1,6 @@
 ---
-
 ```markdown
+notion_id: 36552f3f-eb91-8194-abd3-de85645a7fa0
 ---
 title: AI 時代教育入門悖論
 status: drafting

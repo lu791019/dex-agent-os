@@ -4,8 +4,8 @@ source: "[[2026-03-31]]"
 classification: content
 channel_tags: ["Blog"]
 status: raw
+notion_id: 36552f3f-eb91-811c-b6a4-f848dd7415a2
 ---
-
 # 先記錄感受再配對同感：讓 UGC 自然發生的流程設計
 
 「先記錄感受，再配對同感的人」——這個流程設計的精妙之處在於：記錄本身就是 UGC，配對只是副產品。不需要冷啟動大量用戶，單人使用就有價值，多人使用才有驚喜。

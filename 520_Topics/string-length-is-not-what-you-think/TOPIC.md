@@ -1,6 +1,6 @@
 ---
-
 ```markdown
+notion_id: 36552f3f-eb91-8116-8f64-edbe220b6d75
 ---
 title: 你的字串長度不是你以為的長度
 status: drafting

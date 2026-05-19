@@ -4,8 +4,8 @@ source: "[[2026-02-09]]"
 classification: content
 channel_tags: ["Threads"]
 status: raw
+notion_id: 36552f3f-eb91-8195-aec8-d5b48cbe70c1
 ---
-
 # AI 工具的隱形開銷——Token 管理成本
 
 CLAUDE.md 從 192→70 行省 63%，每次對話省下的 token 累積起來很可觀。Token 是 AI 工具的「電費」，多數人不會注意到但長期影響巨大。

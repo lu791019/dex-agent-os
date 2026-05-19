@@ -4,8 +4,8 @@ source: "[[2026-02-08]]"
 classification: content
 channel_tags: ["Threads"]
 status: raw
+notion_id: 36552f3f-eb91-8179-93a5-dcd8c86b9f73
 ---
-
 # Dayflow 螢幕記錄 × AI 分析 = 被動式生活日記
 
 Dayflow 螢幕記錄 + AI 分析 = 被動式生活日記，這個概念有獨立成一篇「量化自我 × AI」的潛力

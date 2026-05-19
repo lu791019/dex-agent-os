@@ -1,6 +1,6 @@
 ---
-
 ```yaml
+notion_id: 36552f3f-eb91-8170-a646-c867d210ec25
 ---
 title: AI Agent 從對話工具演化為自主執行系統
 status: drafting

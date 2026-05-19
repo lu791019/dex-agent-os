@@ -4,8 +4,8 @@ source: 100_Journal/digest/2026-03-29-digest.md
 classification: content
 channel_tags: ["Threads", "Blog"]
 status: raw
+notion_id: 36552f3f-eb91-8142-b483-dbde86661c6e
 ---
-
 # AI Agent 從對話工具演化為自主執行系統
 
 Autoresearch（Karpathy 的自動迭代框架）和 OpenClaw（本地 AI agent）指向同一趨勢：agent 不再只是對話，而是在封閉或開放環境中自主執行。人類的角色從「手動操作」轉為「定義什麼是好的」。

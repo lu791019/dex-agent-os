@@ -4,8 +4,8 @@ source: "[[2026-02-12]]"
 classification: content
 channel_tags: ["Threads"]
 status: raw
+notion_id: 36552f3f-eb91-8178-bbdc-fd9427e5f25d
 ---
-
 # AI 作為思考夥伴而非工具
 
 今天的 ChatGPT 使用方式不是翻譯潤稿，而是共同設計提案策略、反覆計算方案。這才是 AI 協作的正確姿勢。

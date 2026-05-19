@@ -365,8 +365,9 @@ def sync_topic_v2(
         "Title": prop_title(title),
         "Core Message": prop_rich_text(core_message),
         "Status": prop_select(status),
-        "Created Date": prop_date(date_str),
     }
+    if date_str:
+        props["Created Date"] = prop_date(date_str)
     if outline:
         props["Outline"] = prop_rich_text(outline)
     if insight_ids:
@@ -387,10 +388,12 @@ def sync_draft_v2(
     topic_id: str | None = None,
     core_message: str = "",
     tags: list[str] | None = None,
+    source: str = "",
 ) -> str:
     """草稿 → Content DB（新結構：每頻道一筆 + Channel 欄位 + Related Topic）。
 
     channel: threads / facebook / blog / newsletter / shortvideo
+    source: 素材來源（URL 或描述），寫入 Content DB「素材」欄位
     """
     db_id = os.environ.get("NOTION_CONTENT_DB", "")
     if not db_id:
@@ -415,6 +418,8 @@ def sync_draft_v2(
     }
     if core_message:
         props["核心觀點"] = prop_rich_text(core_message)
+    if source:
+        props["素材"] = prop_rich_text(source)
     if tags:
         props["標籤"] = prop_multi_select(tags)
     if topic_id:

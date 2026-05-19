@@ -4,8 +4,8 @@ status: drafting
 source: 100_Journal/daily/2026-02-11.md
 tags: [職涯, 自由工作者, 定價, 收入結構, 課程合作]
 created: 2026-02-11
+notion_id: 36552f3f-eb91-81df-b779-f7c7462da4eb
 ---
-
 # 全職講師的安全感悖論
 
 ## 核心論點

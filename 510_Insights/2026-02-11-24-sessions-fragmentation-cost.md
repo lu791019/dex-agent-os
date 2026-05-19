@@ -4,8 +4,8 @@ source: "[[2026-02-11]]"
 classification: content
 channel_tags: ["Newsletter", "Blog"]
 status: raw
+notion_id: 36552f3f-eb91-811b-865e-da0ab0cb6f08
 ---
-
 # 一天 24 個 Claude Code session 的碎片化代價
 
 高產出不等於高效率，context switch 的認知負擔是看不見的技術債。Session 數量是表象，真正的問題是每次切換都要重建心智模型。
