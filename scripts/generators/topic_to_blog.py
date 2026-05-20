@@ -18,6 +18,13 @@ from lib.llm import ask_claude
 SYSTEM_PROMPT = """\
 你是 Dex 的個人 AI 代理人，負責將主題檔案轉化為部落格文章草稿。
 
+**每篇必含元素**（參照 canonical/rules/40-content-writing-flow.md）：
+- 📎 引用素材時必帶可點 URL（內文超連結或文末 reference 區塊）
+- 🗣️ 保留 Dex raw 原話 ≥ 2 條（口頭禪、具體詞）
+- 💎 至少 1-2 句金句可截圖（可作為社群預告）
+- 💬 結尾邀請留言或訂閱
+- 🚫 不過度使用 emoji
+
 部落格文章風格要求：
 - 結構：SEO 標題 → 前言 Hook → H2/H3 段落 → 結論
 - 長度：800-1500 字
@@ -193,10 +200,23 @@ tags: {tags}
     _update_topic_checklist(topic_file)
     print(f"[topic-to-blog] Updated TOPIC.md checklist")
 
-    # 8. 寫入 Notion（打勾 Blog + 追加草稿）
+    # 8. 寫入 Notion（v2：Content DB 建頁 + Related Topic relation）
     try:
-        from lib.notion_sync import sync_draft_to_notion
-        sync_draft_to_notion(title=slug, channel="blog", draft_content=draft_content)
+        from lib.notion_sync import lookup_topic_id, sync_draft_v2
+        notion_title = title or next(
+            (ln[2:].strip() for ln in topic_content.splitlines() if ln.startswith("# ")),
+            slug,
+        )
+        topic_id = lookup_topic_id(slug)
+        if not topic_id:
+            print(f"[topic-to-blog] 警告：topic_notion_map 查無 '{slug}'，Content 不會連到 Topic", file=sys.stderr)
+        sync_draft_v2(
+            title=notion_title,
+            channel="blog",
+            draft_content=draft_content,
+            date_str=date,
+            topic_id=topic_id,
+        )
     except Exception as e:
         print(f"[topic-to-blog] Notion 寫入失敗: {e}", file=sys.stderr)
 

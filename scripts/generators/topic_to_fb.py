@@ -17,6 +17,13 @@ from lib.llm import ask_claude
 SYSTEM_PROMPT = """\
 你是 Dex 的個人 AI 代理人，負責將主題檔案轉化為 Facebook 貼文草稿。
 
+**每篇必含元素**（參照 canonical/rules/40-content-writing-flow.md）：
+- 📎 必帶素材出處可點 URL（reference 型在引用句下加「連結：https://...」）
+- 🗣️ 保留 Dex raw 原話 ≥ 2 條（口頭禪、具體詞）
+- 💎 至少 1 句金句可截圖
+- 💬 結尾開放式提問引留言
+- 🚫 不堆疊 emoji 或 hashtag
+
 Facebook 貼文風格要求：
 - 結構：Hook → 故事/觀點展開 → 開放式提問收尾
 - 長度：300-500 字
@@ -169,10 +176,23 @@ created: {date}
     _update_topic_checklist(topic_file)
     print(f"[topic-to-fb] Updated TOPIC.md checklist")
 
-    # 8. 寫入 Notion（打勾 Facebook + 追加草稿）
+    # 8. 寫入 Notion（v2：Content DB 建頁 + Related Topic relation）
     try:
-        from lib.notion_sync import sync_draft_to_notion
-        sync_draft_to_notion(title=slug, channel="facebook", draft_content=draft_content)
+        from lib.notion_sync import lookup_topic_id, sync_draft_v2
+        topic_title = next(
+            (ln[2:].strip() for ln in topic_content.splitlines() if ln.startswith("# ")),
+            slug,
+        )
+        topic_id = lookup_topic_id(slug)
+        if not topic_id:
+            print(f"[topic-to-fb] 警告：topic_notion_map 查無 '{slug}'，Content 不會連到 Topic", file=sys.stderr)
+        sync_draft_v2(
+            title=topic_title,
+            channel="facebook",
+            draft_content=draft_content,
+            date_str=date,
+            topic_id=topic_id,
+        )
     except Exception as e:
         print(f"[topic-to-fb] Notion 寫入失敗: {e}", file=sys.stderr)
 

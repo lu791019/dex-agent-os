@@ -15,12 +15,29 @@
 
 from __future__ import annotations
 
+import json
 import os
 import sys
 from pathlib import Path
 
 ROOT_DIR = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(ROOT_DIR / "scripts"))
+
+TOPIC_MAP_FILE = ROOT_DIR / "data" / "topic_notion_map.json"
+
+
+def lookup_topic_id(slug: str) -> str | None:
+    """從 data/topic_notion_map.json 查 Topic 的 Notion page ID。
+
+    供 generator 建立 Content → Topic relation 用。查不到回傳 None。
+    """
+    if not TOPIC_MAP_FILE.exists():
+        return None
+    try:
+        topic_map = json.loads(TOPIC_MAP_FILE.read_text())
+    except (json.JSONDecodeError, OSError):
+        return None
+    return topic_map.get(slug)
 
 
 def sync_insight_to_notion(
