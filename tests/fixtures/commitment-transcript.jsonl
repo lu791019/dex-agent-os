@@ -1,0 +1,4 @@
+{"type":"user","message":{"role":"user","content":"我們來討論承諾追蹤器的後續"}}
+{"type":"assistant","message":{"role":"assistant","content":[{"type":"text","text":"好，我會把 commitment_extract.py 加上單元測試覆蓋率報告，這個我負責，下週前完成。"}]}}
+{"type":"user","message":{"role":"user","content":"好，另外我會去整理 zzz-專屬測試用-奇異果報告 並交給團隊"}}
+{"type":"assistant","message":{"role":"assistant","content":[{"type":"text","text":"了解，這兩筆我都記下來。"}]}}
